@@ -14,7 +14,9 @@ object DatabaseFactory {
     fun init() {
         val driverClassName = "org.postgresql.Driver"
         val jdbcUrl = "jdbc:postgresql://localhost:5432/"
-        val database = Database.connect(url = jdbcUrl, driver = driverClassName, user = "postgres")
+        val user = "postgres"
+        val password = "postgres"
+        val database = Database.connect(url = jdbcUrl, driver = driverClassName, user = user, password = password)
         transaction(database) {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(Users, Emails, Sites)

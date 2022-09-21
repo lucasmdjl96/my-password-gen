@@ -10,6 +10,7 @@ class User(id: EntityID<Int>) : Entity<Int>(id) {
 
     var username by Users.username
     val emails by Email referrersOn Emails.user
+    var session by Session referencedOn Users.session
 
     companion object : EntityClass<Int, User>(Users)
 

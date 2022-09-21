@@ -7,4 +7,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_DB: default_db
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data

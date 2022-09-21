@@ -1,11 +1,12 @@
 package com.lucasmdjl.application.repository
 
+import com.lucasmdjl.application.model.Session
 import com.lucasmdjl.application.model.User
 
 interface UserRepository {
 
-    fun create(userName: String): User
+    fun create(username: String, session: Session): User
 
-    fun getByName(userName: String): User?
+    fun getByName(username: String, session: Session): User?
 
 }

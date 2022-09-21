@@ -5,12 +5,10 @@ import com.lucasmdjl.application.model.User
 
 interface EmailRepository {
 
-    fun create(address: String, user: User): Email
-
-    fun getByAddress(address: String): Email?
+    fun create(emailAddress: String, user: User): Email
 
     fun getAllFromUser(user: User): Iterable<Email>
 
-    fun getByAddressAndUser(address: String, user: User): Email?
+    fun getByAddressAndUser(emailAddress: String, user: User): Email?
 
 }

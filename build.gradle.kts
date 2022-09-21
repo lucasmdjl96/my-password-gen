@@ -63,6 +63,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization:$ktorVersion")
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                implementation("io.ktor:ktor-server-sessions:$ktorVersion")
                 implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
                 implementation("io.ktor:ktor-server-compression:$ktorVersion")
                 implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
@@ -105,4 +106,8 @@ tasks.named<Copy>("jvmProcessResources") {
 tasks.named<JavaExec>("run") {
     dependsOn(tasks.named<Jar>("jvmJar"))
     classpath(tasks.named<Jar>("jvmJar"))
+}
+dependencies {
+    implementation("io.ktor:ktor-server-core-jvm:2.1.1")
+    implementation("io.ktor:ktor-server-sessions-jvm:2.1.1")
 }
