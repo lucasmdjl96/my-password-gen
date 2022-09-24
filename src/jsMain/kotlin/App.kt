@@ -1,3 +1,4 @@
+
 import dto.LoginDto
 import dto.UserDto
 import io.ktor.client.call.*
@@ -7,6 +8,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
+import react.dom.html.ReactHTML.div
 import react.useState
 
 private val scope = MainScope()
@@ -14,27 +16,37 @@ private val scope = MainScope()
 val App = FC<Props> {
     var userDto by useState<UserDto>()
 
-    if (userDto == null) {
-        Login {
-            this.onLogin = { loginData ->
-                scope.launch {
-                    userDto = loginUser(loginData)
-                    console.log(userDto)
+    div {
+        className = background
+        div {
+            className = container
+            div {
+                className = titleClass
+                +"Password Generator"
+            }
+            if (userDto == null) {
+                Login {
+                    this.onLogin = { loginData ->
+                        scope.launch {
+                            userDto = loginUser(loginData)
+                            console.log(userDto)
+                        }
+                    }
+                    this.onRegister = { loginData ->
+                        scope.launch {
+                            userDto = registerUser(loginData)
+                        }
+                    }
                 }
             }
-            this.onRegister = { loginData ->
-                scope.launch {
-                    userDto = registerUser(loginData)
-                }
-            }
-        }
-    }
 
-    if (userDto != null) {
-        PasswordGen {
-            this.userDto = userDto!!
-            this.reloadUser = {
-                userDto = it
+            if (userDto != null) {
+                PasswordGen {
+                    this.userDto = userDto!!
+                    this.reloadUser = {
+                        userDto = it
+                    }
+                }
             }
         }
     }
@@ -54,4 +66,6 @@ suspend fun registerUser(login: LoginDto): UserDto? =
         contentType(ContentType.Application.Json)
         setBody(login)
     }.body()
+
+
 

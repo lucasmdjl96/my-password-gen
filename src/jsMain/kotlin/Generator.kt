@@ -6,7 +6,6 @@ import react.FC
 import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h4
 
 private val scope = MainScope()
 
@@ -19,21 +18,28 @@ external interface GeneratorProps : Props {
 }
 
 val Generator = FC<GeneratorProps> { props ->
-    h4 {
-        +"Generate Password"
-    }
-    button {
-        +"Generate"
-        disabled = props.siteName == null
-        onClick = {
-            scope.launch {
-                props.updatePassword(generatePassword(props.username, props.emailAddress!!, props.siteName!!))
+    div {
+        className = buttonContainer
+        button {
+            +"Generate Password"
+            disabled = props.siteName == null
+            onClick = {
+                scope.launch {
+                    props.updatePassword(generatePassword(props.username, props.emailAddress!!, props.siteName!!))
+                }
             }
         }
     }
     if (props.password != null) {
         div {
+            className = passwordClass
             +props.password!!
+            button {
+                +"\uD83D\uDCCB"
+                onClick = {
+                    navigator.clipboard.writeText(props.password!!)
+                }
+            }
         }
     }
 }

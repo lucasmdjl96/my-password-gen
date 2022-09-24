@@ -10,7 +10,6 @@ import react.FC
 import react.Props
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
-import react.dom.html.ReactHTML.h3
 import react.useState
 
 private val scope = MainScope()
@@ -26,7 +25,8 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     var password by useState<String>()
 
     button {
-        +"Logout"
+        className = logOut
+        +"\u23FB"
         onClick = {
             scope.launch {
                 logout()
@@ -34,31 +34,28 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
         }
     }
-    h3 {
-        +"Password Generator"
-    }
-        DropList {
-            this.name = "email"
-            this.inputType = InputType.email
-            this.list = props.userDto.emailDtoList
-            this.doOnChange = { emailAddress ->
-                scope.launch {
-                    emailDto = checkEmailAndGetPages(props.userDto, emailAddress)
-                    siteDto = null
-                    password = null
-                }
+    DropList {
+        this.name = "email"
+        this.inputType = InputType.email
+        this.list = props.userDto.emailDtoList
+        this.doOnChange = { emailAddress ->
+            scope.launch {
+                emailDto = checkEmailAndGetPages(props.userDto, emailAddress)
+                siteDto = null
+                password = null
             }
-            this.disableAdd = emailDto != null
-            this.doOnAdd = { emailAddress ->
-                if (emailAddress != "") {
-                    scope.launch {
-                        val userDto = addEmail(props.userDto.name, emailAddress)
-                        emailDto = userDto.emailDtoList.find { it.name == emailAddress }
-                        props.reloadUser(userDto)
-                    }
+        }
+        this.disableAdd = emailDto != null
+        this.doOnAdd = { emailAddress ->
+            if (emailAddress != "") {
+                scope.launch {
+                    val userDto = addEmail(props.userDto.name, emailAddress)
+                    emailDto = userDto.emailDtoList.find { it.name == emailAddress }
+                    props.reloadUser(userDto)
                 }
             }
         }
+    }
     if (emailDto != null) {
         DropList {
             this.name = "site"

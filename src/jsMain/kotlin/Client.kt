@@ -8,13 +8,16 @@ import react.dom.client.createRoot
 
 fun main() {
     val container = document.getElementById("root")!!
-    document.body!!.appendChild(container)
+    //document.body!!.appendChild(container)
+    document.body!!.style.margin = "0"
 
     val app = App.create()
     createRoot(container).render(app)
 }
 
 val endpoint = window.location.origin
+
+val navigator = window.navigator
 
 val jsonClient = HttpClient {
     install(ContentNegotiation) {

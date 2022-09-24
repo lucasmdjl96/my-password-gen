@@ -26,37 +26,36 @@ val DropList = FC<DropListProps> { props ->
     var inputValue = ""
 
     div {
-        div {
-            label {
-                +props.name
-                htmlFor = props.name
+        className = inputContainer
+        label {
+            +props.name
+            htmlFor = props.name
+            hidden = true
+        }
+        input {
+            id = props.name
+            type = props.inputType
+            list = "${props.name}List"
+            placeholder = props.name
+            onChange = { event ->
+                inputValue = event.target.value
+                props.doOnChange(event.target.value)
             }
         }
-        div {
-            input {
-                id = props.name
-                type = props.inputType
-                list = "${props.name}List"
-                onChange = { event ->
-                    inputValue = event.target.value
-                    props.doOnChange(event.target.value)
+        datalist {
+            id = "${props.name}List"
+            for (item in props.list) {
+                option {
+                    key = item.name
+                    value = item.name
                 }
             }
-            datalist {
-                id = "${props.name}List"
-                    for (item in props.list) {
-                        option {
-                            key = item.name
-                            value = item.name
-                        }
-                    }
-            }
-            button {
-                disabled = props.disableAdd
-                +"Add"
-                onClick = {
-                    props.doOnAdd(inputValue)
-                }
+        }
+        button {
+            disabled = props.disableAdd
+            +"Add"
+            onClick = {
+                props.doOnAdd(inputValue)
             }
         }
     }
