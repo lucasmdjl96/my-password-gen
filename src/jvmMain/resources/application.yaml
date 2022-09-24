@@ -1,13 +1,14 @@
 ktor:
+  development: true
   deployment:
-    port: "8080"
-    host: "localhost"
+    port: 8080
+    host: localhost
   application:
     modules:
-      - "com.lucasmdjl.application.ServerKt.module"
+      - com.lucasmdjl.application.ServerKt.module
 
 postgres:
-  username: "postgres"
-  password: "postgres"
-  driver: "org.postgresql.Driver"
-  jdbcUrl: "jdbc:postgresql://localhost:5432/"
+  username: postgres
+  password: postgres
+  driver: org.postgresql.Driver
+  jdbcUrl: jdbc:postgresql://localhost:5432/

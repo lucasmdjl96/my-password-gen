@@ -1,7 +1,7 @@
-import csstype.*
 import dto.LoginDto
 import react.FC
 import react.Props
+import react.dom.html.AutoComplete
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
@@ -29,6 +29,7 @@ val Login = FC<LoginProps> { props ->
             input {
                 id = "username"
                 placeholder = "Username"
+                autoComplete = AutoComplete.username
                 type = InputType.text
                 value = username
                 onChange = {
@@ -71,12 +72,4 @@ val Login = FC<LoginProps> { props ->
             }
         }
 
-}
-
-fun PropertiesBuilder.center() {
-    left = 40.pc
-    width = 15.pc
-    border = Border(3.px, LineStyle.solid, NamedColor.black)
-    padding = 10.px
-    textAlign = TextAlign.center
 }

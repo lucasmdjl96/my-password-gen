@@ -2,6 +2,7 @@ import dto.Named
 import kotlinx.coroutines.MainScope
 import react.FC
 import react.Props
+import react.dom.html.AutoComplete
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.datalist
@@ -9,7 +10,6 @@ import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.option
-import react.key
 
 private var scope = MainScope()
 
@@ -36,7 +36,8 @@ val DropList = FC<DropListProps> { props ->
             id = props.name
             type = props.inputType
             list = "${props.name}List"
-            placeholder = props.name
+            placeholder = props.name.replaceFirstChar { it.uppercaseChar() }
+            autoComplete = AutoComplete.off
             onChange = { event ->
                 inputValue = event.target.value
                 props.doOnChange(event.target.value)

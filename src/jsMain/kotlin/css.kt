@@ -8,17 +8,17 @@ val background = ClassName {
     justifyContent = JustifyContent.center
     alignItems = AlignItems.center
     height = 100.vh
-    background = NamedColor.darkblue
+    background = rgb(0, 0, 139)
 }
 
 val container = ClassName {
     display = Display.flex
     flexDirection = FlexDirection.column
     justifyContent = JustifyContent.spaceAround
-    gap = 10.px
-    borderRadius = 10.px
+    gap = 1.0.rem
+    borderRadius = 1.0.rem
     alignItems = AlignItems.center
-    width = 450.px
+    width = 45.0.rem
     background = rgba(129, 124, 114, 0.5)
 }
 
@@ -26,87 +26,108 @@ val inputContainer = ClassName {
     display = Display.flex
     flexDirection = FlexDirection.row
     justifyContent = JustifyContent.spaceAround
-    borderRadius = 5.px
+    borderRadius = 0.5.rem
     alignItems = AlignItems.center
-    paddingTop = 20.px
-    paddingLeft = 20.px
-    paddingRight = 20.px
-    paddingBottom = 0.px
-    marginTop = 0.px
-    marginLeft = 20.px
-    marginRight = 20.px
-    marginBottom = 0.px
+    paddingTop = 2.0.rem
+    paddingLeft = 2.0.rem
+    paddingRight = 2.0.rem
+    paddingBottom = 0.0.rem
+    marginTop = 0.0.rem
+    marginLeft = 2.0.rem
+    marginRight = 2.0.rem
+    marginBottom = 0.0.rem
     input {
         width = 100.pct
-        borderRadius = 0.25.rem
-        padding = 1.rem
-        margin = 0.px
+        borderRadius = 0.4.rem
+        padding = 1.5.rem
+        margin = 0.0.rem
         border = 0.px
         outline = 0.px
-        fontSize = 15.px
+        fontSize = 1.5.rem
     }
     button {
-        padding = 16.px
-        margin = 0.px
-        borderRadius = 3.px
-        backgroundColor = NamedColor.lightgreen
+        padding = 1.6.rem
+        margin = 0.0.rem
+        borderRadius = 0.3.rem
+        backgroundColor = rgb(144, 238, 144)
         border = 0.px
-        fontSize = 15.px
-        color = NamedColor.darkgreen
+        fontSize = 1.5.rem
+        color = rgb(0, 100, 0)
         hover {
-            backgroundColor = NamedColor.lawngreen
+            backgroundColor = rgb(124, 252, 0)
+        }
+        active {
+            backgroundColor = rgb(100, 202, 0)
         }
         disabled {
-            backgroundColor = NamedColor.darkseagreen
+            backgroundColor = rgb(143, 188, 143)
         }
     }
 }
 
 val titleClass = ClassName {
-    fontSize = 30.px
+    fontSize = 3.0.rem
     color = rgb(250, 250, 250)
-    paddingTop = 15.px
-    paddingLeft = 20.px
-    paddingRight = 20.px
-    paddingBottom = 5.px
+    paddingTop = 1.5.rem
+    paddingLeft = 2.0.rem
+    paddingRight = 2.0.rem
+    paddingBottom = 0.5.rem
 }
 
 val buttonContainer = ClassName {
     display = Display.flex
-    margin = 20.px
+    margin = 2.0.rem
     width = 80.pct
     justifyContent = JustifyContent.spaceAround
-    gap = 20.px
+    gap = 2.0.rem
     button {
-        padding = 10.px
+        padding = 1.0.rem
         width = 100.pct
         color = rgb(250, 250, 250)
-        backgroundColor = NamedColor.darkturquoise
+        backgroundColor = rgb(0, 206, 209)
         textTransform = TextTransform.uppercase
         fontWeight = FontWeight.bold
         border = 0.px
-        borderRadius = 3.px
+        borderRadius = 0.3.rem
         hover {
-            backgroundColor = NamedColor.dodgerblue
+            backgroundColor = rgb(30, 144, 255)
+        }
+        active {
+            backgroundColor = rgb(24, 106, 205)
         }
         disabled {
-            backgroundColor = NamedColor.lightblue
+            backgroundColor = rgb(173, 216, 230)
         }
     }
 }
 
 val passwordClass = ClassName {
-    fontSize = 20.px
-    color = NamedColor.darkred
-    padding = 20.px
-    backgroundColor = rgba(250, 250, 250, 0.9)
+    fontSize = 2.0.rem
+    //color = NamedColor.darkred
+    padding = 2.0.rem
+    marginBottom = 2.0.rem
+    //backgroundColor = rgba(250, 250, 250, 0.9)
     display = Display.flex
-    gap = 10.px
+    alignItems = AlignItems.center
+    gap = 1.0.rem
+    border = 3.px
+    borderStyle = LineStyle.solid
+    borderColor = rgb(100, 100, 100)
+    borderRadius = 1.0.rem
+    backgroundColor = rgba(10, 10, 10, 0.9)
+    color = rgb(255, 140, 0)
+    width = 80.pct
+    wordBreak = WordBreak.breakWord
     button {
         border = 0.px
+        borderRadius = 0.5.rem
+        height = 2.5.rem
         backgroundColor = rgba(0, 0, 0, 0.0)
         hover {
-            backgroundColor = NamedColor.lightgrey
+            backgroundColor = rgba(60, 60, 60, 0.5)
+        }
+        active {
+            backgroundColor = rgba(36, 36, 36, 0.5)
         }
     }
 }
