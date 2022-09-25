@@ -7,6 +7,6 @@ interface UserRepository {
 
     fun create(username: String, session: Session): User
 
-    fun getByName(username: String, session: Session): User?
+    fun getByNameAndSession(username: String, session: Session): User?
 
 }

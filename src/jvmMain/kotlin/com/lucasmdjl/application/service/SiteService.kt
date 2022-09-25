@@ -10,4 +10,6 @@ interface SiteService {
 
     fun getSiteFromEmail(siteName: String, emailAddress: String, username: String, sessionId: UUID): SiteDto?
 
+    fun removeSiteFromEmail(siteName: String, emailAddress: String, username: String, sessionId: UUID): EmailDto
+
 }

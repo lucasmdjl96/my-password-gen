@@ -55,5 +55,18 @@ object EmailServiceImpl : EmailService {
             if (email != null) emailMapper.emailToEmailDto(email) else null
         }
 
+    override fun removeEmailFromUser(emailAddress: String, username: String, sessionId: UUID): UserDto =
+        transaction {
+            val user =
+                sessionRepository
+                    .getById(sessionId)!!
+                    .load(Session::users)
+                    .users
+                    .find { it.username == username }!!
+            emailRepository.delete(emailAddress, user)
+            user.load(User::emails)
+            userMapper.userToUserDto(user)
+        }
+
 
 }

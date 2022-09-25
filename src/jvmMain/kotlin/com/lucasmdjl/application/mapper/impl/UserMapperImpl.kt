@@ -9,13 +9,16 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object UserMapperImpl : UserMapper {
 
-    private val emailMapper : EmailMapper = EmailMapperImpl
+    private val emailMapper: EmailMapper = EmailMapperImpl
 
     override fun userToUserDto(user: User): UserDto {
         transaction {
             user.load(User::emails)
         }
-        return UserDto(user.username, emailMapper.emailListToEmailDtoList(user.emails)?.toMutableList() ?: mutableListOf())
+        return UserDto(
+            user.username,
+            emailMapper.emailListToEmailDtoList(user.emails)?.toMutableList() ?: mutableListOf()
+        )
     }
 
     override fun userListToUserDtoList(userList: Iterable<User>?): Iterable<UserDto>? {

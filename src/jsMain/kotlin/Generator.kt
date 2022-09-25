@@ -25,12 +25,14 @@ val Generator = FC<GeneratorProps> { props ->
             disabled = props.siteName == null
             onClick = {
                 scope.launch {
-                    props.updatePassword(generatePassword(
-                        props.username,
-                        props.emailAddress!!,
-                        props.siteName!!,
-                        props.masterPassword
-                    ))
+                    props.updatePassword(
+                        generatePassword(
+                            props.username,
+                            props.emailAddress!!,
+                            props.siteName!!,
+                            props.masterPassword
+                        )
+                    )
                 }
             }
         }

@@ -7,9 +7,9 @@ import java.util.*
 object SessionRepositoryImpl : SessionRepository {
 
     override fun create(): Session =
-            Session.new {}
+        Session.new {}
 
     override fun getById(sessionId: UUID): Session? =
-            Session.findById(sessionId)
+        Session.findById(sessionId)
 
 }

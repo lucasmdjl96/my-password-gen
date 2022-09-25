@@ -10,6 +10,7 @@ import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.option
+import react.useState
 
 private var scope = MainScope()
 
@@ -20,10 +21,11 @@ external interface DropListProps : Props {
     var inputType: InputType
     var disableAdd: Boolean
     var doOnAdd: (String) -> Unit
+    var doOnRemove: (String) -> Unit
 }
 
 val DropList = FC<DropListProps> { props ->
-    var inputValue = ""
+    var inputValue: String by useState("")
 
     div {
         className = inputContainer
@@ -38,6 +40,7 @@ val DropList = FC<DropListProps> { props ->
             list = "${props.name}List"
             placeholder = props.name.replaceFirstChar { it.uppercaseChar() }
             autoComplete = AutoComplete.off
+            value = inputValue
             onChange = { event ->
                 inputValue = event.target.value
                 props.doOnChange(event.target.value)
@@ -53,10 +56,20 @@ val DropList = FC<DropListProps> { props ->
             }
         }
         button {
+            className = addButton
             disabled = props.disableAdd
             +"Add"
             onClick = {
                 props.doOnAdd(inputValue)
+            }
+        }
+        button {
+            className = remButton
+            disabled = !props.disableAdd
+            +"Rem"
+            onClick = {
+                props.doOnRemove(inputValue)
+                inputValue = ""
             }
         }
     }

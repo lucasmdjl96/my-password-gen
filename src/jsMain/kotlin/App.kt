@@ -1,4 +1,3 @@
-
 import dto.UserDto
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -73,7 +72,7 @@ suspend fun loginUser(username: String): UserDto? =
 
 suspend fun registerUser(username: String): UserDto? =
     if (username == "") null
-    else jsonClient.post("$endpoint/user/new") {
+    else jsonClient.post("$endpoint/user/register") {
         contentType(ContentType.Text.Plain)
         setBody(username)
     }.body()

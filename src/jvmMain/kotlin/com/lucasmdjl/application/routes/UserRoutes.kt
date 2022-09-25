@@ -20,7 +20,7 @@ fun Routing.userRoutes() {
             )
             call.respondNullable(userDto)
         }
-        post("/new") {
+        post("/register") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
             val username = call.receiveText().trim('"')
             val userDto = userService.create(

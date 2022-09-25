@@ -32,5 +32,15 @@ fun Routing.siteRoutes() {
             )
             call.respondNullable(siteDto)
         }
+        delete("/delete/{siteName}") {
+            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val emailDto = siteService.removeSiteFromEmail(
+                call.parameters.getOrFail("siteName"),
+                call.request.queryParameters.getOrFail("emailAddress"),
+                call.request.queryParameters.getOrFail("username"),
+                sessionId
+            )
+            call.respond(emailDto)
+        }
     }
 }

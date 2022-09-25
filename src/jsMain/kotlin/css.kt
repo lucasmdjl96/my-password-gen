@@ -49,19 +49,37 @@ val inputContainer = ClassName {
         padding = 1.6.rem
         margin = 0.0.rem
         borderRadius = 0.3.rem
-        backgroundColor = rgb(144, 238, 144)
         border = 0.px
         fontSize = 1.5.rem
-        color = rgb(0, 100, 0)
-        hover {
-            backgroundColor = rgb(124, 252, 0)
-        }
-        active {
-            backgroundColor = rgb(100, 202, 0)
-        }
-        disabled {
-            backgroundColor = rgb(143, 188, 143)
-        }
+        textTransform = TextTransform.uppercase
+    }
+}
+
+val addButton = ClassName {
+    backgroundColor = rgb(144, 238, 144)
+    color = rgb(0, 100, 0)
+    hover {
+        backgroundColor = rgb(124, 252, 0)
+    }
+    active {
+        backgroundColor = rgb(100, 202, 0)
+    }
+    disabled {
+        backgroundColor = rgb(143, 188, 143)
+    }
+}
+
+val remButton = ClassName {
+    backgroundColor = rgb(255, 123, 123)
+    color = rgb(167, 0, 0)
+    hover {
+        backgroundColor = rgb(255, 0, 0)
+    }
+    active {
+        backgroundColor = rgb(255, 50, 50)
+    }
+    disabled {
+        backgroundColor = rgb(255, 186, 186)
     }
 }
 
@@ -133,12 +151,12 @@ val passwordClass = ClassName {
 }
 
 val logOut = ClassName {
-    color = NamedColor.darkred
+    color = rgb(139, 0, 0)
     fontSize = 15.px
     border = 0.px
     backgroundColor = rgba(0, 0, 0, 0.0)
     hover {
-        color = NamedColor.red
+        color = rgb(255, 0, 0)
         fontWeight = FontWeight.bolder
     }
 }

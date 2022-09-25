@@ -9,16 +9,15 @@ import org.jetbrains.exposed.sql.and
 object UserRepositoryImpl : UserRepository {
 
     override fun create(username: String, session: Session): User =
-            User.new {
-                this.session = session
-                this.username = username
-            }
+        User.new {
+            this.session = session
+            this.username = username
+        }
 
-    override fun getByName(username: String, session: Session): User? =
-            User.find {
-                Users.session eq session.id and (Users.username eq username)
-            }.firstOrNull()
-
+    override fun getByNameAndSession(username: String, session: Session): User? =
+        User.find {
+            Users.session eq session.id and (Users.username eq username)
+        }.firstOrNull()
 
 
 }

@@ -10,7 +10,10 @@ object EmailMapperImpl : EmailMapper {
     private val siteMapper: SiteMapper = SiteMapperImpl
 
     override fun emailToEmailDto(email: Email): EmailDto {
-        return EmailDto(email.emailAddress, siteMapper.siteListToSiteDtoList(email.sites)?.toMutableList() ?: mutableListOf())
+        return EmailDto(
+            email.emailAddress,
+            siteMapper.siteListToSiteDtoList(email.sites)?.toMutableList() ?: mutableListOf()
+        )
     }
 
     override fun emailListToEmailDtoList(emailList: Iterable<Email>?): Iterable<EmailDto>? {

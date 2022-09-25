@@ -30,5 +30,14 @@ fun Routing.emailRoutes() {
             )
             call.respondNullable(emailDto)
         }
+        delete("/delete/{emailAddress}") {
+            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val userDto = emailService.removeEmailFromUser(
+                call.parameters.getOrFail("emailAddress"),
+                call.request.queryParameters.getOrFail("username"),
+                sessionId
+            )
+            call.respond(userDto)
+        }
     }
 }

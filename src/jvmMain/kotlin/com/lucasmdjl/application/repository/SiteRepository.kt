@@ -7,8 +7,10 @@ interface SiteRepository {
 
     fun create(siteName: String, email: Email): Site
 
-    fun getAllForEmail(email: Email): Iterable<Site>
+    fun getAllFromEmail(email: Email): Iterable<Site>
 
     fun getByNameAndEmail(siteName: String, email: Email): Site?
+
+    fun delete(siteName: String, email: Email): Unit?
 
 }

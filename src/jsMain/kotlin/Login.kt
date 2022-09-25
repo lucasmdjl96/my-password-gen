@@ -19,57 +19,57 @@ val Login = FC<LoginProps> { props ->
     var password by useState("")
 
 
-        div {
-            className = inputContainer
-            label {
-                +"Username"
-                htmlFor = "username"
-                hidden = true
+    div {
+        className = inputContainer
+        label {
+            +"Username"
+            htmlFor = "username"
+            hidden = true
+        }
+        input {
+            id = "username"
+            placeholder = "Username"
+            autoComplete = AutoComplete.username
+            type = InputType.text
+            value = username
+            onChange = {
+                username = it.target.value
             }
-            input {
-                id = "username"
-                placeholder = "Username"
-                autoComplete = AutoComplete.username
-                type = InputType.text
-                value = username
-                onChange = {
-                    username = it.target.value
-                }
-            }
+        }
 
+    }
+    div {
+        className = inputContainer
+        label {
+            +"Password"
+            htmlFor = "password"
+            hidden = true
         }
-        div {
-            className = inputContainer
-            label {
-                +"Password"
-                htmlFor = "password"
-                hidden = true
+        input {
+            id = "password"
+            placeholder = "Password"
+            type = InputType.password
+            value = password
+            onChange = {
+                password = it.target.value
             }
-            input {
-                id = "password"
-                placeholder = "Password"
-                type = InputType.password
-                value = password
-                onChange = {
-                    password = it.target.value
-                }
-            }
+        }
 
-        }
-        div {
-            className = buttonContainer
-            button {
-                +"Login"
-                onClick = {
-                    props.onLogin(LoginDto(username, password))
-                }
-            }
-            button {
-                +"Register"
-                onClick = {
-                    props.onRegister(LoginDto(username, password))
-                }
+    }
+    div {
+        className = buttonContainer
+        button {
+            +"Login"
+            onClick = {
+                props.onLogin(LoginDto(username, password))
             }
         }
+        button {
+            +"Register"
+            onClick = {
+                props.onRegister(LoginDto(username, password))
+            }
+        }
+    }
 
 }

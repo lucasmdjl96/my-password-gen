@@ -10,4 +10,6 @@ interface EmailService {
 
     fun getEmailFromUser(emailAddress: String, username: String, sessionId: UUID): EmailDto?
 
+    fun removeEmailFromUser(emailAddress: String, username: String, sessionId: UUID): UserDto
+
 }

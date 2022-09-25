@@ -24,18 +24,17 @@ object UserServiceImpl : UserService {
     override fun create(username: String, sessionId: UUID): UserDto? =
         transaction {
             val session = sessionRepository.getById(sessionId)!!
-            val user = if (userRepository.getByName(username, session) == null) {
+            val user = if (userRepository.getByNameAndSession(username, session) == null) {
                 userRepository.create(username, session)
             } else null
             if (user != null) userMapper.userToUserDto(user) else null
         }
 
 
-
     override fun getByName(name: String, sessionId: UUID): UserDto? =
         transaction {
             val session = sessionRepository.getById(sessionId)!!
-            val user = userRepository.getByName(name, session)?.load(User::emails)
+            val user = userRepository.getByNameAndSession(name, session)?.load(User::emails)
             if (user != null) userMapper.userToUserDto(user) else null
         }
 

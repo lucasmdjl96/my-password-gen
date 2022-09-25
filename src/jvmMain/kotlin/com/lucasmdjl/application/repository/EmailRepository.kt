@@ -11,4 +11,6 @@ interface EmailRepository {
 
     fun getByAddressAndUser(emailAddress: String, user: User): Email?
 
+    fun delete(emailAddress: String, user: User): Unit?
+
 }

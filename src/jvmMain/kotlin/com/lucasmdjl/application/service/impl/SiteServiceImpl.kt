@@ -59,4 +59,26 @@ object SiteServiceImpl : SiteService {
             if (site != null) siteMapper.siteToSiteDto(site) else null
         }
 
+    override fun removeSiteFromEmail(
+        siteName: String,
+        emailAddress: String,
+        username: String,
+        sessionId: UUID
+    ): EmailDto =
+        transaction {
+            val email =
+                sessionRepository
+                    .getById(sessionId)!!
+                    .load(Session::users)
+                    .users
+                    .find { it.username == username }!!
+                    .load(User::emails)
+                    .emails
+                    .find { it.emailAddress == emailAddress }!!
+            siteRepository.delete(siteName, email)
+            email.load(Email::sites)
+            emailMapper.emailToEmailDto(email)
+        }
+
+
 }
