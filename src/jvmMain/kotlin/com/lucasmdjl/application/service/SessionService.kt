@@ -9,6 +9,4 @@ interface SessionService {
 
     fun getById(sessionId: UUID): SessionDto?
 
-    fun updatePasswordById(sessionId: UUID, password: String?)
-
 }

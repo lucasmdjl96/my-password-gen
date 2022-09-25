@@ -9,14 +9,14 @@ import kotlinx.coroutines.launch
 import react.FC
 import react.Props
 import react.dom.html.InputType
-import react.dom.html.ReactHTML.button
 import react.useState
 
 private val scope = MainScope()
 
 external interface PasswordGenProps : Props {
     var userDto: UserDto
-    var reloadUser: (UserDto?) -> Unit
+    var masterPassword: String
+    var reloadUser: (UserDto) -> Unit
 }
 
 val PasswordGen = FC<PasswordGenProps> { props ->
@@ -24,23 +24,13 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     var siteDto by useState<SiteDto>()
     var password by useState<String>()
 
-    button {
-        className = logOut
-        +"\u23FB"
-        onClick = {
-            scope.launch {
-                logout()
-                props.reloadUser(null)
-            }
-        }
-    }
     DropList {
         this.name = "email"
         this.inputType = InputType.email
         this.list = props.userDto.emailDtoList
         this.doOnChange = { emailAddress ->
             scope.launch {
-                emailDto = checkEmailAndGetPages(props.userDto, emailAddress)
+                emailDto = checkEmail(props.userDto, emailAddress)
                 siteDto = null
                 password = null
             }
@@ -81,6 +71,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     }
     Generator {
         this.username = props.userDto.name
+        this.masterPassword = props.masterPassword
         this.emailAddress = emailDto?.name
         this.siteName = siteDto?.name
         this.password = password
@@ -90,36 +81,33 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     }
 }
 
-suspend fun checkEmailAndGetPages(userDto: UserDto, emailAddress: String): EmailDto? =
-    if (emailAddress !in userDto.emailDtoList.map(EmailDto::name)) null
-    else jsonClient.post("$endpoint/find/email/${userDto.name}") {
-        contentType(ContentType.Text.Plain)
-        setBody(emailAddress)
+suspend fun checkEmail(userDto: UserDto, emailAddress: String): EmailDto? =
+    if (userDto.hasEmail(emailAddress)) null
+    else jsonClient.get("$endpoint/email/find/$emailAddress") {
+        parameter("username", userDto.name)
     }.body()
 
 
 suspend fun addEmail(username: String, emailAddress: String): UserDto =
-    jsonClient.post("$endpoint/new/email/$username") {
+    jsonClient.post("$endpoint/email/new") {
         contentType(ContentType.Text.Plain)
         setBody(emailAddress)
+        parameter("username", username)
     }.body()
 
 
 suspend fun checkPage(username: String, emailDto: EmailDto, siteName: String): SiteDto? =
-    if (siteName !in emailDto.siteDtoList.map(SiteDto::name)) null
-    else jsonClient.post("$endpoint/find/site/$username/${emailDto.name}") {
-        contentType(ContentType.Text.Plain)
-        setBody(siteName)
+    if (emailDto.hasSite(siteName)) null
+    else jsonClient.get("$endpoint/site/find/$siteName") {
+        parameter("username", username)
+        parameter("emailAddress", emailDto.name)
     }.body()
 
 
 suspend fun addPage(username: String, emailAddress: String, siteName: String): EmailDto =
-    jsonClient.post("$endpoint/new/site/$username/$emailAddress") {
+    jsonClient.post("$endpoint/site/new") {
         contentType(ContentType.Text.Plain)
         setBody(siteName)
+        parameter("username", username)
+        parameter("emailAddress", emailAddress)
     }.body()
-
-suspend fun logout() {
-    jsonClient.get("$endpoint/logout")
-}
-

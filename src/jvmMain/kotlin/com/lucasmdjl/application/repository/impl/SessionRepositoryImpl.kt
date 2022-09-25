@@ -12,9 +12,4 @@ object SessionRepositoryImpl : SessionRepository {
     override fun getById(sessionId: UUID): Session? =
             Session.findById(sessionId)
 
-    override fun updatePassword(session: Session, password: String?) {
-        session.password = password
-    }
-
-
 }

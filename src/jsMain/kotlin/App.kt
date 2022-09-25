@@ -1,5 +1,4 @@
 
-import dto.LoginDto
 import dto.UserDto
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -8,6 +7,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
+import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.div
 import react.useState
 
@@ -15,6 +15,7 @@ private val scope = MainScope()
 
 val App = FC<Props> {
     var userDto by useState<UserDto>()
+    var masterPassword by useState<String>()
 
     div {
         className = background
@@ -28,21 +29,31 @@ val App = FC<Props> {
                 Login {
                     this.onLogin = { loginData ->
                         scope.launch {
-                            userDto = loginUser(loginData)
-                            console.log(userDto)
+                            userDto = loginUser(loginData.username)
+                            masterPassword = loginData.password
                         }
                     }
                     this.onRegister = { loginData ->
                         scope.launch {
-                            userDto = registerUser(loginData)
+                            userDto = registerUser(loginData.username)
+                            masterPassword = loginData.password
                         }
                     }
                 }
             }
 
             if (userDto != null) {
+                ReactHTML.button {
+                    className = logOut
+                    +"\u23FB"
+                    onClick = {
+                        userDto = null
+                        masterPassword = null
+                    }
+                }
                 PasswordGen {
                     this.userDto = userDto!!
+                    this.masterPassword = masterPassword!!
                     this.reloadUser = {
                         userDto = it
                     }
@@ -52,19 +63,19 @@ val App = FC<Props> {
     }
 }
 
-suspend fun loginUser(login: LoginDto): UserDto? =
-    if (login.username == "") null
-    else jsonClient.post("$endpoint/login") {
-        contentType(ContentType.Application.Json)
-        setBody(login)
+suspend fun loginUser(username: String): UserDto? =
+    if (username == "") null
+    else jsonClient.post("$endpoint/user/login") {
+        contentType(ContentType.Text.Plain)
+        setBody(username)
     }.body()
 
 
-suspend fun registerUser(login: LoginDto): UserDto? =
-    if (login.username == "") null
-    else jsonClient.post("$endpoint/new/user") {
-        contentType(ContentType.Application.Json)
-        setBody(login)
+suspend fun registerUser(username: String): UserDto? =
+    if (username == "") null
+    else jsonClient.post("$endpoint/user/new") {
+        contentType(ContentType.Text.Plain)
+        setBody(username)
     }.body()
 
 

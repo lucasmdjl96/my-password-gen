@@ -10,7 +10,6 @@ import java.util.*
 class Session(id: EntityID<UUID>) : Entity<UUID>(id) {
 
     val users by User referrersOn Users.session
-    var password by Sessions.password
 
     companion object : EntityClass<UUID, Session>(Sessions)
 

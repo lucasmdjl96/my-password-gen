@@ -11,7 +11,7 @@ object SessionMapperImpl : SessionMapper {
     private val emailMapper : EmailMapper = EmailMapperImpl
 
     override fun sessionToSessionDto(session: Session): SessionDto {
-        return SessionDto(session.id.value, session.password)
+        return SessionDto(session.id.value)
     }
 
     override fun sessionListToSessionDtoList(sessionList: Iterable<Session>?): Iterable<SessionDto>? {

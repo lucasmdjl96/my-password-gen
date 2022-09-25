@@ -4,10 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class EmailDto(override val name: String, val siteDtoList: MutableList<SiteDto>): Named {
+    fun hasSite(name: String): Boolean = siteDtoList.find { it.name == name } == null
 
-    fun findPage(name: String): SiteDto? = siteDtoList.find { it.name == name }
+    fun addSite(siteDto: SiteDto) = siteDtoList.add(siteDto)
 
-    companion object {
-        fun getByEmail(email: String): EmailDto? = emailDtos.find { it.name == email }
-    }
 }

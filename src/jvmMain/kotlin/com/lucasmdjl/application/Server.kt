@@ -16,8 +16,6 @@ import com.lucasmdjl.application.service.impl.SiteServiceImpl
 import com.lucasmdjl.application.service.impl.UserServiceImpl
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
-import java.security.MessageDigest
-import java.util.*
 
 val emailService: EmailService = EmailServiceImpl
 val userService: UserService = UserServiceImpl
@@ -34,10 +32,4 @@ fun Application.module() {
     installSessions()
     DatabaseFactory.init(environment.config)
     installRoutes()
-}
-
-fun sha256(message: String): String {
-    val input = message.toByteArray()
-    val bytes = MessageDigest.getInstance("SHA-256").digest(input)
-    return Base64.getUrlEncoder().encodeToString(bytes)
 }

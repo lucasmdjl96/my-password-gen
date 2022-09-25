@@ -21,20 +21,10 @@ object SessionServiceImpl : SessionService {
             sessionMapper.sessionToSessionDto(session)
         }
 
-
-
     override fun getById(sessionId: UUID): SessionDto? =
         transaction {
             val session = sessionRepository.getById(sessionId)
             if (session != null) sessionMapper.sessionToSessionDto(session) else null
         }
-
-    override fun updatePasswordById(sessionId: UUID, password: String?) {
-        transaction {
-            val session = sessionRepository.getById(sessionId)!!
-           sessionRepository.updatePassword(session, password)
-        }
-    }
-
 
 }

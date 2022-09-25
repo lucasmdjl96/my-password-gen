@@ -1,3 +1,4 @@
+import crypto.sha256
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.MainScope
@@ -11,6 +12,7 @@ private val scope = MainScope()
 
 external interface GeneratorProps : Props {
     var username: String
+    var masterPassword: String
     var emailAddress: String?
     var siteName: String?
     var password: String?
@@ -25,7 +27,12 @@ val Generator = FC<GeneratorProps> { props ->
             disabled = props.siteName == null
             onClick = {
                 scope.launch {
-                    props.updatePassword(generatePassword(props.username, props.emailAddress!!, props.siteName!!))
+                    props.updatePassword(generatePassword2(
+                        props.username,
+                        props.emailAddress!!,
+                        props.siteName!!,
+                        props.masterPassword
+                    ))
                 }
             }
         }
@@ -46,3 +53,13 @@ val Generator = FC<GeneratorProps> { props ->
 
 suspend fun generatePassword(username: String, emailAddress: String, siteName: String) =
     jsonClient.get("$endpoint/password/$username/$emailAddress/$siteName").body<String>()
+
+suspend fun generatePassword2(username: String, emailAddress: String, siteName: String, masterPassword: String) =
+    sha256(
+        """
+            $username
+            $emailAddress
+            $siteName
+            $masterPassword
+        """.trimIndent()
+    )

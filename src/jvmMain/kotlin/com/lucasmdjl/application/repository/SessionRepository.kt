@@ -9,6 +9,4 @@ interface SessionRepository {
 
     fun getById(sessionId: UUID): Session?
 
-    fun updatePassword(session: Session, password: String?)
-
 }
