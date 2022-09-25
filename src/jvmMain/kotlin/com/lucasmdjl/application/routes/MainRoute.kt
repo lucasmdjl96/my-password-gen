@@ -1,7 +1,7 @@
 package com.lucasmdjl.application.routes
 
+import com.lucasmdjl.application.dto.SessionCookie
 import com.lucasmdjl.application.sessionService
-import dto.SessionCookie
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -9,11 +9,11 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import java.util.*
 
-fun Routing.mainRoute() {
+fun Route.mainRoute() {
     get("/") {
-        val sessionCookieTemp = call.sessions.get<SessionCookie>()
-        val sessionDto = if (sessionCookieTemp != null) {
-            sessionService.getById(UUID.fromString(sessionCookieTemp.sessionId)) ?: sessionService.create()
+        val sessionCookie = call.sessions.get<SessionCookie>()
+        val sessionDto = if (sessionCookie != null) {
+            sessionService.getById(UUID.fromString(sessionCookie.sessionId)) ?: sessionService.create()
         } else {
             sessionService.create()
         }

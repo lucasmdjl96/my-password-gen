@@ -1,10 +1,7 @@
 package com.lucasmdjl.application
 
 
-import com.lucasmdjl.application.plugins.installCORS
-import com.lucasmdjl.application.plugins.installCompression
-import com.lucasmdjl.application.plugins.installContentNegotiation
-import com.lucasmdjl.application.plugins.installSessions
+import com.lucasmdjl.application.plugins.*
 import com.lucasmdjl.application.routes.installRoutes
 import com.lucasmdjl.application.service.EmailService
 import com.lucasmdjl.application.service.SessionService
@@ -30,6 +27,7 @@ fun Application.module() {
     installCORS()
     installCompression()
     installSessions()
+    installAuthentication()
     DatabaseFactory.init(environment.config)
     installRoutes()
 }

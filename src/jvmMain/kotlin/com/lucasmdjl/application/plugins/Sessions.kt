@@ -1,6 +1,6 @@
 package com.lucasmdjl.application.plugins
 
-import dto.SessionCookie
+import com.lucasmdjl.application.dto.SessionCookie
 import io.ktor.server.application.*
 import io.ktor.server.sessions.*
 

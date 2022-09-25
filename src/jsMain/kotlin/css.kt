@@ -51,7 +51,7 @@ val inputContainer = ClassName {
         borderRadius = 0.3.rem
         border = 0.px
         fontSize = 1.5.rem
-        textTransform = TextTransform.uppercase
+        //textTransform = TextTransform.uppercase
     }
 }
 
@@ -70,16 +70,16 @@ val addButton = ClassName {
 }
 
 val remButton = ClassName {
-    backgroundColor = rgb(255, 123, 123)
-    color = rgb(167, 0, 0)
+    backgroundColor = rgb(238, 144, 144)
+    color = rgb(100, 0, 0)
     hover {
-        backgroundColor = rgb(255, 0, 0)
+        backgroundColor = rgb(252, 20, 20)
     }
     active {
-        backgroundColor = rgb(255, 50, 50)
+        backgroundColor = rgb(202, 16, 16)
     }
     disabled {
-        backgroundColor = rgb(255, 186, 186)
+        backgroundColor = rgb(188, 143, 143)
     }
 }
 

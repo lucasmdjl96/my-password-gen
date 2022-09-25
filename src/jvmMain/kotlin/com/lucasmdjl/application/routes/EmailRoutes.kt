@@ -1,7 +1,7 @@
 package com.lucasmdjl.application.routes
 
+import com.lucasmdjl.application.dto.SessionCookie
 import com.lucasmdjl.application.emailService
-import dto.SessionCookie
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -10,7 +10,7 @@ import io.ktor.server.sessions.*
 import io.ktor.server.util.*
 import java.util.*
 
-fun Routing.emailRoutes() {
+fun Route.emailRoutes() {
     route("/email") {
         post("/new") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
