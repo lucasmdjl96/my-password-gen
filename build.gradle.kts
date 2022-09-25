@@ -2,7 +2,7 @@
 val serializationVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
-val kotlinLogginVersion: String by project
+val kotlinLoggingVersion: String by project
 val kotlinWrappersVersion: String by project
 val kotlinxHtmlVersion : String by project
 
@@ -69,7 +69,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-netty:$ktorVersion")
                 implementation("io.ktor:ktor-server-config-yaml:$ktorVersion")
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
-                implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLogginVersion")
+                implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
 
                 implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
                 implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")

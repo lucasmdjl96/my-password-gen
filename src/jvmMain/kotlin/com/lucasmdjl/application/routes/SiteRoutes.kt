@@ -12,16 +12,6 @@ import java.util.*
 
 fun Routing.siteRoutes() {
     route("/site") {
-        post("/new/{username}/{emailAddress}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
-            val emailDto = siteService.addSiteToEmail(
-                call.receiveText().trim('"'),
-                call.parameters.getOrFail("emailAddress"),
-                call.parameters.getOrFail("username"),
-                sessionId
-            )
-            call.respond(emailDto)
-        }
         post("/new") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
             val emailDto = siteService.addSiteToEmail(
@@ -31,16 +21,6 @@ fun Routing.siteRoutes() {
                 sessionId
             )
             call.respond(emailDto)
-        }
-        post("/find/{username}/{emailAddress}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
-            val siteDto = siteService.getSiteFromEmail(
-                call.receiveText().trim('"'),
-                call.parameters.getOrFail("emailAddress"),
-                call.parameters.getOrFail("username"),
-                sessionId
-            )
-            call.respondNullable(siteDto)
         }
         get("/find/{siteName}") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)

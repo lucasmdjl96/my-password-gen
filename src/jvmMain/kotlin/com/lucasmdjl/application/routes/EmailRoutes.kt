@@ -12,15 +12,6 @@ import java.util.*
 
 fun Routing.emailRoutes() {
     route("/email") {
-        post("/new/{username}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
-            val userDto = emailService.addEmailToUser(
-                call.receiveText().trim('"'),
-                call.parameters.getOrFail("username"),
-                sessionId
-            )
-            call.respond(userDto)
-        }
         post("/new") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
             val userDto = emailService.addEmailToUser(
@@ -29,15 +20,6 @@ fun Routing.emailRoutes() {
                 sessionId
             )
             call.respond(userDto)
-        }
-        post("/find/{username}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
-            val emailDto = emailService.getEmailFromUser(
-                call.receiveText().trim('"'),
-                call.parameters.getOrFail("username"),
-                sessionId
-            )
-            call.respondNullable(emailDto)
         }
         get("/find/{emailAddress}") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)

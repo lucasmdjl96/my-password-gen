@@ -13,10 +13,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DatabaseFactory {
 
     fun init(config: ApplicationConfig) {
-        val driverClassName = "org.postgresql.Driver"
-        val jdbcUrl = "jdbc:postgresql://localhost:5432/"
-        val user = "postgres"
-        val password = "postgres"
+        val driverClassName = config.property("postgres.driver").getString()
+        val jdbcUrl = config.property("postgres.jdbcUrl").getString()
+        val user = config.property("postgres.username").getString()
+        val password = config.property("postgres.password").getString()
         val database = Database.connect(url = jdbcUrl, driver = driverClassName, user = user, password = password)
         transaction(database) {
             addLogger(StdOutSqlLogger)
