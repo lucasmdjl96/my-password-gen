@@ -8,8 +8,6 @@ import react.dom.client.createRoot
 
 fun main() {
     val container = document.getElementById("root")!!
-    //document.body!!.appendChild(container)
-    //document.body!!.style.margin = "0"
     console.log(container)
     val app = App.create()
     createRoot(container).render(app)

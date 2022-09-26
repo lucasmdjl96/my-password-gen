@@ -64,6 +64,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-server-sessions:$ktorVersion")
                 implementation("io.ktor:ktor-server-auth:$ktorVersion")
+                implementation("io.ktor:ktor-server-http-redirect:$ktorVersion")
                 implementation("io.ktor:ktor-server-cors-jvm:$ktorVersion")
                 implementation("io.ktor:ktor-server-compression:$ktorVersion")
                 implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
@@ -111,4 +112,5 @@ tasks.named<JavaExec>("run") {
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:2.1.1")
     implementation("io.ktor:ktor-server-sessions-jvm:2.1.1")
+    implementation("io.ktor:ktor-server-http-redirect-jvm:2.1.1")
 }

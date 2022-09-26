@@ -3,9 +3,16 @@ ktor:
   deployment:
     port: 8080
     host: localhost
+    sslPort: 8443
   application:
     modules:
       - com.lucasmdjl.application.ServerKt.module
+  security:
+    ssl:
+      keyStore: keystore.jks
+      keyAlias: test
+      keyStorePassword: testtest
+      privateKeyPassword: testtest
 
 postgres:
   username: postgres

@@ -28,6 +28,7 @@ fun Application.module() {
     installCompression()
     installSessions()
     installAuthentication()
-    DatabaseFactory.init(environment.config)
+    installHttpsRedirect()
     installRoutes()
+    DatabaseFactory.init(environment.config)
 }
