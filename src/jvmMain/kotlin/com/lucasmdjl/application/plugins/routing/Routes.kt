@@ -1,4 +1,4 @@
-package com.lucasmdjl.application.routes
+package com.lucasmdjl.application.plugins.routing
 
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

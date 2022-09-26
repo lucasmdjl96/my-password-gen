@@ -2,7 +2,7 @@ package com.lucasmdjl.application
 
 
 import com.lucasmdjl.application.plugins.*
-import com.lucasmdjl.application.routes.installRoutes
+import com.lucasmdjl.application.plugins.routing.installRoutes
 import com.lucasmdjl.application.service.EmailService
 import com.lucasmdjl.application.service.SessionService
 import com.lucasmdjl.application.service.SiteService

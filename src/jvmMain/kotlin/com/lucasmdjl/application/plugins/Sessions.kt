@@ -9,7 +9,7 @@ fun Application.installSessions() {
     install(Sessions) {
         cookie<SessionCookie>("session") {
             cookie.maxAgeInSeconds = 30 * 24 * 60 * 60
-            cookie.secure = false
+            cookie.secure = true
             cookie.path = "/"
         }
     }

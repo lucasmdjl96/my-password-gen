@@ -1,4 +1,4 @@
-package com.lucasmdjl.application.routes
+package com.lucasmdjl.application.plugins.routing
 
 import com.lucasmdjl.application.dto.SessionCookie
 import com.lucasmdjl.application.siteService
