@@ -9,10 +9,10 @@ ktor:
       - com.lucasmdjl.application.ServerKt.module
   security:
     ssl:
-      keyStore: keystore.jks
-      keyAlias: test
-      keyStorePassword: testtest
-      privateKeyPassword: testtest
+      keyStore: keystore/localhost.jks
+      keyAlias: localhost
+      keyStorePassword: localhosttest
+      privateKeyPassword: localhosttest
 
 postgres:
   username: postgres
