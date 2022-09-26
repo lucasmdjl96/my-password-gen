@@ -9,4 +9,6 @@ interface SessionService {
 
     fun getById(sessionId: UUID): SessionDto?
 
+    fun deleteById(sessionId: UUID)
+
 }

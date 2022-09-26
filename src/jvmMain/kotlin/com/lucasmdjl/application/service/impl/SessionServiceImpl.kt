@@ -27,4 +27,10 @@ object SessionServiceImpl : SessionService {
             if (session != null) sessionMapper.sessionToSessionDto(session) else null
         }
 
+    override fun deleteById(sessionId: UUID) =
+        transaction {
+            val session = sessionRepository.getById(sessionId)!!
+            sessionRepository.delete(session)
+        }
+
 }

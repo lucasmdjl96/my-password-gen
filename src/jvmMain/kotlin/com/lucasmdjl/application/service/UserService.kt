@@ -9,4 +9,6 @@ interface UserService {
 
     fun getByName(name: String, sessionId: UUID): UserDto?
 
+    fun moveAllUsers(fromSessionId: UUID, toSessionId: UUID)
+
 }

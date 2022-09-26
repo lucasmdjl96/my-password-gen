@@ -9,4 +9,6 @@ interface UserRepository {
 
     fun getByNameAndSession(username: String, session: Session): User?
 
+    fun moveAll(fromSession: Session, toSession: Session)
+
 }

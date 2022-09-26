@@ -9,4 +9,6 @@ interface SessionRepository {
 
     fun getById(sessionId: UUID): Session?
 
+    fun delete(session: Session)
+
 }

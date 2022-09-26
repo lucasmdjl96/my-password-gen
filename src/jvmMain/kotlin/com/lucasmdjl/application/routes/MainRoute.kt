@@ -2,6 +2,7 @@ package com.lucasmdjl.application.routes
 
 import com.lucasmdjl.application.dto.SessionCookie
 import com.lucasmdjl.application.sessionService
+import com.lucasmdjl.application.userService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -12,10 +13,10 @@ import java.util.*
 fun Route.mainRoute() {
     get("/") {
         val sessionCookie = call.sessions.get<SessionCookie>()
-        val sessionDto = if (sessionCookie != null) {
-            sessionService.getById(UUID.fromString(sessionCookie.sessionId)) ?: sessionService.create()
-        } else {
-            sessionService.create()
+        val sessionDto = sessionService.create()
+        if (sessionCookie != null && sessionService.getById(UUID.fromString(sessionCookie.sessionId)) != null) {
+            userService.moveAllUsers(UUID.fromString(sessionCookie.sessionId), sessionDto.sessionId)
+            sessionService.deleteById(UUID.fromString(sessionCookie.sessionId))
         }
         call.sessions.set(SessionCookie(sessionDto.sessionId.toString()))
         call.respondText(

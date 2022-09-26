@@ -12,4 +12,8 @@ object SessionRepositoryImpl : SessionRepository {
     override fun getById(sessionId: UUID): Session? =
         Session.findById(sessionId)
 
+    override fun delete(session: Session) =
+        session.delete()
+
+
 }

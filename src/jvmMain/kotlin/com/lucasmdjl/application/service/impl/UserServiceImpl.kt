@@ -39,4 +39,11 @@ object UserServiceImpl : UserService {
         }
 
 
+    override fun moveAllUsers(fromSessionId: UUID, toSessionId: UUID) =
+        transaction {
+            val fromSession = sessionRepository.getById(fromSessionId)!!
+            val toSession = sessionRepository.getById(toSessionId)!!
+            userRepository.moveAll(fromSession, toSession)
+        }
+
 }
