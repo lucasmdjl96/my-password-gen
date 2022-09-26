@@ -50,6 +50,8 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 scope.launch {
                     val userDto = removeEmail(props.userDto.name, emailAddress)
                     emailDto = null
+                    siteDto = null
+                    password = null
                     props.reloadUser(userDto)
                 }
             }
@@ -81,6 +83,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                     scope.launch {
                         emailDto = removeSite(props.userDto.name, emailDto!!.name, siteName)
                         siteDto = null
+                        password = null
                     }
                 }
             }

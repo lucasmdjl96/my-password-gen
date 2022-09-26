@@ -1,5 +1,6 @@
 package com.lucasmdjl.application.routes
 
+import com.lucasmdjl.application.crypto.encode
 import com.lucasmdjl.application.dto.SessionCookie
 import com.lucasmdjl.application.userService
 import io.ktor.server.application.*
@@ -13,7 +14,7 @@ fun Route.userRoutes() {
     route("/user") {
         post("/login") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
-            val username = call.receiveText().trim('"')
+            val username = call.receiveText().trim('"').encode()
             val userDto = userService.getByName(
                 username,
                 sessionId
@@ -22,7 +23,7 @@ fun Route.userRoutes() {
         }
         post("/register") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
-            val username = call.receiveText().trim('"')
+            val username = call.receiveText().trim('"').encode()
             val userDto = userService.create(
                 username,
                 sessionId
