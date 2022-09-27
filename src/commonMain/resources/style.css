@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: rgb(0, 0, 139)
+    background: hsl(240, 100%, 27%)
 }
 
 .container {
@@ -15,7 +15,7 @@
     border-radius: 1.0rem;
     align-items: center;
     width: 45.0rem;
-    background: rgba(129, 124, 114, 0.5);
+    background: hsla(40, 6%, 48%, 0.5);
 }
 
 @media screen and (max-width: 450px) {
@@ -27,7 +27,7 @@
         border-radius: 1.0rem;
         align-items: center;
         width: 100vw;
-        background: rgba(129, 124, 114, 0.5);
+        background: hsla(40, 6%, 48%, 0.5);
     }
 }
 
@@ -60,42 +60,42 @@
 }
 
 .addButton {
-    background-color: rgb(144, 238, 144);
-    color: rgb(0, 100, 0);
+    background-color: hsl(120, 73%, 75%);
+    color: hsl(120, 100%, 20%);
 }
 
 .addButton:hover {
-    background-color: rgb(124, 252, 0);
+    background-color: hsl(90, 100%, 49%);
 }
 
 .addButton:active {
-    background-color: rgb(100, 202, 0);
+    background-color: hsl(90, 100%, 40%);
 }
 
 .addButton:disabled {
-    background-color: rgb(143, 188, 143);
+    background-color: hsl(120, 25%, 65%);
 }
 
 .remButton {
-    background-color: rgb(238, 144, 144);
-    color: rgb(100, 0, 0);
+    background-color: hsl(0, 73%, 75%);
+    color: hsl(0, 100%, 20%);
 }
 
 .remButton:hover {
-    background-color: rgb(252, 20, 20);
+    background-color: hsl(0, 97%, 53%);
 }
 
 .remButton:active {
-    background-color: rgb(202, 16, 16);
+    background-color: hsl(0, 85%, 43%);
 }
 
 .remButton:disabled {
-    background-color: rgb(188, 143, 143);
+    background-color: hsl(0, 25%, 65%);
 }
 
 .titleClass {
     font-size: 3.0rem;
-    color: rgb(250, 250, 250);
+    color: hsl(0, 0%, 98%);
     padding: 1.5rem 2.0rem 0.5rem;
     text-align: center;
     font-weight: normal;
@@ -112,8 +112,8 @@
 .buttonContainer button {
     padding: 1.0rem;
     width: 100%;
-    color: rgb(250, 250, 250);
-    background-color: rgb(0, 206, 209);
+    color: hsl(0, 0%, 98%);
+    background-color: hsl(181, 100%, 41%);
     text-transform: uppercase;
     font-weight: bold;
     border: 0;
@@ -122,15 +122,15 @@
 }
 
 .buttonContainer button:hover {
-    background-color: rgb(30, 144, 255);
+    background-color: hsl(210, 100%, 56%);
 }
 
 .buttonContainer button:active {
-    background-color: rgb(24, 106, 205);
+    background-color: hsl(210, 96%, 41%);
 }
 
 .buttonContainer button:disabled {
-    background-color: rgb(173, 216, 230);
+    background-color: hsl(195, 53%, 79%);
 }
 
 .passwordClass {
@@ -140,10 +140,10 @@
     display: flex;
     align-items: center;
     gap: 1.0rem;
-    border: 3px solid rgb(100, 100, 100);
+    border: 3px solid hsl(0, 0%, 39%);
     border-radius: 1.0rem;
-    background-color: rgba(10, 10, 10, 0.9);
-    color: rgb(255, 140, 0);
+    background-color: hsla(0, 0%, 4%, 0.9);
+    color: hsl(33, 100%, 50%);
     width: 80%;
     word-break: break-word;
 }
@@ -164,13 +164,13 @@
 }
 
 .logOut {
-    color: rgb(139, 0, 0);
+    color: hsl(0, 100%, 27%);
     font-size: 15px;
     border: 0;
-    background-color: rgba(0, 0, 0, 0.0);
+    background-color: hsla(0, 0%, 0%, 0.0);
 }
 
 .logOut:hover {
-    color: rgb(255, 0, 0);
+    color: hsl(0, 100%, 50%);
     font-weight: bolder;
 }
