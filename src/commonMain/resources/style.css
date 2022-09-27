@@ -58,18 +58,18 @@
 }
 
 .addButton {
-    background-color: hsl(120, 80%, 60%);
+    background-color: hsl(120, 80%, 75%);
     color: hsl(120, 100%, 20%);
     padding: 1.6rem;
     margin: 0.0rem;
 }
 
 .addButton:hover {
-    background-color: hsl(120, 100%, 60%);
+    background-color: hsl(90, 100%, 50%);
 }
 
 .addButton:active {
-    background-color: hsl(120, 100%, 40%);
+    background-color: hsl(90, 100%, 40%);
 }
 
 .addButton:disabled {
