@@ -52,45 +52,49 @@
 }
 
 .inputContainer button {
-    padding: 1.6rem;
-    margin: 0.0rem;
     border-radius: 0.3rem;
     border: 0;
     font-size: 1.5rem;
 }
 
 .addButton {
-    background-color: hsl(120, 73%, 75%);
+    background-color: hsl(120, 80%, 60%);
     color: hsl(120, 100%, 20%);
+    padding: 1.6rem;
+    margin: 0.0rem;
 }
 
 .addButton:hover {
-    background-color: hsl(90, 100%, 49%);
+    background-color: hsl(120, 100%, 60%);
 }
 
 .addButton:active {
-    background-color: hsl(90, 100%, 40%);
+    background-color: hsl(120, 100%, 40%);
 }
 
 .addButton:disabled {
-    background-color: hsl(120, 25%, 65%);
+    background-color: hsl(120, 20%, 65%);
 }
 
 .remButton {
-    background-color: hsl(0, 73%, 75%);
-    color: hsl(0, 100%, 20%);
+    background-color: hsla(0, 80%, 60%, 0);
+    color: hsl(0, 80%, 60%);
+    padding: 0.0rem;
+    margin: 1.0rem;
+    cursor: pointer;
 }
 
 .remButton:hover {
-    background-color: hsl(0, 97%, 53%);
+    color: hsl(0, 100%, 60%);
 }
 
 .remButton:active {
-    background-color: hsl(0, 85%, 43%);
+    color: hsl(0, 100%, 40%);
 }
 
 .remButton:disabled {
-    background-color: hsl(0, 25%, 65%);
+    color: hsl(0, 20%, 65%);
+    cursor: auto;
 }
 
 .titleClass {
@@ -153,6 +157,7 @@
     border-radius: 0.5rem;
     height: 2.5rem;
     background-color: rgba(0, 0, 0, 0.0);
+    cursor: pointer;
 }
 
 .passwordClass button:hover {
@@ -168,6 +173,7 @@
     font-size: 15px;
     border: 0;
     background-color: hsla(0, 0%, 0%, 0.0);
+    cursor: pointer;
 }
 
 .logOut:hover {

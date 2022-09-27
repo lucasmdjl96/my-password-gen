@@ -1,3 +1,4 @@
+import csstype.ClassName
 import dto.UserDto
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -6,9 +7,10 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
-import react.dom.html.ReactHTML
+import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h1
+import react.dom.html.ReactHTML.i
 import react.dom.html.ReactHTML.main
 import react.useState
 
@@ -44,9 +46,11 @@ val App = FC<Props> {
             }
 
             if (userDto != null) {
-                ReactHTML.button {
+                button {
                     className = CssClasses.logOut
-                    +"\u23FB"
+                    i {
+                        className = ClassName("fa-solid fa-right-from-bracket")
+                    }
                     onClick = {
                         userDto = null
                         masterPassword = null
