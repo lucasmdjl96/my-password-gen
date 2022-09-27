@@ -8,6 +8,8 @@ import react.FC
 import react.Props
 import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.h1
+import react.dom.html.ReactHTML.main
 import react.useState
 
 private val scope = MainScope()
@@ -17,11 +19,11 @@ val App = FC<Props> {
     var masterPassword by useState<String>()
 
     div {
-        className = background
-        div {
-            className = container
-            div {
-                className = titleClass
+        className = CssClasses.background
+        main {
+            className = CssClasses.container
+            h1 {
+                className = CssClasses.title
                 +"Password Generator"
             }
             if (userDto == null) {
@@ -43,7 +45,7 @@ val App = FC<Props> {
 
             if (userDto != null) {
                 ReactHTML.button {
-                    className = logOut
+                    className = CssClasses.logOut
                     +"\u23FB"
                     onClick = {
                         userDto = null

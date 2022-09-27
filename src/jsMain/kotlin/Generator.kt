@@ -19,7 +19,7 @@ external interface GeneratorProps : Props {
 
 val Generator = FC<GeneratorProps> { props ->
     div {
-        className = buttonContainer
+        className = CssClasses.buttonContainer
         button {
             +"Generate Password"
             disabled = props.siteName == null
@@ -39,12 +39,12 @@ val Generator = FC<GeneratorProps> { props ->
     }
     if (props.password != null) {
         div {
-            className = passwordClass
+            className = CssClasses.password
             +props.password!!
             button {
                 +"\uD83D\uDCCB"
                 onClick = {
-                    navigator.clipboard.writeText(props.password!!)
+                    clipboard.writeText(props.password!!)
                 }
             }
         }

@@ -1,4 +1,3 @@
-
 val serializationVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
@@ -90,6 +89,11 @@ kotlin {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinWrappersVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinWrappersVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:$kotlinWrappersVersion")
+
+                implementation(npm("postcss", "8.4.16"))
+                implementation(npm("postcss-loader", "7.0.1"))
+                implementation(npm("autoprefixer", "10.4.12"))
+
             }
         }
         val jsTest by getting
@@ -108,9 +112,4 @@ tasks.named<Copy>("jvmProcessResources") {
 tasks.named<JavaExec>("run") {
     dependsOn(tasks.named<Jar>("jvmJar"))
     classpath(tasks.named<Jar>("jvmJar"))
-}
-dependencies {
-    implementation("io.ktor:ktor-server-core-jvm:2.1.1")
-    implementation("io.ktor:ktor-server-sessions-jvm:2.1.1")
-    implementation("io.ktor:ktor-server-http-redirect-jvm:2.1.1")
 }

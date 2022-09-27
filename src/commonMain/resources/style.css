@@ -1,0 +1,176 @@
+
+.background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: rgb(0, 0, 139)
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 1.0rem;
+    border-radius: 1.0rem;
+    align-items: center;
+    width: 45.0rem;
+    background: rgba(129, 124, 114, 0.5);
+}
+
+@media screen and (max-width: 450px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        gap: 1.0rem;
+        border-radius: 1.0rem;
+        align-items: center;
+        width: 100vw;
+        background: rgba(129, 124, 114, 0.5);
+    }
+}
+
+.inputContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    border-radius: 0.5rem;
+    align-items: center;
+    padding: 2.0rem 2.0rem 0.0rem;
+    margin: 0.0rem 2.0rem;
+}
+
+.inputContainer input {
+    width: 100%;
+    border-radius: 0.4rem;
+    padding: 1.5rem;
+    margin: 0.0rem;
+    border: 0;
+    outline: 0;
+    font-size: 1.5rem;
+}
+
+.inputContainer button {
+    padding: 1.6rem;
+    margin: 0.0rem;
+    border-radius: 0.3rem;
+    border: 0;
+    font-size: 1.5rem;
+}
+
+.addButton {
+    background-color: rgb(144, 238, 144);
+    color: rgb(0, 100, 0);
+}
+
+.addButton:hover {
+    background-color: rgb(124, 252, 0);
+}
+
+.addButton:active {
+    background-color: rgb(100, 202, 0);
+}
+
+.addButton:disabled {
+    background-color: rgb(143, 188, 143);
+}
+
+.remButton {
+    background-color: rgb(238, 144, 144);
+    color: rgb(100, 0, 0);
+}
+
+.remButton:hover {
+    background-color: rgb(252, 20, 20);
+}
+
+.remButton:active {
+    background-color: rgb(202, 16, 16);
+}
+
+.remButton:disabled {
+    background-color: rgb(188, 143, 143);
+}
+
+.titleClass {
+    font-size: 3.0rem;
+    color: rgb(250, 250, 250);
+    padding: 1.5rem 2.0rem 0.5rem;
+    text-align: center;
+    font-weight: normal;
+}
+
+.buttonContainer {
+    display: flex;
+    margin: 2.0rem;
+    width: 80%;
+    justify-content: space-around;
+    gap: 2.0rem;
+}
+
+.buttonContainer button {
+    padding: 1.0rem;
+    width: 100%;
+    color: rgb(250, 250, 250);
+    background-color: rgb(0, 206, 209);
+    text-transform: uppercase;
+    font-weight: bold;
+    border: 0;
+    border-radius: 0.3rem;
+    font-size: 1.5rem;
+}
+
+.buttonContainer button:hover {
+    background-color: rgb(30, 144, 255);
+}
+
+.buttonContainer button:active {
+    background-color: rgb(24, 106, 205);
+}
+
+.buttonContainer button:disabled {
+    background-color: rgb(173, 216, 230);
+}
+
+.passwordClass {
+    font-size: 2.0rem;
+    padding: 2.0rem;
+    margin-bottom: 2.0rem;
+    display: flex;
+    align-items: center;
+    gap: 1.0rem;
+    border: 3px solid rgb(100, 100, 100);
+    border-radius: 1.0rem;
+    background-color: rgba(10, 10, 10, 0.9);
+    color: rgb(255, 140, 0);
+    width: 80%;
+    word-break: break-word;
+}
+
+.passwordClass button {
+    border: 0;
+    border-radius: 0.5rem;
+    height: 2.5rem;
+    background-color: rgba(0, 0, 0, 0.0);
+}
+
+.passwordClass button:hover {
+    background-color: rgba(60, 60, 60, 0.5)
+}
+
+.passwordClass button:active {
+    background-color: rgba(36, 36, 36, 0.5)
+}
+
+.logOut {
+    color: rgb(139, 0, 0);
+    font-size: 15px;
+    border: 0;
+    background-color: rgba(0, 0, 0, 0.0);
+}
+
+.logOut:hover {
+    color: rgb(255, 0, 0);
+    font-weight: bolder;
+}

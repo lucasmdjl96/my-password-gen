@@ -20,7 +20,7 @@ val Login = FC<LoginProps> { props ->
 
 
     div {
-        className = inputContainer
+        className = CssClasses.inputContainer
         label {
             +"Username"
             htmlFor = "username"
@@ -39,7 +39,7 @@ val Login = FC<LoginProps> { props ->
 
     }
     div {
-        className = inputContainer
+        className = CssClasses.inputContainer
         label {
             +"Password"
             htmlFor = "password"
@@ -57,9 +57,9 @@ val Login = FC<LoginProps> { props ->
 
     }
     div {
-        className = buttonContainer
+        className = CssClasses.buttonContainer
         button {
-            +"Login"
+            +"Log in"
             onClick = {
                 props.onLogin(LoginDto(username, password))
             }

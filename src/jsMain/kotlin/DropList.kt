@@ -28,7 +28,7 @@ val DropList = FC<DropListProps> { props ->
     var inputValue: String by useState("")
 
     div {
-        className = inputContainer
+        className = CssClasses.inputContainer
         label {
             +props.name
             htmlFor = props.name
@@ -56,7 +56,7 @@ val DropList = FC<DropListProps> { props ->
             }
         }
         button {
-            className = addButton
+            className = CssClasses.addButton
             disabled = props.disableAdd || inputValue == ""
             +"Add"
             onClick = {
@@ -64,7 +64,7 @@ val DropList = FC<DropListProps> { props ->
             }
         }
         button {
-            className = remButton
+            className = CssClasses.removeButton
             disabled = !props.disableAdd || inputValue == ""
             +"Del"
             onClick = {
