@@ -190,12 +190,42 @@
     .container {
         width: 100vw;
     }
+    .buttonContainer button:hover {
+        background-color: hsl(181, 100%, 41%);
+    }
+    .buttonContainer button:active {
+        background-color: hsl(210, 96%, 41%);
+    }
+    .addButton:hover {
+        background-color: hsl(120, 80%, 75%);
+    }
+    .addButton:active {
+        background-color: hsl(90, 100%, 40%);
+    }
+    .addButton:disabled {
+        background-color: hsl(120, 20%, 65%);
+    }
 }
 
 @media screen and (max-width: 350px) {
     .inputContainer {
         margin: 0;
         padding-left: 0;
+    }
+    .buttonContainer button:hover {
+        background-color: hsl(181, 100%, 41%);
+    }
+    .buttonContainer button:active {
+        background-color: hsl(210, 96%, 41%);
+    }
+    .addButton:hover {
+        background-color: hsl(120, 80%, 75%);
+    }
+    .addButton:active {
+        background-color: hsl(90, 100%, 40%);
+    }
+    .addButton:disabled {
+        background-color: hsl(120, 20%, 65%);
     }
 }
 
@@ -218,10 +248,40 @@
     .logOut {
         padding: 1.5rem 2.0rem 0.5rem;
     }
+    .buttonContainer button:hover {
+        background-color: hsl(181, 100%, 41%);
+    }
+    .buttonContainer button:active {
+        background-color: hsl(210, 96%, 41%);
+    }
+    .addButton:hover {
+        background-color: hsl(120, 80%, 75%);
+    }
+    .addButton:active {
+        background-color: hsl(90, 100%, 40%);
+    }
+    .addButton:disabled {
+        background-color: hsl(120, 20%, 65%);
+    }
 }
 
 @media screen and (max-height: 350px) {
     .buttonContainer {
         margin: 0;
+    }
+    .buttonContainer button:hover {
+        background-color: hsl(181, 100%, 41%);
+    }
+    .buttonContainer button:active {
+        background-color: hsl(210, 96%, 41%);
+    }
+    .addButton:hover {
+        background-color: hsl(120, 80%, 75%);
+    }
+    .addButton:active {
+        background-color: hsl(90, 100%, 40%);
+    }
+    .addButton:disabled {
+        background-color: hsl(120, 20%, 65%);
     }
 }
