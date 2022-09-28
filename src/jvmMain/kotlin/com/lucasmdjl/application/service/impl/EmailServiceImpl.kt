@@ -5,7 +5,6 @@ import com.lucasmdjl.application.mapper.UserMapper
 import com.lucasmdjl.application.mapper.impl.EmailMapperImpl
 import com.lucasmdjl.application.mapper.impl.UserMapperImpl
 import com.lucasmdjl.application.model.Email
-import com.lucasmdjl.application.model.Session
 import com.lucasmdjl.application.model.User
 import com.lucasmdjl.application.repository.EmailRepository
 import com.lucasmdjl.application.repository.SessionRepository
@@ -34,7 +33,6 @@ object EmailServiceImpl : EmailService {
             val user =
                 sessionRepository
                     .getById(sessionId)!!
-                    .load(Session::users)
                     .users
                     .find { it.username == username }!!
             emailRepository.create(emailAddress, user)
@@ -48,7 +46,6 @@ object EmailServiceImpl : EmailService {
             val user =
                 sessionRepository
                     .getById(sessionId)!!
-                    .load(Session::users)
                     .users
                     .find { it.username == username }!!
             val email = emailRepository.getByAddressAndUser(emailAddress, user)?.load(Email::sites)
@@ -60,7 +57,6 @@ object EmailServiceImpl : EmailService {
             val user =
                 sessionRepository
                     .getById(sessionId)!!
-                    .load(Session::users)
                     .users
                     .find { it.username == username }!!
             emailRepository.delete(emailAddress, user)
