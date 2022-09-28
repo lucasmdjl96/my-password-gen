@@ -1,4 +1,3 @@
-import csstype.ClassName
 import dto.Named
 import kotlinx.coroutines.MainScope
 import react.FC
@@ -8,10 +7,10 @@ import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.datalist
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.i
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.option
+import react.dom.html.ReactHTML.span
 import react.useState
 
 private var scope = MainScope()
@@ -34,8 +33,9 @@ val DropList = FC<DropListProps> { props ->
         button {
             className = CssClasses.removeButton
             disabled = !props.disableAdd || inputValue == ""
-            i {
-                className = ClassName("fa-regular fa-trash-can")
+            span {
+                className = CssClasses.materialIcon
+                +"delete"
             }
             onClick = {
                 props.doOnRemove(inputValue)

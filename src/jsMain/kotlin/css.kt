@@ -18,4 +18,6 @@ object CssClasses {
     val password = ClassName("passwordClass")
 
     val logOut = ClassName("logOut")
+
+    val materialIcon = ClassName("material-icons")
 }

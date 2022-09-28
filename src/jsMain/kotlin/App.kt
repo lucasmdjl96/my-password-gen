@@ -1,4 +1,3 @@
-import csstype.ClassName
 import dto.UserDto
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -10,8 +9,8 @@ import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h1
-import react.dom.html.ReactHTML.i
 import react.dom.html.ReactHTML.main
+import react.dom.html.ReactHTML.span
 import react.useState
 
 private val scope = MainScope()
@@ -48,8 +47,9 @@ val App = FC<Props> {
             if (userDto != null) {
                 button {
                     className = CssClasses.logOut
-                    i {
-                        className = ClassName("fa-solid fa-right-from-bracket")
+                    span {
+                        className = CssClasses.materialIcon
+                        +"logout"
                     }
                     onClick = {
                         userDto = null
