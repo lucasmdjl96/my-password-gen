@@ -23,11 +23,14 @@ val App = FC<Props> {
         className = CssClasses.background
         main {
             className = CssClasses.container
-            h1 {
-                className = CssClasses.title
-                +"Password Generator"
-            }
             if (userDto == null) {
+                div {
+                    className = CssClasses.titleContainer
+                    h1 {
+                        className = CssClasses.title
+                        +"Password Generator"
+                    }
+                }
                 Login {
                     this.onLogin = { loginData ->
                         scope.launch {
@@ -45,15 +48,22 @@ val App = FC<Props> {
             }
 
             if (userDto != null) {
-                button {
-                    className = CssClasses.logOut
-                    span {
-                        className = CssClasses.materialIcon
-                        +"logout"
+                div {
+                    className = CssClasses.titleContainer
+                    h1 {
+                        className = CssClasses.title
+                        +"Password Generator"
                     }
-                    onClick = {
-                        userDto = null
-                        masterPassword = null
+                    button {
+                        className = CssClasses.logOut
+                        span {
+                            className = CssClasses.materialIcon
+                            +"logout"
+                        }
+                        onClick = {
+                            userDto = null
+                            masterPassword = null
+                        }
                     }
                 }
                 PasswordGen {

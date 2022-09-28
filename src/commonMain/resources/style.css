@@ -20,14 +20,7 @@
 
 @media screen and (max-width: 450px) {
     .container {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        gap: 1.0rem;
-        border-radius: 1.0rem;
-        align-items: center;
         width: 100vw;
-        background: hsla(40, 6%, 48%, 0.5);
     }
 }
 
@@ -184,4 +177,51 @@
 
 .material-icons {
     font-size: 2.4rem;
+}
+
+.titleContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+@media screen and (max-width: 450px) {
+    .container {
+        width: 100vw;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    .inputContainer {
+        margin: 0;
+        padding-left: 0;
+    }
+}
+
+@media screen and (max-height: 450px) {
+    .container {
+        height: 100vh;
+    }
+    .inputContainer {
+        padding-top: 0;
+    }
+    .buttonContainer {
+        margin: 1.0rem;
+    }
+    .titleClass {
+        margin: 0;
+    }
+    .titleContainer {
+        flex-direction: row;
+    }
+    .logOut {
+        padding: 1.5rem 2.0rem 0.5rem;
+    }
+}
+
+@media screen and (max-height: 350px) {
+    .buttonContainer {
+        margin: 0;
+    }
 }

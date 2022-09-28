@@ -20,4 +20,6 @@ object CssClasses {
     val logOut = ClassName("logOut")
 
     val materialIcon = ClassName("material-icons")
+
+    val titleContainer = ClassName("titleContainer")
 }
