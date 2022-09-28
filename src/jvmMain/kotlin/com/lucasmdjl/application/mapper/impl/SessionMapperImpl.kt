@@ -11,7 +11,7 @@ object SessionMapperImpl : SessionMapper {
         return SessionDto(session.id.value)
     }
 
-    override fun sessionListToSessionDtoList(sessionList: Iterable<Session>?): Iterable<SessionDto>? {
+    override fun sessionIterableToSessionDtoIterable(sessionList: Iterable<Session>?): Iterable<SessionDto>? {
         return sessionList?.map(SessionMapperImpl::sessionToSessionDto)
     }
 

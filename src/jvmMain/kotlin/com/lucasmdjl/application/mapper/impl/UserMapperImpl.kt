@@ -11,17 +11,16 @@ object UserMapperImpl : UserMapper {
 
     private val emailMapper: EmailMapper = EmailMapperImpl
 
-    override fun userToUserDto(user: User): UserDto {
-        transaction {
-            user.load(User::emails)
-        }
-        return UserDto(
+    override fun userToUserDto(user: User): UserDto = transaction {
+        user.load(User::emails)
+        UserDto(
             user.username,
-            emailMapper.emailListToEmailDtoList(user.emails)?.toMutableList() ?: mutableListOf()
+            emailMapper.emailIterableToEmailDtoIterable(user.emails)?.toMutableList() ?: mutableListOf()
         )
     }
 
-    override fun userListToUserDtoList(userList: Iterable<User>?): Iterable<UserDto>? {
+
+    override fun userIterableToUserDtoIterable(userList: Iterable<User>?): Iterable<UserDto>? {
         return userList?.map(UserMapperImpl::userToUserDto)
     }
 

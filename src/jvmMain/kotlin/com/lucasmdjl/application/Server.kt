@@ -1,6 +1,12 @@
 package com.lucasmdjl.application
 
 
+import com.lucasmdjl.application.mapper.EmailMapper
+import com.lucasmdjl.application.mapper.SiteMapper
+import com.lucasmdjl.application.mapper.UserMapper
+import com.lucasmdjl.application.mapper.impl.EmailMapperImpl
+import com.lucasmdjl.application.mapper.impl.SiteMapperImpl
+import com.lucasmdjl.application.mapper.impl.UserMapperImpl
 import com.lucasmdjl.application.plugins.*
 import com.lucasmdjl.application.plugins.routing.installRoutes
 import com.lucasmdjl.application.service.EmailService
@@ -14,10 +20,14 @@ import com.lucasmdjl.application.service.impl.UserServiceImpl
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 
-val emailService: EmailService = EmailServiceImpl
-val userService: UserService = UserServiceImpl
-val siteService: SiteService = SiteServiceImpl
 val sessionService: SessionService = SessionServiceImpl
+val userService: UserService = UserServiceImpl
+val emailService: EmailService = EmailServiceImpl
+val siteService: SiteService = SiteServiceImpl
+
+val userMapper: UserMapper = UserMapperImpl
+val emailMapper: EmailMapper = EmailMapperImpl
+val siteMapper: SiteMapper = SiteMapperImpl
 
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)

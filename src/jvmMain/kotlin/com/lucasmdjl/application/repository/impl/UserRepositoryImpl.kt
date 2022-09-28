@@ -5,19 +5,24 @@ import com.lucasmdjl.application.model.User
 import com.lucasmdjl.application.repository.UserRepository
 import com.lucasmdjl.application.tables.Users
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.update
+import java.util.*
 
 object UserRepositoryImpl : UserRepository {
 
-    override fun create(username: String, session: Session): User =
-        User.new {
-            this.session = session
-            this.username = username
-        }
+    override fun create(username: String, sessionId: UUID) =
+        Users.insertIgnoreAndGetId {
+            it[this.username] = username
+            it[this.session] = sessionId
+        }?.value
 
-    override fun getByNameAndSession(username: String, session: Session): User? =
+    override fun getById(id: Int) =
+        User.findById(id)
+
+    override fun getByNameAndSession(username: String, sessionId: UUID) =
         User.find {
-            Users.session eq session.id and (Users.username eq username)
+            Users.session eq sessionId and (Users.username eq username)
         }.firstOrNull()
 
     override fun moveAll(fromSession: Session, toSession: Session) {

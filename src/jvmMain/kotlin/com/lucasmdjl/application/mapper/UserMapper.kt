@@ -7,6 +7,6 @@ interface UserMapper {
 
     fun userToUserDto(user: User): UserDto
 
-    fun userListToUserDtoList(userList: Iterable<User>?): Iterable<UserDto>?
+    fun userIterableToUserDtoIterable(userList: Iterable<User>?): Iterable<UserDto>?
 
 }

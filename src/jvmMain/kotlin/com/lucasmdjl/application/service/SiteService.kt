@@ -1,15 +1,14 @@
 package com.lucasmdjl.application.service
 
-import dto.EmailDto
-import dto.SiteDto
-import java.util.*
+import com.lucasmdjl.application.model.Email
+import com.lucasmdjl.application.model.Site
 
 interface SiteService {
 
-    fun addSiteToEmail(siteName: String, emailAddress: String, username: String, sessionId: UUID): EmailDto
+    fun addSiteToEmail(siteName: String, email: Email): Site?
 
-    fun getSiteFromEmail(siteName: String, emailAddress: String, username: String, sessionId: UUID): SiteDto?
+    fun getSiteFromEmail(siteName: String, email: Email): Site?
 
-    fun removeSiteFromEmail(siteName: String, emailAddress: String, username: String, sessionId: UUID): EmailDto
+    fun removeSiteFromEmail(siteName: String, email: Email): Unit?
 
 }

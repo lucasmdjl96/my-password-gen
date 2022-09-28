@@ -13,12 +13,15 @@ import java.util.*
 fun Route.mainRoute() {
     get("/") {
         val sessionCookie = call.sessions.get<SessionCookie>()
-        val sessionDto = sessionService.create()
-        if (sessionCookie != null && sessionService.getById(UUID.fromString(sessionCookie.sessionId)) != null) {
-            userService.moveAllUsers(UUID.fromString(sessionCookie.sessionId), sessionDto.sessionId)
-            sessionService.deleteById(UUID.fromString(sessionCookie.sessionId))
+        val newSession = sessionService.create()
+        if (sessionCookie != null) {
+            val oldSession = sessionService.getById(UUID.fromString(sessionCookie.sessionId))
+            if (oldSession != null) {
+                userService.moveAllUsers(oldSession, newSession)
+                sessionService.delete(oldSession)
+            }
         }
-        call.sessions.set(SessionCookie(sessionDto.sessionId.toString()))
+        call.sessions.set(SessionCookie(newSession.id.value.toString()))
         call.respondText(
             this::class.java.classLoader.getResource("index.html")!!.readText(),
             ContentType.Text.Html

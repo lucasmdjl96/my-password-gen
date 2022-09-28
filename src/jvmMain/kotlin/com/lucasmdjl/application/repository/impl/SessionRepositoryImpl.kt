@@ -9,7 +9,7 @@ object SessionRepositoryImpl : SessionRepository {
     override fun create(): Session =
         Session.new {}
 
-    override fun getById(sessionId: UUID): Session? =
+    override fun getById(sessionId: UUID) =
         Session.findById(sessionId)
 
     override fun delete(session: Session) =

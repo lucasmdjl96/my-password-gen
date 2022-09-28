@@ -1,14 +1,14 @@
 package com.lucasmdjl.application.service
 
-import com.lucasmdjl.application.dto.SessionDto
+import com.lucasmdjl.application.model.Session
 import java.util.*
 
 interface SessionService {
 
-    fun create(): SessionDto
+    fun create(): Session
 
-    fun getById(sessionId: UUID): SessionDto?
+    fun getById(sessionId: UUID): Session?
 
-    fun deleteById(sessionId: UUID)
+    fun delete(session: Session)
 
 }

@@ -1,14 +1,15 @@
 package com.lucasmdjl.application.service
 
-import dto.UserDto
+import com.lucasmdjl.application.model.Session
+import com.lucasmdjl.application.model.User
 import java.util.*
 
 interface UserService {
 
-    fun create(username: String, sessionId: UUID): UserDto?
+    fun create(username: String, sessionId: UUID): User?
 
-    fun getByName(name: String, sessionId: UUID): UserDto?
+    fun getByName(name: String, sessionId: UUID): User?
 
-    fun moveAllUsers(fromSessionId: UUID, toSessionId: UUID)
+    fun moveAllUsers(fromSession: Session, toSession: Session)
 
 }

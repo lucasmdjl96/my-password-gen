@@ -1,8 +1,6 @@
 package com.lucasmdjl.application.service.impl
 
-import com.lucasmdjl.application.dto.SessionDto
-import com.lucasmdjl.application.mapper.SessionMapper
-import com.lucasmdjl.application.mapper.impl.SessionMapperImpl
+import com.lucasmdjl.application.model.Session
 import com.lucasmdjl.application.repository.SessionRepository
 import com.lucasmdjl.application.repository.impl.SessionRepositoryImpl
 import com.lucasmdjl.application.service.SessionService
@@ -13,24 +11,16 @@ object SessionServiceImpl : SessionService {
 
     private val sessionRepository: SessionRepository = SessionRepositoryImpl
 
-    private val sessionMapper: SessionMapper = SessionMapperImpl
+    override fun create(): Session = transaction {
+        sessionRepository.create()
+    }
 
-    override fun create(): SessionDto =
-        transaction {
-            val session = sessionRepository.create()
-            sessionMapper.sessionToSessionDto(session)
-        }
+    override fun getById(sessionId: UUID): Session? = transaction {
+        sessionRepository.getById(sessionId)
+    }
 
-    override fun getById(sessionId: UUID): SessionDto? =
-        transaction {
-            val session = sessionRepository.getById(sessionId)
-            if (session != null) sessionMapper.sessionToSessionDto(session) else null
-        }
-
-    override fun deleteById(sessionId: UUID) =
-        transaction {
-            val session = sessionRepository.getById(sessionId)!!
-            sessionRepository.delete(session)
-        }
+    override fun delete(session: Session) = transaction {
+        sessionRepository.delete(session)
+    }
 
 }

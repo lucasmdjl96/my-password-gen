@@ -10,7 +10,7 @@ object SiteMapperImpl : SiteMapper {
         return SiteDto(site.name)
     }
 
-    override fun siteListToSiteDtoList(siteList: Iterable<Site>?): Iterable<SiteDto>? {
+    override fun siteIterableToSiteDtoIterable(siteList: Iterable<Site>?): Iterable<SiteDto>? {
         return siteList?.map(SiteMapperImpl::siteToSiteDto)
     }
 

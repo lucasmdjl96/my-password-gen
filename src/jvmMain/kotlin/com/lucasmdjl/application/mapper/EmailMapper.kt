@@ -7,6 +7,6 @@ interface EmailMapper {
 
     fun emailToEmailDto(email: Email): EmailDto
 
-    fun emailListToEmailDtoList(emailList: Iterable<Email>?): Iterable<EmailDto>?
+    fun emailIterableToEmailDtoIterable(emailList: Iterable<Email>?): Iterable<EmailDto>?
 
 }

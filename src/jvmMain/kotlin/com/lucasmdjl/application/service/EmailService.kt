@@ -1,15 +1,14 @@
 package com.lucasmdjl.application.service
 
-import dto.EmailDto
-import dto.UserDto
-import java.util.*
+import com.lucasmdjl.application.model.Email
+import com.lucasmdjl.application.model.User
 
 interface EmailService {
 
-    fun addEmailToUser(emailAddress: String, username: String, sessionId: UUID): UserDto
+    fun addEmailToUser(emailAddress: String, user: User): Email?
 
-    fun getEmailFromUser(emailAddress: String, username: String, sessionId: UUID): EmailDto?
+    fun getEmailFromUser(emailAddress: String, user: User): Email?
 
-    fun removeEmailFromUser(emailAddress: String, username: String, sessionId: UUID): UserDto
+    fun removeEmailFromUser(emailAddress: String, user: User): Unit?
 
 }
