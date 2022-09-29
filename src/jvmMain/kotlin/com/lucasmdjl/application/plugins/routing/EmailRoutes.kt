@@ -1,6 +1,6 @@
 package com.lucasmdjl.application.plugins.routing
 
-import com.lucasmdjl.application.dto.SessionCookie
+import com.lucasmdjl.application.dto.SessionDto
 import com.lucasmdjl.application.emailMapper
 import com.lucasmdjl.application.emailService
 import com.lucasmdjl.application.userService
@@ -10,12 +10,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.util.*
-import java.util.*
 
 fun Route.emailRoutes() {
     route("/email") {
         post("/new") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.request.queryParameters.getOrFail("username")
             val user = userService.getByName(username, sessionId)!!
             val emailAddress = call.receiveText().trim('"')
@@ -28,7 +27,7 @@ fun Route.emailRoutes() {
             call.respondNullable(emailDto)
         }
         get("/find/{emailAddress}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.request.queryParameters.getOrFail("username")
             val user = userService.getByName(username, sessionId)!!
             val emailAddress = call.parameters.getOrFail("emailAddress")
@@ -41,7 +40,7 @@ fun Route.emailRoutes() {
             call.respondNullable(emailDto)
         }
         delete("/delete/{emailAddress}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.request.queryParameters.getOrFail("username")
             val user = userService.getByName(username, sessionId)!!
             val emailAddress = call.parameters.getOrFail("emailAddress")

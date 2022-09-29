@@ -1,6 +1,6 @@
 package com.lucasmdjl.application.plugins.routing
 
-import com.lucasmdjl.application.dto.SessionCookie
+import com.lucasmdjl.application.dto.SessionDto
 import com.lucasmdjl.application.emailService
 import com.lucasmdjl.application.siteMapper
 import com.lucasmdjl.application.siteService
@@ -11,12 +11,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.util.*
-import java.util.*
 
 fun Route.siteRoutes() {
     route("/site") {
         post("/new") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.request.queryParameters.getOrFail("username")
             val user = userService.getByName(username, sessionId)!!
             val emailAddress = call.request.queryParameters.getOrFail("emailAddress")
@@ -31,7 +30,7 @@ fun Route.siteRoutes() {
             call.respondNullable(siteDto)
         }
         get("/find/{siteName}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.request.queryParameters.getOrFail("username")
             val user = userService.getByName(username, sessionId)!!
             val emailAddress = call.request.queryParameters.getOrFail("emailAddress")
@@ -46,7 +45,7 @@ fun Route.siteRoutes() {
             call.respondNullable(siteDto)
         }
         delete("/delete/{siteName}") {
-            val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
+            val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.request.queryParameters.getOrFail("username")
             val user = userService.getByName(username, sessionId)!!
             val emailAddress = call.request.queryParameters.getOrFail("emailAddress")
