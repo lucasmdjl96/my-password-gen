@@ -3,11 +3,13 @@ package dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UserDto(override val name: String, val emailDtoList: MutableList<EmailDto>) : Named {
+class UserDto(val username: String, val emailList: MutableList<String>) {
 
-    fun hasEmail(emailAddress: String): Boolean = emailDtoList.find { it.name == emailAddress } != null
+    fun hasEmail(emailAddress: String): Boolean = emailList.find { it == emailAddress } != null
 
-    fun addEmail(emailDto: EmailDto) = emailDtoList.add(emailDto)
+    fun addEmail(emailAddress: String) = emailList.add(emailAddress)
+
+    fun removeEmail(emailAddress: String) = emailList.remove(emailAddress)
 }
 
 

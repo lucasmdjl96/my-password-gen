@@ -1,4 +1,3 @@
-import dto.Named
 import kotlinx.coroutines.MainScope
 import react.FC
 import react.Props
@@ -17,7 +16,7 @@ private var scope = MainScope()
 
 external interface DropListProps : Props {
     var doOnChange: (String) -> Unit
-    var list: List<Named>
+    var list: List<String>
     var name: String
     var inputType: InputType
     var disableAdd: Boolean
@@ -63,8 +62,8 @@ val DropList = FC<DropListProps> { props ->
             id = "${props.name}List"
             for (item in props.list) {
                 option {
-                    key = item.name
-                    value = item.name
+                    key = item
+                    value = item
                 }
             }
         }

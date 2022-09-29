@@ -16,7 +16,8 @@ private val scope = MainScope()
 external interface PasswordGenProps : Props {
     var userDto: UserDto
     var masterPassword: String
-    var reloadUser: (UserDto) -> Unit
+    var addEmail: (String) -> Unit
+    var removeEmail: (String) -> Unit
 }
 
 val PasswordGen = FC<PasswordGenProps> { props ->
@@ -27,7 +28,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     DropList {
         this.name = "email"
         this.inputType = InputType.email
-        this.list = props.userDto.emailDtoList
+        this.list = props.userDto.emailList
         this.doOnChange = { emailAddress ->
             scope.launch {
                 emailDto = checkEmail(props.userDto, emailAddress)
@@ -39,20 +40,24 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.doOnAdd = { emailAddress ->
             if (emailAddress != "") {
                 scope.launch {
-                    val userDto = addEmail(props.userDto.name, emailAddress)
-                    emailDto = userDto.emailDtoList.find { it.name == emailAddress }
-                    props.reloadUser(userDto)
+                    val emailDtoTemp = addEmail(props.userDto, emailAddress)
+                    emailDto = emailDtoTemp
+                    if (emailDtoTemp != null) {
+                        props.addEmail(emailAddress)
+                    }
                 }
             }
         }
         this.doOnRemove = { emailAddress ->
             if (emailAddress != "") {
                 scope.launch {
-                    val userDto = removeEmail(props.userDto.name, emailAddress)
-                    emailDto = null
-                    siteDto = null
-                    password = null
-                    props.reloadUser(userDto)
+                    val result = removeEmail(props.userDto, emailAddress)
+                    if (result != null) {
+                        emailDto = null
+                        siteDto = null
+                        password = null
+                        props.removeEmail(emailAddress)
+                    }
                 }
             }
         }
@@ -61,10 +66,10 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         DropList {
             this.name = "site"
             this.inputType = InputType.text
-            this.list = emailDto!!.siteDtoList
+            this.list = emailDto!!.siteList
             this.doOnChange = { siteName ->
                 scope.launch {
-                    siteDto = checkSite(props.userDto.name, emailDto!!, siteName)
+                    siteDto = checkSite(props.userDto.username, emailDto!!, siteName)
                     password = null
                 }
             }
@@ -72,28 +77,31 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             this.doOnAdd = { siteName ->
                 if (siteName != "") {
                     scope.launch {
-                        val emailDtoTemp = addSite(props.userDto.name, emailDto!!.name, siteName)
-                        emailDto = emailDtoTemp
-                        siteDto = emailDtoTemp.siteDtoList.find { it.name == siteName }
+                        val siteDtoTemp = addSite(props.userDto.username, emailDto!!, siteName)
+                        siteDto = siteDtoTemp
+                        if (siteDtoTemp != null) emailDto!!.addSite(siteName)
                     }
                 }
             }
             this.doOnRemove = { siteName ->
                 if (siteName != "") {
                     scope.launch {
-                        emailDto = removeSite(props.userDto.name, emailDto!!.name, siteName)
-                        siteDto = null
-                        password = null
+                        val result = removeSite(props.userDto.username, emailDto!!, siteName)
+                        if (result != null) {
+                            emailDto!!.removeSite(siteName)
+                            siteDto = null
+                            password = null
+                        }
                     }
                 }
             }
         }
     }
     Generator {
-        this.username = props.userDto.name
+        this.username = props.userDto.username
         this.masterPassword = props.masterPassword
-        this.emailAddress = emailDto?.name
-        this.siteName = siteDto?.name
+        this.emailAddress = emailDto?.emailAddress
+        this.siteName = siteDto?.siteName
         this.password = password
         this.updatePassword = {
             password = it
@@ -104,40 +112,44 @@ val PasswordGen = FC<PasswordGenProps> { props ->
 suspend fun checkEmail(userDto: UserDto, emailAddress: String): EmailDto? =
     if (!userDto.hasEmail(emailAddress)) null
     else jsonClient.get("$endpoint/email/find/$emailAddress") {
-        parameter("username", userDto.name)
+        parameter("username", userDto.username)
     }.body()
 
 
-suspend fun addEmail(username: String, emailAddress: String): UserDto =
-    jsonClient.post("$endpoint/email/new") {
+suspend fun addEmail(userDto: UserDto, emailAddress: String): EmailDto? =
+    if (userDto.hasEmail(emailAddress)) null
+    else jsonClient.post("$endpoint/email/new") {
         contentType(ContentType.Text.Plain)
         setBody(emailAddress)
-        parameter("username", username)
+        parameter("username", userDto.username)
     }.body()
 
-suspend fun removeEmail(username: String, emailAddress: String): UserDto =
-    jsonClient.delete("$endpoint/email/delete/$emailAddress") {
-        parameter("username", username)
+suspend fun removeEmail(userDto: UserDto, emailAddress: String): Unit? =
+    if (!userDto.hasEmail(emailAddress)) null
+    else jsonClient.delete("$endpoint/email/delete/$emailAddress") {
+        parameter("username", userDto.username)
     }.body()
 
 suspend fun checkSite(username: String, emailDto: EmailDto, siteName: String): SiteDto? =
     if (!emailDto.hasSite(siteName)) null
     else jsonClient.get("$endpoint/site/find/$siteName") {
         parameter("username", username)
-        parameter("emailAddress", emailDto.name)
+        parameter("emailAddress", emailDto.emailAddress)
     }.body()
 
 
-suspend fun addSite(username: String, emailAddress: String, siteName: String): EmailDto =
-    jsonClient.post("$endpoint/site/new") {
+suspend fun addSite(username: String, emailDto: EmailDto, siteName: String): SiteDto? =
+    if (emailDto.hasSite(siteName)) null
+    else jsonClient.post("$endpoint/site/new") {
         contentType(ContentType.Text.Plain)
         setBody(siteName)
         parameter("username", username)
-        parameter("emailAddress", emailAddress)
+        parameter("emailAddress", emailDto.emailAddress)
     }.body()
 
-suspend fun removeSite(username: String, emailAddress: String, siteName: String): EmailDto =
-    jsonClient.delete("$endpoint/site/delete/$siteName") {
+suspend fun removeSite(username: String, emailDto: EmailDto, siteName: String): Unit? =
+    if (!emailDto.hasSite(siteName)) null
+    else jsonClient.delete("$endpoint/site/delete/$siteName") {
         parameter("username", username)
-        parameter("emailAddress", emailAddress)
+        parameter("emailAddress", emailDto.emailAddress)
     }.body()

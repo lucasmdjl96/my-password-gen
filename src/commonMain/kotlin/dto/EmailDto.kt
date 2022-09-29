@@ -3,9 +3,11 @@ package dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-class EmailDto(override val name: String, val siteDtoList: MutableList<SiteDto>) : Named {
-    fun hasSite(name: String): Boolean = siteDtoList.find { it.name == name } != null
+class EmailDto(val emailAddress: String, val siteList: MutableList<String>) {
+    fun hasSite(siteName: String): Boolean = siteList.find { it == siteName } != null
 
-    fun addSite(siteDto: SiteDto) = siteDtoList.add(siteDto)
+    fun addSite(siteName: String) = siteList.add(siteName)
+
+    fun removeSite(siteName: String) = siteList.remove(siteName)
 
 }

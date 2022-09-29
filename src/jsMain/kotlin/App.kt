@@ -69,8 +69,11 @@ val App = FC<Props> {
                 PasswordGen {
                     this.userDto = userDto!!
                     this.masterPassword = masterPassword!!
-                    this.reloadUser = {
-                        userDto = it
+                    this.addEmail = { emailAddress ->
+                        userDto!!.addEmail(emailAddress)
+                    }
+                    this.removeEmail = { emailAddress ->
+                        userDto!!.removeEmail(emailAddress)
                     }
                 }
             }

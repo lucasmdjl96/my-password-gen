@@ -1,7 +1,10 @@
 package com.lucasmdjl.application.plugins.routing
 
-import com.lucasmdjl.application.*
 import com.lucasmdjl.application.dto.SessionCookie
+import com.lucasmdjl.application.emailService
+import com.lucasmdjl.application.siteMapper
+import com.lucasmdjl.application.siteService
+import com.lucasmdjl.application.userService
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -19,9 +22,13 @@ fun Route.siteRoutes() {
             val emailAddress = call.request.queryParameters.getOrFail("emailAddress")
             val email = emailService.getEmailFromUser(emailAddress, user)!!
             val siteName = call.receiveText().trim('"')
-            siteService.addSiteToEmail(siteName, email)
-            val emailDto = emailMapper.emailToEmailDto(email)
-            call.respond(emailDto)
+            val site = siteService.addSiteToEmail(siteName, email)
+            val siteDto = if (site != null) {
+                siteMapper.siteToSiteDto(site)
+            } else {
+                null
+            }
+            call.respondNullable(siteDto)
         }
         get("/find/{siteName}") {
             val sessionId = UUID.fromString(call.sessions.get<SessionCookie>()!!.sessionId)
@@ -45,9 +52,8 @@ fun Route.siteRoutes() {
             val emailAddress = call.request.queryParameters.getOrFail("emailAddress")
             val email = emailService.getEmailFromUser(emailAddress, user)!!
             val siteName = call.parameters.getOrFail("siteName")
-            siteService.removeSiteFromEmail(siteName, email)
-            val emailDto = emailMapper.emailToEmailDto(email)
-            call.respond(emailDto)
+            val result = siteService.removeSiteFromEmail(siteName, email)
+            call.respondNullable(result)
         }
     }
 }
