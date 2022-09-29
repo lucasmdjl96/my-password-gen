@@ -4,10 +4,13 @@ import com.lucasmdjl.application.model.Session
 import com.lucasmdjl.application.model.User
 import com.lucasmdjl.application.repository.UserRepository
 import com.lucasmdjl.application.tables.Users
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.update
 import java.util.*
+
+private val logger = KotlinLogging.logger("UserRepositoryImpl")
 
 object UserRepositoryImpl : UserRepository {
 

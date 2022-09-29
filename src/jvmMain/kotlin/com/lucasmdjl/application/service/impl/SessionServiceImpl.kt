@@ -4,8 +4,11 @@ import com.lucasmdjl.application.model.Session
 import com.lucasmdjl.application.repository.SessionRepository
 import com.lucasmdjl.application.repository.impl.SessionRepositoryImpl
 import com.lucasmdjl.application.service.SessionService
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
+
+private val logger = KotlinLogging.logger("SessionServiceImpl")
 
 object SessionServiceImpl : SessionService {
 

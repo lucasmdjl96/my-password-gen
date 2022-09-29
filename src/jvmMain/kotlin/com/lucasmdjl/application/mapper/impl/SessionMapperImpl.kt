@@ -4,6 +4,9 @@ package com.lucasmdjl.application.mapper.impl
 import com.lucasmdjl.application.dto.SessionDto
 import com.lucasmdjl.application.mapper.SessionMapper
 import com.lucasmdjl.application.model.Session
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger("SessionMapperImpl")
 
 object SessionMapperImpl : SessionMapper {
 

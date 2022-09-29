@@ -3,6 +3,9 @@ package com.lucasmdjl.application.mapper.impl
 import com.lucasmdjl.application.mapper.SiteMapper
 import com.lucasmdjl.application.model.Site
 import dto.SiteDto
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger("SiteMapperImpl")
 
 object SiteMapperImpl : SiteMapper {
 

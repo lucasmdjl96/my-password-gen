@@ -4,8 +4,11 @@ import com.lucasmdjl.application.model.Email
 import com.lucasmdjl.application.model.User
 import com.lucasmdjl.application.repository.EmailRepository
 import com.lucasmdjl.application.tables.Emails
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
+
+private val logger = KotlinLogging.logger("EmailRepositoryImpl")
 
 object EmailRepositoryImpl : EmailRepository {
 

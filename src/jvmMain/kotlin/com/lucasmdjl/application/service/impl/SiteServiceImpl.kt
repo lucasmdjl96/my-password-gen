@@ -4,7 +4,10 @@ import com.lucasmdjl.application.model.Email
 import com.lucasmdjl.application.repository.SiteRepository
 import com.lucasmdjl.application.repository.impl.SiteRepositoryImpl
 import com.lucasmdjl.application.service.SiteService
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+
+private val logger = KotlinLogging.logger("SiteServiceImpl")
 
 object SiteServiceImpl : SiteService {
 

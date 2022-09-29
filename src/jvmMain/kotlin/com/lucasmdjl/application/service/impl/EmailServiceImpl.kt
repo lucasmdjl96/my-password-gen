@@ -4,8 +4,10 @@ import com.lucasmdjl.application.model.User
 import com.lucasmdjl.application.repository.EmailRepository
 import com.lucasmdjl.application.repository.impl.EmailRepositoryImpl
 import com.lucasmdjl.application.service.EmailService
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 
+private val logger = KotlinLogging.logger("EmailServiceImpl")
 
 object EmailServiceImpl : EmailService {
 

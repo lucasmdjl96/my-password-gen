@@ -2,9 +2,11 @@ package com.lucasmdjl.application
 
 
 import com.lucasmdjl.application.mapper.EmailMapper
+import com.lucasmdjl.application.mapper.SessionMapper
 import com.lucasmdjl.application.mapper.SiteMapper
 import com.lucasmdjl.application.mapper.UserMapper
 import com.lucasmdjl.application.mapper.impl.EmailMapperImpl
+import com.lucasmdjl.application.mapper.impl.SessionMapperImpl
 import com.lucasmdjl.application.mapper.impl.SiteMapperImpl
 import com.lucasmdjl.application.mapper.impl.UserMapperImpl
 import com.lucasmdjl.application.plugins.*
@@ -25,6 +27,7 @@ val userService: UserService = UserServiceImpl
 val emailService: EmailService = EmailServiceImpl
 val siteService: SiteService = SiteServiceImpl
 
+val sessionMapper: SessionMapper = SessionMapperImpl
 val userMapper: UserMapper = UserMapperImpl
 val emailMapper: EmailMapper = EmailMapperImpl
 val siteMapper: SiteMapper = SiteMapperImpl

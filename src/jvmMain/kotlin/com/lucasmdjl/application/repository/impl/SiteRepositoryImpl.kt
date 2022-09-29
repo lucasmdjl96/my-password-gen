@@ -4,8 +4,11 @@ import com.lucasmdjl.application.model.Email
 import com.lucasmdjl.application.model.Site
 import com.lucasmdjl.application.repository.SiteRepository
 import com.lucasmdjl.application.tables.Sites
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
+
+private val logger = KotlinLogging.logger("SiteRepositoryImpl")
 
 object SiteRepositoryImpl : SiteRepository {
 

@@ -11,6 +11,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.util.*
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger("SiteRoutes")
 
 fun Route.siteRoutes() {
     route("/site") {

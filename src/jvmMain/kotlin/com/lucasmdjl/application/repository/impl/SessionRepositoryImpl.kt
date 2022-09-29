@@ -2,7 +2,10 @@ package com.lucasmdjl.application.repository.impl
 
 import com.lucasmdjl.application.model.Session
 import com.lucasmdjl.application.repository.SessionRepository
+import mu.KotlinLogging
 import java.util.*
+
+private val logger = KotlinLogging.logger("SessionRepositoryImpl")
 
 object SessionRepositoryImpl : SessionRepository {
 

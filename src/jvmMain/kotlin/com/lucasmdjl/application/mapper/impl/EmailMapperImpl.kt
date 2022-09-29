@@ -1,16 +1,16 @@
 package com.lucasmdjl.application.mapper.impl
 
 import com.lucasmdjl.application.mapper.EmailMapper
-import com.lucasmdjl.application.mapper.SiteMapper
 import com.lucasmdjl.application.model.Email
 import com.lucasmdjl.application.model.Site
 import dto.EmailDto
+import mu.KotlinLogging
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object EmailMapperImpl : EmailMapper {
+private val logger = KotlinLogging.logger("EmailMapperImpl")
 
-    private val siteMapper: SiteMapper = SiteMapperImpl
+object EmailMapperImpl : EmailMapper {
 
     override fun emailToEmailDto(email: Email): EmailDto = transaction {
         email.load(Email::sites)

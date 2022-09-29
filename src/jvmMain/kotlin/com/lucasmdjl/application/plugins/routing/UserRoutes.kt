@@ -9,6 +9,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger("UserRoutes")
 
 fun Route.userRoutes() {
     route("/user") {
