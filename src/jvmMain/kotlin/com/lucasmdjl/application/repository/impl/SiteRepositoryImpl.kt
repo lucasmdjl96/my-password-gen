@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 
 object SiteRepositoryImpl : SiteRepository {
 
-    override fun create(siteName: String, email: Email) =
+    override fun createAndGetId(siteName: String, email: Email) =
         Sites.insertIgnoreAndGetId {
             it[this.name] = siteName
             it[this.email] = email.id

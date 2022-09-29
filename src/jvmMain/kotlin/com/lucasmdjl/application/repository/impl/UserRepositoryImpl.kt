@@ -11,7 +11,7 @@ import java.util.*
 
 object UserRepositoryImpl : UserRepository {
 
-    override fun create(username: String, sessionId: UUID) =
+    override fun createAndGetId(username: String, sessionId: UUID) =
         Users.insertIgnoreAndGetId {
             it[this.username] = username
             it[this.session] = sessionId

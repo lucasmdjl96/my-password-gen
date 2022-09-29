@@ -5,7 +5,7 @@ import com.lucasmdjl.application.model.User
 
 interface EmailRepository {
 
-    fun create(emailAddress: String, user: User): Int?
+    fun createAndGetId(emailAddress: String, user: User): Int?
 
     fun getById(id: Int): Email?
 

@@ -6,7 +6,7 @@ import java.util.*
 
 interface UserRepository {
 
-    fun create(username: String, sessionId: UUID): Int?
+    fun createAndGetId(username: String, sessionId: UUID): Int?
 
     fun getById(id: Int): User?
 

@@ -9,11 +9,12 @@ import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 
 object EmailRepositoryImpl : EmailRepository {
 
-    override fun create(emailAddress: String, user: User) =
+    override fun createAndGetId(emailAddress: String, user: User) =
         Emails.insertIgnoreAndGetId {
             it[this.emailAddress] = emailAddress
             it[this.user] = user.id
         }?.value
+
     override fun getById(id: Int) =
         Email.findById(id)
 

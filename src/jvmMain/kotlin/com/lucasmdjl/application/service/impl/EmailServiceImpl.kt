@@ -12,7 +12,7 @@ object EmailServiceImpl : EmailService {
     private val emailRepository: EmailRepository = EmailRepositoryImpl
 
     override fun addEmailToUser(emailAddress: String, user: User) = transaction {
-        val id = emailRepository.create(emailAddress, user)
+        val id = emailRepository.createAndGetId(emailAddress, user)
         if (id != null ) emailRepository.getById(id) else null
     }
 

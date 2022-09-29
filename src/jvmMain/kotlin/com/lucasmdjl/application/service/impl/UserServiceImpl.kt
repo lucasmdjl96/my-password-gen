@@ -12,7 +12,7 @@ object UserServiceImpl : UserService {
     private val userRepository: UserRepository = UserRepositoryImpl
 
     override fun create(username: String, sessionId: UUID) = transaction {
-        val id = userRepository.create(username, sessionId)
+        val id = userRepository.createAndGetId(username, sessionId)
         if (id != null) userRepository.getById(id) else null
     }
 

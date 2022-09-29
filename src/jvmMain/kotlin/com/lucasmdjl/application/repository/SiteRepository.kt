@@ -5,7 +5,7 @@ import com.lucasmdjl.application.model.Site
 
 interface SiteRepository {
 
-    fun create(siteName: String, email: Email): Int?
+    fun createAndGetId(siteName: String, email: Email): Int?
 
     fun getById(id: Int): Site?
 

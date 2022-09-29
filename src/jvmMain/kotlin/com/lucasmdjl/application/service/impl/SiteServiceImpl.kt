@@ -11,7 +11,7 @@ object SiteServiceImpl : SiteService {
     private val siteRepository: SiteRepository = SiteRepositoryImpl
 
     override fun addSiteToEmail(siteName: String, email: Email) = transaction {
-        val id = siteRepository.create(siteName, email)
+        val id = siteRepository.createAndGetId(siteName, email)
         if (id != null) siteRepository.getById(id) else null
     }
 
