@@ -9,8 +9,6 @@ interface SiteRepository {
 
     fun getById(id: Int): Site?
 
-    fun getAllFromEmail(email: Email): Iterable<Site>
-
     fun getByNameAndEmail(siteName: String, email: Email): Site?
 
     fun delete(siteName: String, email: Email): Unit?

@@ -18,23 +18,31 @@ fun Route.userRoutes() {
         post("/login") {
             val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.receiveText().trim('"').encode()
+            logger.debug {
+                "/user/login: call with sessionId: $sessionId, username: $username"
+            }
             val user = userService.getByName(username, sessionId)
             val userDto = if (user != null) {
                 userMapper.userToUserDto(user)
             } else {
                 null
             }
+            logger.debug { "/user/login: respond with userDto: $userDto" }
             call.respondNullable(userDto)
         }
         post("/register") {
             val sessionId = call.sessions.get<SessionDto>()!!.sessionId
             val username = call.receiveText().trim('"').encode()
+            logger.debug {
+                "/user/register: call with sessionId: $sessionId, username: $username"
+            }
             val user = userService.create(username, sessionId)
             val userDto = if (user != null) {
                 userMapper.userToUserDto(user)
             } else {
                 null
             }
+            logger.debug { "/user/register: respond with userDto: $userDto" }
             call.respondNullable(userDto)
         }
     }

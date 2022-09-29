@@ -10,6 +10,11 @@ class UserDto(val username: String, val emailList: MutableList<String>) {
     fun addEmail(emailAddress: String) = emailList.add(emailAddress)
 
     fun removeEmail(emailAddress: String) = emailList.remove(emailAddress)
+
+    override fun toString(): String {
+        return "[UserDto: $username]"
+    }
+
 }
 
 

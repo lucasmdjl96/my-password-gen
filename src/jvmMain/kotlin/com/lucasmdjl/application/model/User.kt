@@ -12,6 +12,10 @@ class User(id: EntityID<Int>) : Entity<Int>(id) {
     val emails by Email referrersOn Emails.user
     var session by Session referencedOn Users.session
 
+    override fun toString(): String {
+        return "[User#${id.value}: $username]"
+    }
+
     companion object : EntityClass<Int, User>(Users)
 
 }

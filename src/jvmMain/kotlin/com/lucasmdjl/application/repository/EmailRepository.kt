@@ -9,8 +9,6 @@ interface EmailRepository {
 
     fun getById(id: Int): Email?
 
-    fun getAllFromUser(user: User): Iterable<Email>
-
     fun getByAddressAndUser(emailAddress: String, user: User): Email?
 
     fun delete(emailAddress: String, user: User): Unit?

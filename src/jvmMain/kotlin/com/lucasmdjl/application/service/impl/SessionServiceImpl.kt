@@ -15,14 +15,17 @@ object SessionServiceImpl : SessionService {
     private val sessionRepository: SessionRepository = SessionRepositoryImpl
 
     override fun create(): Session = transaction {
+        logger.debug { "create call with no arguments" }
         sessionRepository.create()
     }
 
     override fun getById(sessionId: UUID): Session? = transaction {
+        logger.debug { "getById call with sessionId: $sessionId" }
         sessionRepository.getById(sessionId)
     }
 
     override fun delete(session: Session) = transaction {
+        logger.debug { "delete call with session: $session" }
         sessionRepository.delete(session)
     }
 

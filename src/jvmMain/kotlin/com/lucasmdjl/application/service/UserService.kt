@@ -8,7 +8,7 @@ interface UserService {
 
     fun create(username: String, sessionId: UUID): User?
 
-    fun getByName(name: String, sessionId: UUID): User?
+    fun getByName(username: String, sessionId: UUID): User?
 
     fun moveAllUsers(fromSession: Session, toSession: Session)
 

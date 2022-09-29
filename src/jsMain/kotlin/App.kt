@@ -1,3 +1,4 @@
+import dto.LoginDto
 import dto.UserDto
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -32,13 +33,13 @@ val App = FC<Props> {
                     }
                 }
                 Login {
-                    this.onLogin = { loginData ->
+                    this.onLogin = { loginData: LoginDto ->
                         scope.launch {
                             userDto = loginUser(loginData.username)
                             masterPassword = loginData.password
                         }
                     }
-                    this.onRegister = { loginData ->
+                    this.onRegister = { loginData: LoginDto ->
                         scope.launch {
                             userDto = registerUser(loginData.username)
                             masterPassword = loginData.password

@@ -12,6 +12,10 @@ class Email(id: EntityID<Int>) : Entity<Int>(id) {
     var user by User referencedOn Emails.user
     val sites by Site referrersOn Sites.email
 
+    override fun toString(): String {
+        return "[Email#${id.value}: $emailAddress]"
+    }
+
     companion object : EntityClass<Int, Email>(Emails)
 
 }

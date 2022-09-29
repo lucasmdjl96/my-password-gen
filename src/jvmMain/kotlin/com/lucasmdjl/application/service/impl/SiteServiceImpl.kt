@@ -14,15 +14,18 @@ object SiteServiceImpl : SiteService {
     private val siteRepository: SiteRepository = SiteRepositoryImpl
 
     override fun addSiteToEmail(siteName: String, email: Email) = transaction {
+        logger.debug { "addSiteToEmail call with siteName: $siteName, email: $email" }
         val id = siteRepository.createAndGetId(siteName, email)
         if (id != null) siteRepository.getById(id) else null
     }
 
     override fun getSiteFromEmail(siteName: String, email: Email) = transaction {
+        logger.debug { "getSiteFromEmail call with siteName: $siteName, email: $email" }
         siteRepository.getByNameAndEmail(siteName, email)
     }
 
     override fun removeSiteFromEmail(siteName: String, email: Email) = transaction {
+        logger.debug { "removeSiteFromEmail call with siteName: $siteName, email: $email" }
         siteRepository.delete(siteName, email)
     }
 

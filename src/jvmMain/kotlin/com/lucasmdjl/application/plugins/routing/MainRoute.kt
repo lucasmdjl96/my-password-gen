@@ -16,6 +16,7 @@ private val logger = KotlinLogging.logger("MainRoute")
 fun Route.mainRoute() {
     get("/") {
         val sessionDto = call.sessions.get<SessionDto>()
+        logger.debug { "/: call with sessionId: ${sessionDto?.sessionId}" }
         val newSession = sessionService.create()
         if (sessionDto != null) {
             val oldSession = sessionService.getById(sessionDto.sessionId)
@@ -25,6 +26,8 @@ fun Route.mainRoute() {
             }
         }
         call.sessions.set(sessionMapper.sessionToSessionDto(newSession))
+
+        logger.debug { "/: respond with html" }
         call.respondText(
             this::class.java.classLoader.getResource("index.html")!!.readText(),
             ContentType.Text.Html

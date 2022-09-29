@@ -12,25 +12,31 @@ private val logger = KotlinLogging.logger("SiteRepositoryImpl")
 
 object SiteRepositoryImpl : SiteRepository {
 
-    override fun createAndGetId(siteName: String, email: Email) =
-        Sites.insertIgnoreAndGetId {
+    override fun createAndGetId(siteName: String, email: Email): Int? {
+        logger.debug { "createAndGetId call with siteName: $siteName, email: $email" }
+        return Sites.insertIgnoreAndGetId {
             it[this.name] = siteName
             it[this.email] = email.id
         }?.value
+    }
 
-    override fun getById(id: Int) =
-        Site.findById(id)
+    override fun getById(id: Int): Site? {
+        logger.debug { "getById call with id: $id" }
+        return Site.findById(id)
+    }
 
-    override fun getAllFromEmail(email: Email): Iterable<Site> =
-        email.sites
 
-    override fun getByNameAndEmail(siteName: String, email: Email) =
-        Site.find {
+    override fun getByNameAndEmail(siteName: String, email: Email): Site? {
+        logger.debug { "getByNameAndEmail call with siteName: $siteName, email: $email" }
+        return Site.find {
             Sites.name eq siteName and (Sites.email eq email.id)
         }.firstOrNull()
+    }
 
-    override fun delete(siteName: String, email: Email) =
-        getByNameAndEmail(siteName, email)?.delete()
+    override fun delete(siteName: String, email: Email): Unit? {
+        logger.debug { "delete call with siteName: $siteName, email: $email" }
+        return getByNameAndEmail(siteName, email)?.delete()
+    }
 
 
 }

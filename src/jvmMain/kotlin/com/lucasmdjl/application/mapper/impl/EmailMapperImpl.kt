@@ -13,6 +13,7 @@ private val logger = KotlinLogging.logger("EmailMapperImpl")
 object EmailMapperImpl : EmailMapper {
 
     override fun emailToEmailDto(email: Email): EmailDto = transaction {
+        logger.debug { "emailToEmailDto call with email: $email" }
         email.load(Email::sites)
         EmailDto(
             email.emailAddress,
@@ -21,6 +22,7 @@ object EmailMapperImpl : EmailMapper {
     }
 
     override fun emailIterableToEmailDtoIterable(emailList: Iterable<Email>?): Iterable<EmailDto>? {
+        logger.debug { "emailIterableToEmailDtoIterable call with emailList: $emailList" }
         return emailList?.map(EmailMapperImpl::emailToEmailDto)
     }
 
