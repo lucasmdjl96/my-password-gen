@@ -38,10 +38,6 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 scope.launch {
                     val emailDtoTemp = checkEmail(props.userDto, emailAddress)
                     emailDto = emailDtoTemp
-                    if (emailDtoTemp == null) {
-                        siteDto = null
-                        password = null
-                    }
                 }
             }
         }
@@ -87,9 +83,6 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                     scope.launch {
                         val siteDtoTemp = checkSite(props.userDto.username, emailDto!!, siteName)
                         siteDto = siteDtoTemp
-                        if (siteDtoTemp == null) {
-                            password = null
-                        }
                     }
                 }
             }
