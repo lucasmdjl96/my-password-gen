@@ -34,8 +34,8 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             siteDto = null
             password = null
             if (props.userDto.hasEmail(emailAddress)) {
+                emailDto = EmailDto(emailAddress, mutableListOf())
                 scope.launch {
-                    emailDto = EmailDto(emailAddress, mutableListOf())
                     val emailDtoTemp = checkEmail(props.userDto, emailAddress)
                     emailDto = emailDtoTemp
                     if (emailDtoTemp == null) {
@@ -48,9 +48,9 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.disableAdd = emailDto != null
         this.doOnAdd = { emailAddress ->
             if (emailAddress != "" && !props.userDto.hasEmail(emailAddress)) {
+                props.addEmail(emailAddress)
+                emailDto = EmailDto(emailAddress, mutableListOf())
                 scope.launch {
-                    props.addEmail(emailAddress)
-                    emailDto = EmailDto(emailAddress, mutableListOf())
                     val emailDtoTemp = addEmail(props.userDto, emailAddress)
                     emailDto = emailDtoTemp
                     if (emailDtoTemp == null) {
@@ -61,11 +61,11 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         }
         this.doOnRemove = { emailAddress ->
             if (emailAddress != "" && props.userDto.hasEmail(emailAddress)) {
+                props.removeEmail(emailAddress)
+                emailDto = null
+                siteDto = null
+                password = null
                 scope.launch {
-                    props.removeEmail(emailAddress)
-                    emailDto = null
-                    siteDto = null
-                    password = null
                     val result = removeEmail(props.userDto, emailAddress)
                     if (result == null) {
                         props.addEmail(emailAddress)
@@ -83,8 +83,8 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 siteDto = null
                 password = null
                 if (emailDto!!.hasSite(siteName)) {
+                    siteDto = SiteDto(siteName)
                     scope.launch {
-                        siteDto = SiteDto(siteName)
                         val siteDtoTemp = checkSite(props.userDto.username, emailDto!!, siteName)
                         siteDto = siteDtoTemp
                         if (siteDtoTemp == null) {
@@ -96,9 +96,9 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             this.disableAdd = siteDto != null
             this.doOnAdd = { siteName ->
                 if (siteName != "" && !emailDto!!.hasSite(siteName)) {
+                    emailDto!!.addSite(siteName)
+                    siteDto = SiteDto(siteName)
                     scope.launch {
-                        emailDto!!.addSite(siteName)
-                        siteDto = SiteDto(siteName)
                         val siteDtoTemp = addSite(props.userDto.username, emailDto!!, siteName)
                         siteDto = siteDtoTemp
                         if (siteDtoTemp == null) emailDto!!.removeSite(siteName)
@@ -107,10 +107,10 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
             this.doOnRemove = { siteName ->
                 if (siteName != "" && emailDto!!.hasSite(siteName)) {
+                    emailDto!!.removeSite(siteName)
+                    siteDto = null
+                    password = null
                     scope.launch {
-                        emailDto!!.removeSite(siteName)
-                        siteDto = null
-                        password = null
                         val result = removeSite(props.userDto.username, emailDto!!, siteName)
                         if (result == null) {
                             emailDto!!.addSite(siteName)
@@ -139,11 +139,11 @@ suspend fun checkEmail(userDto: UserDto, emailAddress: String): EmailDto? =
 
 
 suspend fun addEmail(userDto: UserDto, emailAddress: String): EmailDto? =
-        jsonClient.post("$endpoint/email/new") {
-            contentType(ContentType.Text.Plain)
-            setBody(emailAddress)
-            parameter("username", userDto.username)
-        }.body()
+    jsonClient.post("$endpoint/email/new") {
+        contentType(ContentType.Text.Plain)
+        setBody(emailAddress)
+        parameter("username", userDto.username)
+    }.body()
 
 suspend fun removeEmail(userDto: UserDto, emailAddress: String): Unit? =
     jsonClient.delete("$endpoint/email/delete/$emailAddress") {
