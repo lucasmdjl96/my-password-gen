@@ -5,6 +5,7 @@ import react.FC
 import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.span
 
 private val scope = MainScope()
 
@@ -42,7 +43,10 @@ val Generator = FC<GeneratorProps> { props ->
             className = CssClasses.password
             +props.password!!
             button {
-                +"\uD83D\uDCCB"
+                span {
+                    className = CssClasses.materialIcon
+                    +"content_copy"
+                }
                 onClick = {
                     clipboard.writeText(props.password!!)
                 }
