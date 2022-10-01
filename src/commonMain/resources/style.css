@@ -188,6 +188,14 @@
     flex-direction: column;
 }
 
+input + .material-icons {
+    position: relative;
+    right: 3.0rem;
+    color: grey;
+    cursor: pointer;
+    width: 0;
+}
+
 @media screen and (max-width: 450px) {
     .container {
         width: 100vw;

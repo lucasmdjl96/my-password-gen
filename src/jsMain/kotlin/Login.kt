@@ -36,7 +36,6 @@ val Login = FC<LoginProps> { props ->
                 username = it.target.value
             }
         }
-
     }
     div {
         className = CssClasses.inputContainer
@@ -45,16 +44,12 @@ val Login = FC<LoginProps> { props ->
             htmlFor = "password"
             hidden = true
         }
-        input {
-            id = "password"
-            placeholder = "Password"
-            type = InputType.password
-            value = password
-            onChange = {
-                password = it.target.value
+        Password {
+            this.password = password
+            this.onChange = {
+                password = it
             }
         }
-
     }
     div {
         className = CssClasses.buttonContainer
