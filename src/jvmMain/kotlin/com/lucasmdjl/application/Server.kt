@@ -43,5 +43,5 @@ fun Application.module() {
     installAuthentication()
     installHttpsRedirect()
     installRoutes()
-    DatabaseFactory.init(environment.config)
+    initDatabase()
 }

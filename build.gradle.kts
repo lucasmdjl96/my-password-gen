@@ -72,6 +72,7 @@ kotlin {
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
                 implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
 
+                implementation("com.zaxxer:HikariCP:5.0.1")
                 implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
                 implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
                 implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
