@@ -9,8 +9,8 @@ import org.jetbrains.exposed.dao.id.EntityID
 class Email(id: EntityID<Int>) : Entity<Int>(id) {
 
     var emailAddress by Emails.emailAddress
-    var user by User referencedOn Emails.user
-    val sites by Site referrersOn Sites.email
+    var user by User referencedOn Emails.userId
+    val sites by Site referrersOn Sites.emailId
 
     override fun toString(): String {
         return "[Email#${id.value}: $emailAddress]"

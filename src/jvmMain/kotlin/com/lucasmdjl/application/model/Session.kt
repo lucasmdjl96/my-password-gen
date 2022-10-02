@@ -9,7 +9,7 @@ import java.util.*
 
 class Session(id: EntityID<UUID>) : Entity<UUID>(id) {
 
-    val users by User referrersOn Users.session
+    val users by User referrersOn Users.sessionId
 
     override fun toString(): String {
         return "[Session#${id.value}]"

@@ -7,8 +7,8 @@ import org.jetbrains.exposed.dao.id.EntityID
 
 class Site(id: EntityID<Int>) : Entity<Int>(id) {
 
-    var name by Sites.name
-    var email by Email referencedOn Sites.email
+    var name by Sites.siteName
+    var email by Email referencedOn Sites.emailId
 
     override fun toString(): String {
         return "[Site#${id.value}: $name]"

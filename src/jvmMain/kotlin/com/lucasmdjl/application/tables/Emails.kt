@@ -6,10 +6,10 @@ import org.jetbrains.exposed.sql.ReferenceOption
 object Emails : IntIdTable() {
 
     val emailAddress = varchar("email_address", 64)
-    val user = reference("user_fk", Users.id, onDelete = ReferenceOption.CASCADE)
+    val userId = reference("user_id", Users.id, onDelete = ReferenceOption.CASCADE)
 
     init {
-        uniqueIndex(emailAddress, user)
+        uniqueIndex(emailAddress, userId)
     }
 
 }

@@ -18,7 +18,7 @@ object UserRepositoryImpl : UserRepository {
         logger.debug { "createAndGetId call with username: $username, sessionId: $sessionId" }
         return Users.insertIgnoreAndGetId {
             it[this.username] = username
-            it[this.session] = sessionId
+            it[this.sessionId] = sessionId
         }?.value
     }
 
@@ -30,14 +30,14 @@ object UserRepositoryImpl : UserRepository {
     override fun getByNameAndSession(username: String, sessionId: UUID): User? {
         logger.debug { "getByNameAndSession call with username: $username, sessionId: $sessionId" }
         return User.find {
-            Users.session eq sessionId and (Users.username eq username)
+            Users.sessionId eq sessionId and (Users.username eq username)
         }.firstOrNull()
     }
 
     override fun moveAll(fromSession: Session, toSession: Session) {
         logger.debug { "moveAll call with fromSession: $fromSession, toSession: $toSession" }
-        Users.update({ Users.session eq fromSession.id }) {
-            it[session] = toSession.id
+        Users.update({ Users.sessionId eq fromSession.id }) {
+            it[sessionId] = toSession.id
         }
     }
 

@@ -15,8 +15,8 @@ object SiteRepositoryImpl : SiteRepository {
     override fun createAndGetId(siteName: String, email: Email): Int? {
         logger.debug { "createAndGetId call with siteName: $siteName, email: $email" }
         return Sites.insertIgnoreAndGetId {
-            it[this.name] = siteName
-            it[this.email] = email.id
+            it[this.siteName] = siteName
+            it[this.emailId] = email.id
         }?.value
     }
 
@@ -29,7 +29,7 @@ object SiteRepositoryImpl : SiteRepository {
     override fun getByNameAndEmail(siteName: String, email: Email): Site? {
         logger.debug { "getByNameAndEmail call with siteName: $siteName, email: $email" }
         return Site.find {
-            Sites.name eq siteName and (Sites.email eq email.id)
+            Sites.siteName eq siteName and (Sites.emailId eq email.id)
         }.firstOrNull()
     }
 

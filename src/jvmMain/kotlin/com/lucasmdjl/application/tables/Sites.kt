@@ -5,10 +5,10 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 object Sites : IntIdTable() {
 
-    val name = varchar("name", 64)
-    val email = reference("email_fk", Emails.id, onDelete = ReferenceOption.CASCADE)
+    val siteName = varchar("site_name", 64)
+    val emailId = reference("email_id", Emails.id, onDelete = ReferenceOption.CASCADE)
 
     init {
-        uniqueIndex(name, email)
+        uniqueIndex(siteName, emailId)
     }
 }

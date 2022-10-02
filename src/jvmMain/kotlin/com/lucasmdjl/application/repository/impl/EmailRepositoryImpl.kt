@@ -16,7 +16,7 @@ object EmailRepositoryImpl : EmailRepository {
         logger.debug { "createAndGetId call with emailAddress: $emailAddress, user: $user" }
         return Emails.insertIgnoreAndGetId {
             it[this.emailAddress] = emailAddress
-            it[this.user] = user.id
+            it[this.userId] = user.id
         }?.value
     }
 
@@ -28,7 +28,7 @@ object EmailRepositoryImpl : EmailRepository {
     override fun getByAddressAndUser(emailAddress: String, user: User): Email? {
         logger.debug { "getByAddressAndUser call with emailAddress: $emailAddress, user: $user" }
         return Email.find {
-            Emails.emailAddress eq emailAddress and (Emails.user eq user.id)
+            Emails.emailAddress eq emailAddress and (Emails.userId eq user.id)
         }.firstOrNull()
     }
 
