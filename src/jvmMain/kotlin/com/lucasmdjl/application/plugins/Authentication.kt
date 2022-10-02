@@ -2,6 +2,7 @@ package com.lucasmdjl.application.plugins
 
 import com.lucasmdjl.application.dto.SessionDto
 import com.lucasmdjl.application.sessionService
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
@@ -19,7 +20,7 @@ fun Application.installAuthentication() {
             }
             challenge { session ->
                 logger.debug { "challenge call with sessionId: ${session?.sessionId}" }
-                call.respondRedirect("/")
+                call.respond(HttpStatusCode.Unauthorized)
             }
         }
     }
