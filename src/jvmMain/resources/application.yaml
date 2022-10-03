@@ -6,7 +6,7 @@ ktor:
     sslPort: 8443
   application:
     modules:
-      - com.lucasmdjl.application.ServerKt.module
+      - com.lucasmdjl.passwordgenerator.server.ServerKt.module
   security:
     ssl:
       keyStore: keystore/localhost.jks
