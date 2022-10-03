@@ -23,9 +23,17 @@ object CssClasses {
 
     val materialIcon = ClassName("material-icons")
 
+    val materialIconOutlined = ClassName("material-icons-outlined")
+
     val titleContainer = ClassName("titleContainer")
 
     val popup = ClassName("popup")
 
     val popupContainer = ClassName("popupContainer")
+
+    val onlineToggle = ClassName("onlineToggle")
+
+    val toggleContainerOn = ClassName("toggleContainer-on")
+
+    val toggleContainerOff = ClassName("toggleContainer-off")
 }

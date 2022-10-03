@@ -22,6 +22,7 @@ import react.useState
 val App = FC<Props> {
     var userDto by useState<UserDto>()
     var masterPassword by useState<String>()
+    var online by useState(true)
 
     div {
         className = CssClasses.background
@@ -35,22 +36,50 @@ val App = FC<Props> {
                         +"Password Generator"
                     }
                 }
+                div {
+                    className = CssClasses.onlineToggle
+                    div {
+                        +"Offline"
+                    }
+                    div {
+                        className = if (online) CssClasses.toggleContainerOn else CssClasses.toggleContainerOff
+                        span {
+                            className = CssClasses.materialIconOutlined
+                            +if (online) "toggle_on" else "toggle_off"
+                            onClick = {
+                                online = !online
+                            }
+                        }
+                    }
+                    div {
+                        +"Online"
+                    }
+                }
                 Login {
                     this.onLogin = { loginData: LoginDto ->
-                        scope.launch {
-                            userDto = loginUser(loginData.username)
+                        if (online) {
+                            scope.launch {
+                                userDto = loginUser(loginData.username)
+                                masterPassword = loginData.password
+                            }
+                        } else {
+                            userDto = UserDto(loginData.username, mutableListOf())
                             masterPassword = loginData.password
                         }
                     }
                     this.onRegister = { loginData: LoginDto ->
-                        scope.launch {
-                            userDto = registerUser(loginData.username)
+                        if (online) {
+                            scope.launch {
+                                userDto = registerUser(loginData.username)
+                                masterPassword = loginData.password
+                            }
+                        } else {
+                            userDto = UserDto(loginData.username, mutableListOf())
                             masterPassword = loginData.password
                         }
                     }
                 }
             }
-
             if (userDto != null) {
                 div {
                     className = CssClasses.titleContainer
@@ -79,6 +108,7 @@ val App = FC<Props> {
                     this.removeEmail = { emailAddress ->
                         userDto!!.removeEmail(emailAddress)
                     }
+                    this.online = online
                 }
             }
         }

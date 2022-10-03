@@ -21,6 +21,7 @@ external interface PasswordGenProps : Props {
     var masterPassword: String
     var addEmail: (String) -> Unit
     var removeEmail: (String) -> Unit
+    var online: Boolean
 }
 
 val PasswordGen = FC<PasswordGenProps> { props ->
@@ -38,8 +39,10 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             password = null
             if (props.userDto.hasEmail(emailAddress)) {
                 emailDto = EmailDto(emailAddress, mutableListOf())
-                scope.launch {
-                    emailDto = checkEmail(props.userDto, emailAddress)
+                if (props.online) {
+                    scope.launch {
+                        emailDto = checkEmail(props.userDto, emailAddress)
+                    }
                 }
             }
         }
@@ -48,11 +51,13 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             if (emailAddress != "" && !props.userDto.hasEmail(emailAddress)) {
                 props.addEmail(emailAddress)
                 emailDto = EmailDto(emailAddress, mutableListOf())
-                scope.launch {
-                    val emailDtoTemp = addEmail(props.userDto, emailAddress)
-                    emailDto = emailDtoTemp
-                    if (emailDtoTemp == null) {
-                        props.removeEmail(emailAddress)
+                if (props.online) {
+                    scope.launch {
+                        val emailDtoTemp = addEmail(props.userDto, emailAddress)
+                        emailDto = emailDtoTemp
+                        if (emailDtoTemp == null) {
+                            props.removeEmail(emailAddress)
+                        }
                     }
                 }
             }
@@ -63,10 +68,12 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 emailDto = null
                 siteDto = null
                 password = null
-                scope.launch {
-                    val result = removeEmail(props.userDto, emailAddress)
-                    if (result == null) {
-                        props.addEmail(emailAddress)
+                if (props.online) {
+                    scope.launch {
+                        val result = removeEmail(props.userDto, emailAddress)
+                        if (result == null) {
+                            props.addEmail(emailAddress)
+                        }
                     }
                 }
             }
@@ -82,8 +89,10 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 password = null
                 if (emailDto!!.hasSite(siteName)) {
                     siteDto = SiteDto(siteName)
-                    scope.launch {
-                        siteDto = checkSite(props.userDto.username, emailDto!!, siteName)
+                    if (props.online) {
+                        scope.launch {
+                            siteDto = checkSite(props.userDto.username, emailDto!!, siteName)
+                        }
                     }
                 }
             }
@@ -92,10 +101,12 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 if (siteName != "" && !emailDto!!.hasSite(siteName)) {
                     emailDto!!.addSite(siteName)
                     siteDto = SiteDto(siteName)
-                    scope.launch {
-                        val siteDtoTemp = addSite(props.userDto.username, emailDto!!, siteName)
-                        siteDto = siteDtoTemp
-                        if (siteDtoTemp == null) emailDto!!.removeSite(siteName)
+                    if (props.online) {
+                        scope.launch {
+                            val siteDtoTemp = addSite(props.userDto.username, emailDto!!, siteName)
+                            siteDto = siteDtoTemp
+                            if (siteDtoTemp == null) emailDto!!.removeSite(siteName)
+                        }
                     }
                 }
             }
@@ -104,10 +115,12 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                     emailDto!!.removeSite(siteName)
                     siteDto = null
                     password = null
-                    scope.launch {
-                        val result = removeSite(props.userDto.username, emailDto!!, siteName)
-                        if (result == null) {
-                            emailDto!!.addSite(siteName)
+                    if (props.online) {
+                        scope.launch {
+                            val result = removeSite(props.userDto.username, emailDto!!, siteName)
+                            if (result == null) {
+                                emailDto!!.addSite(siteName)
+                            }
                         }
                     }
                 }
