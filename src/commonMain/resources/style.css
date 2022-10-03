@@ -18,12 +18,6 @@
     background: hsla(40, 6%, 48%, 0.5);
 }
 
-@media screen and (max-width: 450px) {
-    .container {
-        width: 100vw;
-    }
-}
-
 .inputContainer {
     display: flex;
     flex-direction: row;
@@ -225,7 +219,7 @@
     text-align: center;
     padding: 0.1rem 0.5rem;
     border-radius: 5px;
-    font-size: 1.0rem;
+    font-size: 1.3rem;
     cursor: default;
     white-space: nowrap;
 }
@@ -245,11 +239,7 @@ input + .material-icons {
     width: 0;
 }
 
-@media screen and (max-width: 450px) {
-    .container {
-        width: 100vw;
-    }
-
+@media (hover: none) {
     .buttonContainer button:hover {
         background-color: hsl(181, 100%, 41%);
     }
@@ -271,30 +261,16 @@ input + .material-icons {
     }
 }
 
+@media screen and (max-width: 450px) {
+    .container {
+        width: 100vw;
+    }
+}
+
 @media screen and (max-width: 350px) {
     .inputContainer {
         margin: 0;
         padding-left: 0;
-    }
-
-    .buttonContainer button:hover {
-        background-color: hsl(181, 100%, 41%);
-    }
-
-    .buttonContainer button:active {
-        background-color: hsl(210, 96%, 41%);
-    }
-
-    .addButton:hover {
-        background-color: hsl(120, 80%, 75%);
-    }
-
-    .addButton:active {
-        background-color: hsl(90, 100%, 40%);
-    }
-
-    .addButton:disabled {
-        background-color: hsl(120, 20%, 65%);
     }
 }
 
@@ -322,50 +298,10 @@ input + .material-icons {
     .logOut {
         padding: 1.5rem 2.0rem 0.5rem;
     }
-
-    .buttonContainer button:hover {
-        background-color: hsl(181, 100%, 41%);
-    }
-
-    .buttonContainer button:active {
-        background-color: hsl(210, 96%, 41%);
-    }
-
-    .addButton:hover {
-        background-color: hsl(120, 80%, 75%);
-    }
-
-    .addButton:active {
-        background-color: hsl(90, 100%, 40%);
-    }
-
-    .addButton:disabled {
-        background-color: hsl(120, 20%, 65%);
-    }
 }
 
 @media screen and (max-height: 350px) {
     .buttonContainer {
         margin: 0;
-    }
-
-    .buttonContainer button:hover {
-        background-color: hsl(181, 100%, 41%);
-    }
-
-    .buttonContainer button:active {
-        background-color: hsl(210, 96%, 41%);
-    }
-
-    .addButton:hover {
-        background-color: hsl(120, 80%, 75%);
-    }
-
-    .addButton:active {
-        background-color: hsl(90, 100%, 40%);
-    }
-
-    .addButton:disabled {
-        background-color: hsl(120, 20%, 65%);
     }
 }
