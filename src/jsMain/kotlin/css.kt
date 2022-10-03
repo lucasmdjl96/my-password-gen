@@ -22,4 +22,8 @@ object CssClasses {
     val materialIcon = ClassName("material-icons")
 
     val titleContainer = ClassName("titleContainer")
+
+    val popup = ClassName("popup")
+
+    val popupContainer = ClassName("popupContainer")
 }

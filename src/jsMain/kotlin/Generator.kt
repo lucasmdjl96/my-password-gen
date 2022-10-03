@@ -1,11 +1,16 @@
 import crypto.sha256
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.js.timers.Timeout
+import kotlinx.js.timers.clearTimeout
+import kotlinx.js.timers.setTimeout
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
+import react.useState
+import kotlin.time.Duration.Companion.seconds
 
 private val scope = MainScope()
 
@@ -19,6 +24,8 @@ external interface GeneratorProps : Props {
 }
 
 val Generator = FC<GeneratorProps> { props ->
+    var showPopup: Boolean by useState(false)
+    var timeout by useState<Timeout>()
     div {
         className = CssClasses.buttonContainer
         button {
@@ -49,6 +56,20 @@ val Generator = FC<GeneratorProps> { props ->
                 }
                 onClick = {
                     clipboard.writeText(props.password!!)
+                    showPopup = true
+                    if (timeout != null) clearTimeout(timeout!!)
+                    timeout = setTimeout(0.6.seconds) {
+                        showPopup = false
+                        timeout = null
+                    }
+                }
+            }
+            div {
+                className = CssClasses.popupContainer
+                span {
+                    className = CssClasses.popup
+                    +"text copied"
+                    hidden = !showPopup
                 }
             }
         }
