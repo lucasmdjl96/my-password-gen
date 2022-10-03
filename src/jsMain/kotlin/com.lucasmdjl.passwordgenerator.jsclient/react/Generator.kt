@@ -3,7 +3,6 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.clipboard
 import com.lucasmdjl.passwordgenerator.jsclient.crypto.sha256
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.js.timers.Timeout
 import kotlinx.js.timers.clearTimeout
@@ -15,8 +14,6 @@ import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
 import react.useState
 import kotlin.time.Duration.Companion.seconds
-
-private val scope = MainScope()
 
 external interface GeneratorProps : Props {
     var username: String

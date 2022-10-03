@@ -9,7 +9,6 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
@@ -19,8 +18,6 @@ import react.dom.html.ReactHTML.h1
 import react.dom.html.ReactHTML.main
 import react.dom.html.ReactHTML.span
 import react.useState
-
-private val scope = MainScope()
 
 val App = FC<Props> {
     var userDto by useState<UserDto>()

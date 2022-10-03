@@ -15,7 +15,7 @@ import react.dom.html.ReactHTML.option
 import react.dom.html.ReactHTML.span
 import react.useState
 
-private var scope = MainScope()
+var scope = MainScope()
 
 external interface DropListProps : Props {
     var doOnChange: (String) -> Unit
