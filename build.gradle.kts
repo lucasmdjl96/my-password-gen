@@ -46,6 +46,7 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
+                implementation("io.ktor:ktor-resources:$ktorVersion")
             }
         }
         val commonTest by getting {
@@ -69,6 +70,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
                 implementation("io.ktor:ktor-server-netty:$ktorVersion")
                 implementation("io.ktor:ktor-server-config-yaml:$ktorVersion")
+                implementation("io.ktor:ktor-server-resources:$ktorVersion")
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
                 implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
 
@@ -84,6 +86,7 @@ kotlin {
             dependencies {
                 implementation("io.ktor:ktor-client-js:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                implementation("io.ktor:ktor-client-resources:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom:$kotlinWrappersVersion"))
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinWrappersVersion")

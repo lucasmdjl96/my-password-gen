@@ -42,6 +42,7 @@ fun Application.module() {
     installSessions()
     installAuthentication()
     installHttpsRedirect()
+    installResources()
     installRoutes()
     initDatabase()
 }

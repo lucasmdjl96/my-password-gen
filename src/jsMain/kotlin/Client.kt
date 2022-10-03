@@ -1,10 +1,12 @@
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.resources.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.browser.document
 import kotlinx.browser.window
+import react.App
 import react.create
 import react.dom.client.createRoot
 
@@ -14,13 +16,17 @@ fun main() {
     createRoot(container).render(app)
 }
 
-val endpoint = window.location.origin
-
 val clipboard = window.navigator.clipboard
 
 val jsonClient = HttpClient {
     install(ContentNegotiation) {
         json()
+    }
+    install(Resources)
+    defaultRequest {
+        host = "localhost"
+        port = 8443
+        url { protocol = URLProtocol.HTTPS }
     }
     expectSuccess = true
     HttpResponseValidator {

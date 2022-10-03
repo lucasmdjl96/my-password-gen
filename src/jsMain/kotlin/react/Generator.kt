@@ -1,15 +1,16 @@
+package react
+
+import CssClasses
+import clipboard
 import crypto.sha256
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.js.timers.Timeout
 import kotlinx.js.timers.clearTimeout
 import kotlinx.js.timers.setTimeout
-import react.FC
-import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
-import react.useState
 import kotlin.time.Duration.Companion.seconds
 
 private val scope = MainScope()

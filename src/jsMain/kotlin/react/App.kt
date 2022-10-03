@@ -1,18 +1,21 @@
+package react
+
+import CssClasses
 import dto.LoginDto
 import dto.UserDto
 import io.ktor.client.call.*
+import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import jsonClient
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import react.FC
-import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h1
 import react.dom.html.ReactHTML.main
 import react.dom.html.ReactHTML.span
-import react.useState
+import routes.UserRoute
 
 private val scope = MainScope()
 
@@ -84,7 +87,7 @@ val App = FC<Props> {
 
 suspend fun loginUser(username: String): UserDto? =
     if (username == "") null
-    else jsonClient.post("$endpoint/user/login") {
+    else jsonClient.post(UserRoute.Login()) {
         contentType(ContentType.Text.Plain)
         setBody(username)
     }.body()
@@ -92,7 +95,7 @@ suspend fun loginUser(username: String): UserDto? =
 
 suspend fun registerUser(username: String): UserDto? =
     if (username == "") null
-    else jsonClient.post("$endpoint/user/register") {
+    else jsonClient.post(UserRoute.Register()) {
         contentType(ContentType.Text.Plain)
         setBody(username)
     }.body()

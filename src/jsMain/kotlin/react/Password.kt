@@ -1,9 +1,9 @@
-import react.FC
-import react.Props
+package react
+
+import CssClasses
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.span
-import react.useState
 
 external interface PasswordProps : Props {
     var password: String

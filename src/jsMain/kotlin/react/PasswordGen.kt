@@ -1,15 +1,18 @@
+package react
+
 import dto.EmailDto
 import dto.SiteDto
 import dto.UserDto
 import io.ktor.client.call.*
+import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import jsonClient
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import react.FC
-import react.Props
 import react.dom.html.InputType
-import react.useState
+import routes.EmailRoute
+import routes.SiteRoute
 
 private val scope = MainScope()
 
@@ -124,40 +127,29 @@ val PasswordGen = FC<PasswordGenProps> { props ->
 }
 
 suspend fun checkEmail(userDto: UserDto, emailAddress: String): EmailDto? =
-    jsonClient.get("$endpoint/email/find/$emailAddress") {
-        parameter("username", userDto.username)
+    jsonClient.get(EmailRoute.Find(emailAddress, userDto.username)) {
     }.body()
 
-
 suspend fun addEmail(userDto: UserDto, emailAddress: String): EmailDto? =
-    jsonClient.post("$endpoint/email/new") {
+    jsonClient.post(EmailRoute.New(userDto.username)) {
         contentType(ContentType.Text.Plain)
         setBody(emailAddress)
-        parameter("username", userDto.username)
     }.body()
 
 suspend fun removeEmail(userDto: UserDto, emailAddress: String): Unit? =
-    jsonClient.delete("$endpoint/email/delete/$emailAddress") {
-        parameter("username", userDto.username)
+    jsonClient.delete(EmailRoute.Delete(emailAddress, userDto.username)) {
     }.body()
 
 suspend fun checkSite(username: String, emailDto: EmailDto, siteName: String): SiteDto? =
-    jsonClient.get("$endpoint/site/find/$siteName") {
-        parameter("username", username)
-        parameter("emailAddress", emailDto.emailAddress)
+    jsonClient.get(SiteRoute.Find(siteName, emailDto.emailAddress, username)) {
     }.body()
 
-
 suspend fun addSite(username: String, emailDto: EmailDto, siteName: String): SiteDto? =
-    jsonClient.post("$endpoint/site/new") {
+    jsonClient.post(SiteRoute.New(emailDto.emailAddress, username)) {
         contentType(ContentType.Text.Plain)
         setBody(siteName)
-        parameter("username", username)
-        parameter("emailAddress", emailDto.emailAddress)
     }.body()
 
 suspend fun removeSite(username: String, emailDto: EmailDto, siteName: String): Unit? =
-    jsonClient.delete("$endpoint/site/delete/$siteName") {
-        parameter("username", username)
-        parameter("emailAddress", emailDto.emailAddress)
+    jsonClient.delete(SiteRoute.Delete(siteName, emailDto.emailAddress, username)) {
     }.body()
