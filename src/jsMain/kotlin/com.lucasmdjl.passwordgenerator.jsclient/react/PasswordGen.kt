@@ -38,7 +38,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             siteDto = null
             password = null
             if (props.userDto.hasEmail(emailAddress)) {
-                emailDto = EmailDto(emailAddress, mutableListOf())
+                emailDto = EmailDto(emailAddress)
                 if (props.online) {
                     scope.launch {
                         emailDto = checkEmail(props.userDto, emailAddress)
@@ -50,7 +50,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.doOnAdd = { emailAddress ->
             if (emailAddress != "" && !props.userDto.hasEmail(emailAddress)) {
                 props.addEmail(emailAddress)
-                emailDto = EmailDto(emailAddress, mutableListOf())
+                emailDto = EmailDto(emailAddress)
                 if (props.online) {
                     scope.launch {
                         val emailDtoTemp = addEmail(props.userDto, emailAddress)

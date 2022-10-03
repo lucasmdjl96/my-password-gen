@@ -63,7 +63,7 @@ val App = FC<Props> {
                                 masterPassword = loginData.password
                             }
                         } else {
-                            userDto = UserDto(loginData.username, mutableListOf())
+                            userDto = UserDto(loginData.username)
                             masterPassword = loginData.password
                         }
                     }
@@ -74,7 +74,7 @@ val App = FC<Props> {
                                 masterPassword = loginData.password
                             }
                         } else {
-                            userDto = UserDto(loginData.username, mutableListOf())
+                            userDto = UserDto(loginData.username)
                             masterPassword = loginData.password
                         }
                     }
