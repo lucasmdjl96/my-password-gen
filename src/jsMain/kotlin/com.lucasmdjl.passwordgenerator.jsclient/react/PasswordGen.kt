@@ -70,11 +70,11 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
         }
         this.doOnRemove = { emailAddress ->
+            emailDto = null
+            siteDto = null
+            password = null
             if (emailAddress != "" && props.userDto.hasEmail(emailAddress)) {
                 props.removeEmail(emailAddress)
-                emailDto = null
-                siteDto = null
-                password = null
                 if (props.online) {
                     scope.launch {
                         val result = removeEmail(props.userDto, emailAddress)
@@ -118,10 +118,10 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 }
             }
             this.doOnRemove = { siteName ->
+                siteDto = null
+                password = null
                 if (siteName != "" && emailDto!!.hasSite(siteName)) {
                     emailDto!!.removeSite(siteName)
-                    siteDto = null
-                    password = null
                     if (props.online) {
                         scope.launch {
                             val result = removeSite(props.userDto.username, emailDto!!, siteName)
