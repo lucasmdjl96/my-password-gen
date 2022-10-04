@@ -34,15 +34,22 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.inputType = InputType.email
         this.list = props.userDto.emailList
         this.doOnChange = { emailAddress ->
-            emailDto = null
-            siteDto = null
-            password = null
-            if (props.userDto.hasEmail(emailAddress)) {
-                emailDto = EmailDto(emailAddress)
-                if (props.online) {
+            if (props.online) {
+                emailDto = null
+                siteDto = null
+                password = null
+                if (props.userDto.hasEmail(emailAddress)) {
+                    emailDto = EmailDto(emailAddress)
                     scope.launch {
                         emailDto = checkEmail(props.userDto, emailAddress)
                     }
+                }
+            } else {
+                password = null
+                emailDto = if (emailDto != null) {
+                    EmailDto(emailAddress, emailDto!!.siteList)
+                } else {
+                    EmailDto(emailAddress)
                 }
             }
         }

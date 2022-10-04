@@ -40,6 +40,7 @@ val App = FC<Props> {
                     className = CssClasses.onlineToggle
                     div {
                         +"Offline"
+                        onClick = { online = false }
                     }
                     div {
                         className = if (online) CssClasses.toggleContainerOn else CssClasses.toggleContainerOff
@@ -53,6 +54,7 @@ val App = FC<Props> {
                     }
                     div {
                         +"Online"
+                        onClick = { online = true }
                     }
                 }
                 Login {
