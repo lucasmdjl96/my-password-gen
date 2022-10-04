@@ -36,4 +36,8 @@ object CssClasses {
     val toggleContainerOn = ClassName("toggleContainer-on")
 
     val toggleContainerOff = ClassName("toggleContainer-off")
+
+    val colorPickerContainer = ClassName("colorPickerContainer")
+
+    val colorPicker = ClassName("colorPicker")
 }

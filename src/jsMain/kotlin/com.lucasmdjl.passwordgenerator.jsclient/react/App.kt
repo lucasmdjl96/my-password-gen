@@ -5,6 +5,8 @@ import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
 import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
+import csstype.Color
+import emotion.react.css
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
@@ -12,9 +14,12 @@ import io.ktor.http.*
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
+import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h1
+import react.dom.html.ReactHTML.input
+import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.main
 import react.dom.html.ReactHTML.span
 import react.useState
@@ -23,9 +28,29 @@ val App = FC<Props> {
     var userDto by useState<UserDto>()
     var masterPassword by useState<String>()
     var online by useState(true)
+    var background by useState(Color("#00008A"))
 
     div {
-        className = CssClasses.background
+        css(CssClasses.background) {
+            backgroundColor = background
+        }
+        div {
+            className = CssClasses.colorPickerContainer
+            label {
+                +"Background Color"
+                htmlFor = "backgroundColor"
+                hidden = true
+            }
+            input {
+                className = CssClasses.colorPicker
+                id = "backgroundColor"
+                type = InputType.color
+                value = background
+                onChange = { event ->
+                    background = Color(event.target.value)
+                }
+            }
+        }
         main {
             className = CssClasses.container
             if (userDto == null) {
