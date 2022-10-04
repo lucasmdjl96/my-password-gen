@@ -1,6 +1,7 @@
 package com.lucasmdjl.passwordgenerator.jsclient
 
 import csstype.ClassName
+import csstype.Color
 
 object CssClasses {
     val background = ClassName("background")
@@ -33,11 +34,12 @@ object CssClasses {
 
     val onlineToggle = ClassName("onlineToggle")
 
-    val toggleContainerOn = ClassName("toggleContainer-on")
-
-    val toggleContainerOff = ClassName("toggleContainer-off")
+    val toggleContainer = ClassName("toggleContainer")
 
     val colorPickerContainer = ClassName("colorPickerContainer")
 
     val colorPicker = ClassName("colorPicker")
 }
+@Suppress("NOTHING_TO_INLINE")
+inline fun hsl(hue: Int, saturation: Int, lightning: Int): Color =
+    "hsl($hue, $saturation%, $lightning%)".unsafeCast<Color>()

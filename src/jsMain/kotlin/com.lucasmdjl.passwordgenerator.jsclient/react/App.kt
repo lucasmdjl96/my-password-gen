@@ -4,6 +4,7 @@ import com.lucasmdjl.passwordgenerator.common.dto.UserDto
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
+import com.lucasmdjl.passwordgenerator.jsclient.hsl
 import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
 import csstype.Color
 import emotion.react.css
@@ -24,11 +25,15 @@ import react.dom.html.ReactHTML.main
 import react.dom.html.ReactHTML.span
 import react.useState
 
+private val toggleOnColor = hsl(200, 100, 45)
+private val toggleOffColor = hsl(0, 0, 50)
+private val initialBackgroundColor = Color("#00008A")
+
 val App = FC<Props> {
     var userDto by useState<UserDto>()
     var masterPassword by useState<String>()
     var online by useState(true)
-    var background by useState(Color("#00008A"))
+    var background by useState(initialBackgroundColor)
 
     div {
         css(CssClasses.background) {
@@ -68,7 +73,9 @@ val App = FC<Props> {
                         onClick = { online = false }
                     }
                     div {
-                        className = if (online) CssClasses.toggleContainerOn else CssClasses.toggleContainerOff
+                        css(CssClasses.toggleContainer) {
+                            backgroundColor = if (online) toggleOnColor else toggleOffColor
+                        }
                         span {
                             className = CssClasses.materialIconOutlined
                             +if (online) "toggle_on" else "toggle_off"

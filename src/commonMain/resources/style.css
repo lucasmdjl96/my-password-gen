@@ -16,7 +16,7 @@
 
 .colorPicker {
     border: none;
-    color: hsla(0, 0%, 25%, 0.25);
+    background-color: hsla(0, 0%, 0%, 0.25);
 }
 
 .container {
@@ -113,26 +113,18 @@
     font-size: 1.6rem;
 }
 
-.toggleContainer-off {
-    height: 1.4rem;
-    background-color: hsl(0, 0%, 50%);
+.toggleContainer {
+    height: 1.2rem;
     border-radius: 8px;
-    width: 2.8rem;
-}
-
-.toggleContainer-on {
-    height: 1.4rem;
-    background-color: hsl(200, 100%, 45%);
-    border-radius: 8px;
-    width: 2.8rem;
+    width: 2.6rem;
 }
 
 .onlineToggle .material-icons-outlined {
     cursor: pointer;
     font-size: 3.0rem;
     position: relative;
-    bottom: 8px;
-    right: 1px;
+    bottom: 0.9rem;
+    right: 0.2rem;
 }
 
 .buttonContainer {
