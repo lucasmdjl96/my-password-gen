@@ -87,7 +87,7 @@ val App = FC<Props> {
                     className = CssClasses.titleContainer
                     h1 {
                         className = CssClasses.title
-                        +"Password Generator"
+                        +"${if (!online) "Offline " else ""}Password Generator"
                     }
                     button {
                         className = CssClasses.logOut
