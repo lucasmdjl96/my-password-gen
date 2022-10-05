@@ -13,9 +13,11 @@ import kotlinx.browser.window
 import react.create
 import react.dom.client.createRoot
 
+private const val defaultBackgroundColor = "#00008A"
+
 fun main() {
     val container = document.getElementById("root")!!
-    val backgroundColor = localStorage.getItem("backgroundColor") ?: "#00008A"
+    val backgroundColor = localStorage.getItem("backgroundColor") ?: defaultBackgroundColor
     val app = App(backgroundColor).create()
     createRoot(container).render(app)
 }
