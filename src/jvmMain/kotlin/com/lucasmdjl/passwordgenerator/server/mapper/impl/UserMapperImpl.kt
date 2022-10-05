@@ -21,10 +21,9 @@ object UserMapperImpl : UserMapper {
         )
     }
 
-
-    override fun userIterableToUserClientDtoIterable(userList: Iterable<User>?): Iterable<UserClientDto>? {
-        logger.debug { "userIterableToUserDtoIterable call with userList: $userList" }
-        return userList?.map(UserMapperImpl::userToUserClientDto)
+    override fun userIterableToUserClientDtoIterable(userIterable: Iterable<User>): Iterable<UserClientDto> {
+        logger.debug { "userIterableToUserDtoIterable call with userList: $userIterable" }
+        return userIterable.map(UserMapperImpl::userToUserClientDto)
     }
 
 }

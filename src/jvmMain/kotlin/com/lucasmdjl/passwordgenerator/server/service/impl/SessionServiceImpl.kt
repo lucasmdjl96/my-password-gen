@@ -1,32 +1,28 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
-import com.lucasmdjl.passwordgenerator.server.model.Session
-import com.lucasmdjl.passwordgenerator.server.repository.SessionRepository
-import com.lucasmdjl.passwordgenerator.server.repository.impl.SessionRepositoryImpl
+import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
-import mu.KotlinLogging
+import com.lucasmdjl.passwordgenerator.server.sessionRepository
+import com.lucasmdjl.passwordgenerator.server.userService
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-private val logger = KotlinLogging.logger("SessionServiceImpl")
-
 object SessionServiceImpl : SessionService {
 
-    private val sessionRepository: SessionRepository = SessionRepositoryImpl
-
-    override fun create(): Session = transaction {
-        logger.debug { "create call with no arguments" }
-        sessionRepository.create()
+    override fun assignNew(oldSessionDto: SessionDto?) = transaction {
+        val newSession = sessionRepository.create()
+        if (oldSessionDto != null) {
+            val oldSession = sessionRepository.getById(oldSessionDto.sessionId)
+            if (oldSession != null) {
+                userService.moveAllUsers(oldSession, newSession)
+                sessionRepository.delete(oldSession)
+            }
+        }
+        newSession
     }
 
-    override fun getById(sessionId: UUID): Session? = transaction {
-        logger.debug { "getById call with sessionId: $sessionId" }
+    override fun getById(sessionId: UUID) = transaction {
         sessionRepository.getById(sessionId)
-    }
-
-    override fun delete(session: Session) = transaction {
-        logger.debug { "delete call with session: $session" }
-        sessionRepository.delete(session)
     }
 
 }

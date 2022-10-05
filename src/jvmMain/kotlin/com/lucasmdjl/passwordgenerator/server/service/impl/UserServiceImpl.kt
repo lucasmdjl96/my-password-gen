@@ -20,7 +20,7 @@ object UserServiceImpl : UserService {
         if (id != null) userRepository.getById(id) else null
     }
 
-    override fun getByName(username: String, sessionId: UUID) = transaction {
+    override fun find(username: String, sessionId: UUID) = transaction {
         logger.debug { "getByName call with username: $username, sessionId: $sessionId" }
         userRepository.getByNameAndSession(username, sessionId)
     }

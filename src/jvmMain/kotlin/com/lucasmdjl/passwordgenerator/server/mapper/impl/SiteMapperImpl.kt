@@ -14,9 +14,9 @@ object SiteMapperImpl : SiteMapper {
         return SiteClientDto(site.name)
     }
 
-    override fun siteIterableToSiteDtoClientIterable(siteList: Iterable<Site>?): Iterable<SiteClientDto>? {
-        logger.debug { "siteIterableToSiteDtoIterable call with siteList: $siteList" }
-        return siteList?.map(SiteMapperImpl::siteToSiteClientDto)
+    override fun siteIterableToSiteDtoClientIterable(siteIterable: Iterable<Site>): Iterable<SiteClientDto> {
+        logger.debug { "siteIterableToSiteDtoIterable call with siteList: $siteIterable" }
+        return siteIterable.map(SiteMapperImpl::siteToSiteClientDto)
     }
 
 }

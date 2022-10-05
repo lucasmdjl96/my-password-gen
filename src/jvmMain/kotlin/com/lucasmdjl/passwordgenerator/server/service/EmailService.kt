@@ -1,14 +1,14 @@
 package com.lucasmdjl.passwordgenerator.server.service
 
 import com.lucasmdjl.passwordgenerator.server.model.Email
-import com.lucasmdjl.passwordgenerator.server.model.User
+import java.util.*
 
 interface EmailService {
 
-    fun addEmailToUser(emailAddress: String, user: User): Email?
+    fun create(emailAddress: String, username: String, sessionId: UUID): Email?
 
-    fun getEmailFromUser(emailAddress: String, user: User): Email?
+    fun find(emailAddress: String, username: String, sessionId: UUID): Email?
 
-    fun removeEmailFromUser(emailAddress: String, user: User): Unit?
+    fun delete(emailAddress: String, username: String, sessionId: UUID): Unit?
 
 }

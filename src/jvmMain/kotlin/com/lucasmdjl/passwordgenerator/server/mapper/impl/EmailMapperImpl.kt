@@ -21,9 +21,9 @@ object EmailMapperImpl : EmailMapper {
         )
     }
 
-    override fun emailIterableToEmailClientDtoIterable(emailList: Iterable<Email>?): Iterable<EmailClientDto>? {
-        logger.debug { "emailIterableToEmailDtoIterable call with emailList: $emailList" }
-        return emailList?.map(EmailMapperImpl::emailToEmailClientDto)
+    override fun emailIterableToEmailClientDtoIterable(emailIterable: Iterable<Email>): Iterable<EmailClientDto> {
+        logger.debug { "emailIterableToEmailDtoIterable call with emailList: $emailIterable" }
+        return emailIterable.map(EmailMapperImpl::emailToEmailClientDto)
     }
 
 }

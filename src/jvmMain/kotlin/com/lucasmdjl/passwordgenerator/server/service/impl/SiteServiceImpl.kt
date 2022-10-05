@@ -1,33 +1,27 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
-import com.lucasmdjl.passwordgenerator.server.model.Email
-import com.lucasmdjl.passwordgenerator.server.repository.SiteRepository
-import com.lucasmdjl.passwordgenerator.server.repository.impl.SiteRepositoryImpl
+import com.lucasmdjl.passwordgenerator.server.emailService
 import com.lucasmdjl.passwordgenerator.server.service.SiteService
-import mu.KotlinLogging
+import com.lucasmdjl.passwordgenerator.server.siteRepository
 import org.jetbrains.exposed.sql.transactions.transaction
-
-private val logger = KotlinLogging.logger("SiteServiceImpl")
+import java.util.*
 
 object SiteServiceImpl : SiteService {
 
-    private val siteRepository: SiteRepository = SiteRepositoryImpl
-
-    override fun addSiteToEmail(siteName: String, email: Email) = transaction {
-        logger.debug { "addSiteToEmail call with siteName: $siteName, email: $email" }
+    override fun create(siteName: String, emailAddress: String, username: String, sessionId: UUID) = transaction {
+        val email = emailService.find(emailAddress, username, sessionId)!!
         val id = siteRepository.createAndGetId(siteName, email)
         if (id != null) siteRepository.getById(id) else null
     }
 
-    override fun getSiteFromEmail(siteName: String, email: Email) = transaction {
-        logger.debug { "getSiteFromEmail call with siteName: $siteName, email: $email" }
+    override fun find(siteName: String, emailAddress: String, username: String, sessionId: UUID) = transaction {
+        val email = emailService.find(emailAddress, username, sessionId)!!
         siteRepository.getByNameAndEmail(siteName, email)
     }
 
-    override fun removeSiteFromEmail(siteName: String, email: Email) = transaction {
-        logger.debug { "removeSiteFromEmail call with siteName: $siteName, email: $email" }
+    override fun delete(siteName: String, emailAddress: String, username: String, sessionId: UUID) = transaction {
+        val email = emailService.find(emailAddress, username, sessionId)!!
         siteRepository.delete(siteName, email)
     }
-
 
 }

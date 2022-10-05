@@ -15,9 +15,9 @@ object SessionMapperImpl : SessionMapper {
         return SessionDto(session.id.value)
     }
 
-    override fun sessionIterableToSessionDtoIterable(sessionList: Iterable<Session>?): Iterable<SessionDto>? {
-        logger.debug { "sessionIterableToSessionDtoIterable call with sessionList: $sessionList" }
-        return sessionList?.map(SessionMapperImpl::sessionToSessionDto)
+    override fun sessionIterableToSessionDtoIterable(sessionIterable: Iterable<Session>): Iterable<SessionDto> {
+        logger.debug { "sessionIterableToSessionDtoIterable call with sessionList: $sessionIterable" }
+        return sessionIterable.map(SessionMapperImpl::sessionToSessionDto)
     }
 
 }

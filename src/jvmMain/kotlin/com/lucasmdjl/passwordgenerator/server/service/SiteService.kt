@@ -1,14 +1,14 @@
 package com.lucasmdjl.passwordgenerator.server.service
 
-import com.lucasmdjl.passwordgenerator.server.model.Email
 import com.lucasmdjl.passwordgenerator.server.model.Site
+import java.util.*
 
 interface SiteService {
 
-    fun addSiteToEmail(siteName: String, email: Email): Site?
+    fun create(siteName: String, emailAddress: String, username: String, sessionId: UUID): Site?
 
-    fun getSiteFromEmail(siteName: String, email: Email): Site?
+    fun find(siteName: String, emailAddress: String, username: String, sessionId: UUID): Site?
 
-    fun removeSiteFromEmail(siteName: String, email: Email): Unit?
+    fun delete(siteName: String, emailAddress: String, username: String, sessionId: UUID): Unit?
 
 }

@@ -7,6 +7,10 @@ interface EmailMapper {
 
     fun emailToEmailClientDto(email: Email): EmailClientDto
 
-    fun emailIterableToEmailClientDtoIterable(emailList: Iterable<Email>?): Iterable<EmailClientDto>?
+    fun Email.toEmailClientDto() = emailToEmailClientDto(this)
+
+    fun emailIterableToEmailClientDtoIterable(emailIterable: Iterable<Email>): Iterable<EmailClientDto>
+
+    fun Iterable<Email>.toEmailClientDtoIterable() = emailIterableToEmailClientDtoIterable(this)
 
 }
