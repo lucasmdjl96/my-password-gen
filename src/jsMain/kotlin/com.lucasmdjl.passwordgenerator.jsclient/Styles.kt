@@ -40,6 +40,7 @@ object CssClasses {
 
     val colorPicker = ClassName("colorPicker")
 }
+
 @Suppress("NOTHING_TO_INLINE")
 inline fun hsl(hue: Int, saturation: Int, lightning: Int): Color =
     "hsl($hue, $saturation%, $lightning%)".unsafeCast<Color>()

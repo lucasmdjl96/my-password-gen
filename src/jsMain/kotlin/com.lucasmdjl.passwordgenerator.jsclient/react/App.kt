@@ -30,127 +30,129 @@ import react.useState
 private val toggleOnColor = hsl(200, 100, 45)
 private val toggleOffColor = hsl(0, 0, 50)
 
-val App = { initialBackgroundColor: String -> FC<Props> {
-    var userClientDto by useState<UserClientDto>()
-    var masterPassword by useState<String>()
-    var online by useState(true)
-    var background by useState(initialBackgroundColor)
+val App = { initialBackgroundColor: String ->
+    FC<Props> {
+        var userClientDto by useState<UserClientDto>()
+        var masterPassword by useState<String>()
+        var online by useState(true)
+        var background by useState(initialBackgroundColor)
 
-    div {
-        css(CssClasses.background) {
-            backgroundColor = Color(background)
-        }
         div {
-            className = CssClasses.colorPickerContainer
-            label {
-                +"Background Color"
-                htmlFor = "backgroundColor"
-                hidden = true
+            css(CssClasses.background) {
+                backgroundColor = Color(background)
             }
-            input {
-                className = CssClasses.colorPicker
-                id = "backgroundColor"
-                type = InputType.color
-                value = background
-                onChange = { event ->
-                    val color = event.target.value
-                    background = color
-                    localStorage.setItem("backgroundColor", color)
+            div {
+                className = CssClasses.colorPickerContainer
+                label {
+                    +"Background Color"
+                    htmlFor = "backgroundColor"
+                    hidden = true
                 }
-            }
-        }
-        main {
-            className = CssClasses.container
-            if (userClientDto == null) {
-                div {
-                    className = CssClasses.titleContainer
-                    h1 {
-                        className = CssClasses.title
-                        +"Password Generator"
+                input {
+                    className = CssClasses.colorPicker
+                    id = "backgroundColor"
+                    type = InputType.color
+                    value = background
+                    onChange = { event ->
+                        val color = event.target.value
+                        background = color
+                        localStorage.setItem("backgroundColor", color)
                     }
                 }
-                div {
-                    className = CssClasses.onlineToggle
+            }
+            main {
+                className = CssClasses.container
+                if (userClientDto == null) {
                     div {
-                        +"Offline"
-                        onClick = { online = false }
-                    }
-                    div {
-                        css(CssClasses.toggleContainer) {
-                            backgroundColor = if (online) toggleOnColor else toggleOffColor
+                        className = CssClasses.titleContainer
+                        h1 {
+                            className = CssClasses.title
+                            +"Password Generator"
                         }
-                        span {
-                            className = CssClasses.materialIconOutlined
-                            +if (online) "toggle_on" else "toggle_off"
+                    }
+                    div {
+                        className = CssClasses.onlineToggle
+                        div {
+                            +"Offline"
+                            onClick = { online = false }
+                        }
+                        div {
+                            css(CssClasses.toggleContainer) {
+                                backgroundColor = if (online) toggleOnColor else toggleOffColor
+                            }
+                            span {
+                                className = CssClasses.materialIconOutlined
+                                +if (online) "toggle_on" else "toggle_off"
+                                onClick = {
+                                    online = !online
+                                }
+                            }
+                        }
+                        div {
+                            +"Online"
+                            onClick = { online = true }
+                        }
+                    }
+                    Login {
+                        this.onLogin = { loginData: LoginDto ->
+                            if (online) {
+                                scope.launch {
+                                    userClientDto = loginUser(loginData.username)
+                                    masterPassword = loginData.password
+                                }
+                            } else {
+                                userClientDto = UserClientDto(loginData.username)
+                                masterPassword = loginData.password
+                            }
+                        }
+                        this.onRegister = { loginData: LoginDto ->
+                            if (online) {
+                                scope.launch {
+                                    userClientDto = registerUser(loginData.username)
+                                    masterPassword = loginData.password
+                                }
+                            } else {
+                                userClientDto = UserClientDto(loginData.username)
+                                masterPassword = loginData.password
+                            }
+                        }
+                    }
+                }
+                if (userClientDto != null) {
+                    div {
+                        className = CssClasses.titleContainer
+                        h1 {
+                            className = CssClasses.title
+                            +"${if (!online) "Offline " else ""}Password Generator"
+                        }
+                        button {
+                            className = CssClasses.logOut
+                            span {
+                                className = CssClasses.materialIcon
+                                +"logout"
+                            }
                             onClick = {
-                                online = !online
+                                userClientDto = null
+                                masterPassword = null
                             }
                         }
                     }
-                    div {
-                        +"Online"
-                        onClick = { online = true }
-                    }
-                }
-                Login {
-                    this.onLogin = { loginData: LoginDto ->
-                        if (online) {
-                            scope.launch {
-                                userClientDto = loginUser(loginData.username)
-                                masterPassword = loginData.password
-                            }
-                        } else {
-                            userClientDto = UserClientDto(loginData.username)
-                            masterPassword = loginData.password
+                    PasswordGen {
+                        this.userClientDto = userClientDto!!
+                        this.masterPassword = masterPassword!!
+                        this.addEmail = { emailAddress ->
+                            userClientDto!!.addEmail(emailAddress)
                         }
-                    }
-                    this.onRegister = { loginData: LoginDto ->
-                        if (online) {
-                            scope.launch {
-                                userClientDto = registerUser(loginData.username)
-                                masterPassword = loginData.password
-                            }
-                        } else {
-                            userClientDto = UserClientDto(loginData.username)
-                            masterPassword = loginData.password
+                        this.removeEmail = { emailAddress ->
+                            userClientDto!!.removeEmail(emailAddress)
                         }
+                        this.online = online
                     }
-                }
-            }
-            if (userClientDto != null) {
-                div {
-                    className = CssClasses.titleContainer
-                    h1 {
-                        className = CssClasses.title
-                        +"${if (!online) "Offline " else ""}Password Generator"
-                    }
-                    button {
-                        className = CssClasses.logOut
-                        span {
-                            className = CssClasses.materialIcon
-                            +"logout"
-                        }
-                        onClick = {
-                            userClientDto = null
-                            masterPassword = null
-                        }
-                    }
-                }
-                PasswordGen {
-                    this.userClientDto = userClientDto!!
-                    this.masterPassword = masterPassword!!
-                    this.addEmail = { emailAddress ->
-                        userClientDto!!.addEmail(emailAddress)
-                    }
-                    this.removeEmail = { emailAddress ->
-                        userClientDto!!.removeEmail(emailAddress)
-                    }
-                    this.online = online
                 }
             }
         }
     }
-}}
+}
 
 suspend fun loginUser(username: String): UserClientDto? =
     if (username == "") null
