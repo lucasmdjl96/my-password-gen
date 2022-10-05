@@ -119,6 +119,3 @@ tasks.named<JavaExec>("run") {
     dependsOn(tasks.named<Jar>("jvmJar"))
     classpath(tasks.named<Jar>("jvmJar"))
 }
-dependencies {
-    implementation("io.ktor:ktor-server-call-logging-jvm:2.1.1")
-}
