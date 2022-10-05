@@ -8,13 +8,15 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.browser.document
+import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import react.create
 import react.dom.client.createRoot
 
 fun main() {
     val container = document.getElementById("root")!!
-    val app = App.create()
+    val backgroundColor = localStorage.getItem("backgroundColor") ?: "#00008A"
+    val app = App(backgroundColor).create()
     createRoot(container).render(app)
 }
 

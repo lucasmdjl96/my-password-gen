@@ -12,6 +12,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.browser.localStorage
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
@@ -27,9 +28,8 @@ import react.useState
 
 private val toggleOnColor = hsl(200, 100, 45)
 private val toggleOffColor = hsl(0, 0, 50)
-private val initialBackgroundColor = Color("#00008A")
 
-val App = FC<Props> {
+val App = { initialBackgroundColor: String -> FC<Props> {
     var userDto by useState<UserDto>()
     var masterPassword by useState<String>()
     var online by useState(true)
@@ -37,7 +37,7 @@ val App = FC<Props> {
 
     div {
         css(CssClasses.background) {
-            backgroundColor = background
+            backgroundColor = Color(background)
         }
         div {
             className = CssClasses.colorPickerContainer
@@ -52,7 +52,9 @@ val App = FC<Props> {
                 type = InputType.color
                 value = background
                 onChange = { event ->
-                    background = Color(event.target.value)
+                    val color = event.target.value
+                    background = color
+                    localStorage.setItem("backgroundColor", color)
                 }
             }
         }
@@ -147,7 +149,7 @@ val App = FC<Props> {
             }
         }
     }
-}
+}}
 
 suspend fun loginUser(username: String): UserDto? =
     if (username == "") null
