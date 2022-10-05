@@ -4,6 +4,7 @@ import com.lucasmdjl.passwordgenerator.jsclient.react.App
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -29,6 +30,9 @@ val jsonClient = HttpClient {
         json()
     }
     install(Resources)
+    install(Logging) {
+        level = LogLevel.ALL
+    }
     defaultRequest {
         host = "localhost"
         port = 8443

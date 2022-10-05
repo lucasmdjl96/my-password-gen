@@ -45,5 +45,6 @@ fun Application.module() {
     installHttpsRedirect()
     installResources()
     installRoutes()
+    installCallLogging()
     initDatabase()
 }

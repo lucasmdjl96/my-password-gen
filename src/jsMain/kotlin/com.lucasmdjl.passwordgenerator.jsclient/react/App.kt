@@ -1,6 +1,7 @@
 package com.lucasmdjl.passwordgenerator.jsclient.react
 
-import com.lucasmdjl.passwordgenerator.common.dto.UserDto
+import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
+import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
@@ -30,7 +31,7 @@ private val toggleOnColor = hsl(200, 100, 45)
 private val toggleOffColor = hsl(0, 0, 50)
 
 val App = { initialBackgroundColor: String -> FC<Props> {
-    var userDto by useState<UserDto>()
+    var userClientDto by useState<UserClientDto>()
     var masterPassword by useState<String>()
     var online by useState(true)
     var background by useState(initialBackgroundColor)
@@ -60,7 +61,7 @@ val App = { initialBackgroundColor: String -> FC<Props> {
         }
         main {
             className = CssClasses.container
-            if (userDto == null) {
+            if (userClientDto == null) {
                 div {
                     className = CssClasses.titleContainer
                     h1 {
@@ -95,28 +96,28 @@ val App = { initialBackgroundColor: String -> FC<Props> {
                     this.onLogin = { loginData: LoginDto ->
                         if (online) {
                             scope.launch {
-                                userDto = loginUser(loginData.username)
+                                userClientDto = loginUser(loginData.username)
                                 masterPassword = loginData.password
                             }
                         } else {
-                            userDto = UserDto(loginData.username)
+                            userClientDto = UserClientDto(loginData.username)
                             masterPassword = loginData.password
                         }
                     }
                     this.onRegister = { loginData: LoginDto ->
                         if (online) {
                             scope.launch {
-                                userDto = registerUser(loginData.username)
+                                userClientDto = registerUser(loginData.username)
                                 masterPassword = loginData.password
                             }
                         } else {
-                            userDto = UserDto(loginData.username)
+                            userClientDto = UserClientDto(loginData.username)
                             masterPassword = loginData.password
                         }
                     }
                 }
             }
-            if (userDto != null) {
+            if (userClientDto != null) {
                 div {
                     className = CssClasses.titleContainer
                     h1 {
@@ -130,19 +131,19 @@ val App = { initialBackgroundColor: String -> FC<Props> {
                             +"logout"
                         }
                         onClick = {
-                            userDto = null
+                            userClientDto = null
                             masterPassword = null
                         }
                     }
                 }
                 PasswordGen {
-                    this.userDto = userDto!!
+                    this.userClientDto = userClientDto!!
                     this.masterPassword = masterPassword!!
                     this.addEmail = { emailAddress ->
-                        userDto!!.addEmail(emailAddress)
+                        userClientDto!!.addEmail(emailAddress)
                     }
                     this.removeEmail = { emailAddress ->
-                        userDto!!.removeEmail(emailAddress)
+                        userClientDto!!.removeEmail(emailAddress)
                     }
                     this.online = online
                 }
@@ -151,17 +152,17 @@ val App = { initialBackgroundColor: String -> FC<Props> {
     }
 }}
 
-suspend fun loginUser(username: String): UserDto? =
+suspend fun loginUser(username: String): UserClientDto? =
     if (username == "") null
     else jsonClient.post(UserRoute.Login()) {
-        contentType(ContentType.Text.Plain)
-        setBody(username)
+        contentType(ContentType.Application.Json)
+        setBody(UserServerDto(username))
     }.body()
 
 
-suspend fun registerUser(username: String): UserDto? =
+suspend fun registerUser(username: String): UserClientDto? =
     if (username == "") null
     else jsonClient.post(UserRoute.Register()) {
-        contentType(ContentType.Text.Plain)
-        setBody(username)
+        contentType(ContentType.Application.Json)
+        setBody(UserServerDto(username))
     }.body()

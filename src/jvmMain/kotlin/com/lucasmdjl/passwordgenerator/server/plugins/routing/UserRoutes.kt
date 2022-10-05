@@ -1,5 +1,6 @@
 package com.lucasmdjl.passwordgenerator.server.plugins.routing
 
+import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
@@ -18,32 +19,24 @@ private val logger = KotlinLogging.logger("UserRoutes")
 fun Route.userRoutes() {
     post<UserRoute.Login> {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val username = call.receiveText().trim('"').encode()
-        logger.debug {
-            "/user/login: call with sessionId: $sessionId, username: $username"
-        }
+        val username = call.receive<UserServerDto>().username.encode()
         val user = userService.getByName(username, sessionId)
-        val userDto = if (user != null) {
-            userMapper.userToUserDto(user)
+        val userClientDto = if (user != null) {
+            userMapper.userToUserClientDto(user)
         } else {
             null
         }
-        logger.debug { "/user/login: respond with userDto: $userDto" }
-        call.respondNullable(userDto)
+        call.respondNullable(userClientDto)
     }
     post<UserRoute.Register> {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val username = call.receiveText().trim('"').encode()
-        logger.debug {
-            "/user/register: call with sessionId: $sessionId, username: $username"
-        }
+        val username = call.receive<UserServerDto>().username.encode()
         val user = userService.create(username, sessionId)
-        val userDto = if (user != null) {
-            userMapper.userToUserDto(user)
+        val userClientDto = if (user != null) {
+            userMapper.userToUserClientDto(user)
         } else {
             null
         }
-        logger.debug { "/user/register: respond with userDto: $userDto" }
-        call.respondNullable(userDto)
+        call.respondNullable(userClientDto)
     }
 }

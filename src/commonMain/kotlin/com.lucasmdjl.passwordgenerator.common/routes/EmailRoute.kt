@@ -8,15 +8,19 @@ import kotlinx.serialization.Serializable
 class EmailRoute {
 
     @Serializable
-    @Resource("new")
-    class New(val username: String)
+    @Resource("/new")
+    class New(val parent: EmailRoute = EmailRoute())
 
     @Serializable
-    @Resource("find/{emailAddress}")
-    class Find(val emailAddress: String, val username: String)
+    @Resource("/find/{emailAddress}/{username}")
+    class Find(val parent: EmailRoute, val emailAddress: String, val username: String) {
+        constructor(emailAddress: String, username: String) : this(EmailRoute(), emailAddress, username)
+    }
 
     @Serializable
-    @Resource("delete/{emailAddress}")
-    class Delete(val emailAddress: String, val username: String)
+    @Resource("/delete/{emailAddress}/{username}")
+    class Delete(val parent: EmailRoute, val emailAddress: String, val username: String) {
+        constructor(emailAddress: String, username: String) : this(EmailRoute(), emailAddress, username)
+    }
 
 }

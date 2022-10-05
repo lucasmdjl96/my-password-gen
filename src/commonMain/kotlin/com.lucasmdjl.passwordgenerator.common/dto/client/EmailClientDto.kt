@@ -1,9 +1,9 @@
-package com.lucasmdjl.passwordgenerator.common.dto
+package com.lucasmdjl.passwordgenerator.common.dto.client
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-class EmailDto(val emailAddress: String, val siteList: MutableList<String>) {
+class EmailClientDto(val emailAddress: String, val siteList: MutableList<String>) {
 
     constructor(emailAddress: String) : this(emailAddress, mutableListOf())
 

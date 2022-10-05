@@ -1,6 +1,6 @@
 package com.lucasmdjl.passwordgenerator.server.mapper.impl
 
-import com.lucasmdjl.passwordgenerator.common.dto.UserDto
+import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.server.mapper.UserMapper
 import com.lucasmdjl.passwordgenerator.server.model.Email
 import com.lucasmdjl.passwordgenerator.server.model.User
@@ -12,19 +12,19 @@ private val logger = KotlinLogging.logger("UserMapperImpl")
 
 object UserMapperImpl : UserMapper {
 
-    override fun userToUserDto(user: User): UserDto = transaction {
+    override fun userToUserClientDto(user: User): UserClientDto = transaction {
         logger.debug { "userToUserDto call with user: $user" }
         user.load(User::emails)
-        UserDto(
+        UserClientDto(
             user.username,
             user.emails.map(Email::emailAddress).toMutableList()
         )
     }
 
 
-    override fun userIterableToUserDtoIterable(userList: Iterable<User>?): Iterable<UserDto>? {
+    override fun userIterableToUserClientDtoIterable(userList: Iterable<User>?): Iterable<UserClientDto>? {
         logger.debug { "userIterableToUserDtoIterable call with userList: $userList" }
-        return userList?.map(UserMapperImpl::userToUserDto)
+        return userList?.map(UserMapperImpl::userToUserClientDto)
     }
 
 }
