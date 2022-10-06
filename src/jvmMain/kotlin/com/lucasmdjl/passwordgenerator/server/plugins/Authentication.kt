@@ -15,7 +15,7 @@ fun Application.installAuthentication() {
         session<SessionDto>("session-auth") {
             validate { session ->
                 logger.debug { "validate call with sessionId: ${session.sessionId}" }
-                if (sessionService.getById(session.sessionId) != null) session
+                if (sessionService.find(session) != null) session
                 else null
             }
             challenge { session ->

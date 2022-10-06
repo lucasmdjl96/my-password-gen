@@ -1,5 +1,6 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
+import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.server.model.Session
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.repository.impl.UserRepositoryImpl
@@ -14,13 +15,15 @@ object UserServiceImpl : UserService {
 
     private val userRepository: UserRepository = UserRepositoryImpl
 
-    override fun create(username: String, sessionId: UUID) = transaction {
+    override fun create(userServerDto: UserServerDto, sessionId: UUID) = transaction {
+        val username = userServerDto.username
         logger.debug { "create call with username: $username, sessionId: $sessionId" }
         val id = userRepository.createAndGetId(username, sessionId)
         if (id != null) userRepository.getById(id) else null
     }
 
-    override fun find(username: String, sessionId: UUID) = transaction {
+    override fun find(userServerDto: UserServerDto, sessionId: UUID) = transaction {
+        val username = userServerDto.username
         logger.debug { "getByName call with username: $username, sessionId: $sessionId" }
         userRepository.getByNameAndSession(username, sessionId)
     }

@@ -20,14 +20,7 @@ fun Route.siteRoutes() {
     post<SiteRoute.New> {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val siteServerDto = call.receive<SiteServerDto>()
-        val username = siteServerDto.username
-        val emailAddress = siteServerDto.emailAddress
-        val siteName = siteServerDto.siteName
-        logger.debug {
-            "/site/new: call with sessionId: $sessionId, username: $username, " +
-                    "emailAddress: $emailAddress, siteName: $siteName"
-        }
-        val siteClientDto = siteService.create(siteName, emailAddress, username, sessionId)?.toSiteClientDto()
+        val siteClientDto = siteService.create(siteServerDto, sessionId)?.toSiteClientDto()
         logger.debug { "/site/new: respond with siteDto: $siteClientDto" }
         call.respondNullable(siteClientDto)
     }
@@ -36,11 +29,12 @@ fun Route.siteRoutes() {
         val username = siteRoute.username
         val emailAddress = siteRoute.emailAddress
         val siteName = siteRoute.siteName
+        val siteServerDto = SiteServerDto(siteName, emailAddress, username)
         logger.debug {
             "/site/find: call with sessionId: $sessionId, username: $username, " +
                     "emailAddress: $emailAddress, siteName: $siteName"
         }
-        val siteClientDto = siteService.find(siteName, emailAddress, username, sessionId)?.toSiteClientDto()
+        val siteClientDto = siteService.find(siteServerDto, sessionId)?.toSiteClientDto()
         logger.debug { "/site/find: respond with siteDto: $siteClientDto" }
         call.respondNullable(siteClientDto)
     }
@@ -49,11 +43,12 @@ fun Route.siteRoutes() {
         val username = siteRoute.username
         val emailAddress = siteRoute.emailAddress
         val siteName = siteRoute.siteName
+        val siteServerDto = SiteServerDto(siteName, emailAddress, username)
         logger.debug {
             "/site/delete: call with sessionId: $sessionId, username: $username, " +
                     "emailAddress: $emailAddress, siteName: $siteName"
         }
-        val result = siteService.delete(siteName, emailAddress, username, sessionId)
+        val result = siteService.delete(siteServerDto, sessionId)
         logger.debug { "/site/delete: respond with result: $result" }
         call.respondNullable(result)
     }
