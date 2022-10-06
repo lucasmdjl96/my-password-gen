@@ -33,9 +33,8 @@ object SiteRepositoryImpl : SiteRepository {
         }.firstOrNull()
     }
 
-    override fun delete(siteName: String, email: Email): Unit? {
-        logger.debug { "delete call with siteName: $siteName, email: $email" }
-        return getByNameAndEmail(siteName, email)?.delete()
+    override fun delete(site: Site) {
+        return site.delete()
     }
 
 

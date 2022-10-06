@@ -23,9 +23,9 @@ object SiteServiceImpl : SiteService {
     }
 
     override fun delete(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
-        val (siteName, emailServerDto) = siteServerDto
-        val email = emailService.find(emailServerDto, sessionId)!!
-        siteRepository.delete(siteName, email)
+        val site = find(siteServerDto, sessionId)
+        if (site != null) siteRepository.delete(site)
+        else null
     }
 
 }

@@ -23,8 +23,8 @@ object EmailServiceImpl : EmailService {
     }
 
     override fun delete(emailServerDto: EmailServerDto, sessionId: UUID) = transaction {
-        val (emailAddress, userServerDto) = emailServerDto
-        val user = userService.find(userServerDto, sessionId)!!
-        emailRepository.delete(emailAddress, user)
+        val email = find(emailServerDto, sessionId)
+        if (email != null) emailRepository.delete(email)
+        else null
     }
 }

@@ -11,6 +11,6 @@ interface SiteRepository {
 
     fun getByNameAndEmail(siteName: String, email: Email): Site?
 
-    fun delete(siteName: String, email: Email): Unit?
+    fun delete(site: Site)
 
 }

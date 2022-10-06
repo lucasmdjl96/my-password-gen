@@ -32,9 +32,8 @@ object EmailRepositoryImpl : EmailRepository {
         }.firstOrNull()
     }
 
-    override fun delete(emailAddress: String, user: User): Unit? {
-        logger.debug { "delete call with emailAddress: $emailAddress, user: $user" }
-        return getByAddressAndUser(emailAddress, user)?.delete()
+    override fun delete(email: Email) {
+        return email.delete()
     }
 
 }

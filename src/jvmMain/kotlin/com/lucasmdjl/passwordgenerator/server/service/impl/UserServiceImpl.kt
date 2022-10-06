@@ -31,7 +31,7 @@ object UserServiceImpl : UserService {
 
     override fun moveAllUsers(fromSession: Session, toSession: Session) = transaction {
         logger.debug { "moveAllUsers call with fromSession: $fromSession, toSession: $toSession" }
-        userRepository.moveAll(fromSession, toSession)
+        userRepository.moveAll(fromSession.id.value, toSession.id.value)
     }
 
 }

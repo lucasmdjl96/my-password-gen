@@ -1,6 +1,5 @@
 package com.lucasmdjl.passwordgenerator.server.repository.impl
 
-import com.lucasmdjl.passwordgenerator.server.model.Session
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.tables.Users
@@ -34,10 +33,9 @@ object UserRepositoryImpl : UserRepository {
         }.firstOrNull()
     }
 
-    override fun moveAll(fromSession: Session, toSession: Session) {
-        logger.debug { "moveAll call with fromSession: $fromSession, toSession: $toSession" }
-        Users.update({ Users.sessionId eq fromSession.id }) {
-            it[sessionId] = toSession.id
+    override fun moveAll(fromSessionId: UUID, toSessionId: UUID) {
+        Users.update({ Users.sessionId eq fromSessionId }) {
+            it[sessionId] = toSessionId
         }
     }
 
