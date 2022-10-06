@@ -1,7 +1,6 @@
 package com.lucasmdjl.passwordgenerator.server.mapper
 
 import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
-import com.lucasmdjl.passwordgenerator.server.mapper.impl.UserMapperImpl
 import com.lucasmdjl.passwordgenerator.server.model.User
 
 interface UserMapper {
@@ -12,7 +11,7 @@ interface UserMapper {
 
     fun userIterableToUserClientDtoIterable(userIterable: Iterable<User>): Iterable<UserClientDto>
 
-    fun Iterable<User>.toUserClientDtoIterable() = UserMapperImpl.userIterableToUserClientDtoIterable(this)
+    fun Iterable<User>.toUserClientDtoIterable() = userIterableToUserClientDtoIterable(this)
 
 
 }

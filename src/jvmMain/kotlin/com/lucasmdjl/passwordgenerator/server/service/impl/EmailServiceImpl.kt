@@ -1,13 +1,16 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.EmailServerDto
-import com.lucasmdjl.passwordgenerator.server.emailRepository
+import com.lucasmdjl.passwordgenerator.server.repository.EmailRepository
+import com.lucasmdjl.passwordgenerator.server.repository.impl.EmailRepositoryImpl
 import com.lucasmdjl.passwordgenerator.server.service.EmailService
 import com.lucasmdjl.passwordgenerator.server.userService
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 object EmailServiceImpl : EmailService {
+
+    private val emailRepository: EmailRepository = EmailRepositoryImpl
 
     override fun create(emailServerDto: EmailServerDto, sessionId: UUID) = transaction {
         val (emailAddress, userServerDto) = emailServerDto

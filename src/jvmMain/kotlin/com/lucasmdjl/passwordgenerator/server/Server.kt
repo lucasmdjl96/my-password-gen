@@ -11,14 +11,6 @@ import com.lucasmdjl.passwordgenerator.server.mapper.impl.SiteMapperImpl
 import com.lucasmdjl.passwordgenerator.server.mapper.impl.UserMapperImpl
 import com.lucasmdjl.passwordgenerator.server.plugins.*
 import com.lucasmdjl.passwordgenerator.server.plugins.routing.installRoutes
-import com.lucasmdjl.passwordgenerator.server.repository.EmailRepository
-import com.lucasmdjl.passwordgenerator.server.repository.SessionRepository
-import com.lucasmdjl.passwordgenerator.server.repository.SiteRepository
-import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
-import com.lucasmdjl.passwordgenerator.server.repository.impl.EmailRepositoryImpl
-import com.lucasmdjl.passwordgenerator.server.repository.impl.SessionRepositoryImpl
-import com.lucasmdjl.passwordgenerator.server.repository.impl.SiteRepositoryImpl
-import com.lucasmdjl.passwordgenerator.server.repository.impl.UserRepositoryImpl
 import com.lucasmdjl.passwordgenerator.server.service.EmailService
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
 import com.lucasmdjl.passwordgenerator.server.service.SiteService
@@ -34,11 +26,6 @@ val sessionService: SessionService = SessionServiceImpl
 val userService: UserService = UserServiceImpl
 val emailService: EmailService = EmailServiceImpl
 val siteService: SiteService = SiteServiceImpl
-
-val sessionRepository: SessionRepository = SessionRepositoryImpl
-val userRepository: UserRepository = UserRepositoryImpl
-val emailRepository: EmailRepository = EmailRepositoryImpl
-val siteRepository: SiteRepository = SiteRepositoryImpl
 
 val sessionMapper: SessionMapper = SessionMapperImpl
 val userMapper: UserMapper = UserMapperImpl

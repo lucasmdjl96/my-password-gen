@@ -1,12 +1,15 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
+import com.lucasmdjl.passwordgenerator.server.repository.SessionRepository
+import com.lucasmdjl.passwordgenerator.server.repository.impl.SessionRepositoryImpl
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
-import com.lucasmdjl.passwordgenerator.server.sessionRepository
 import com.lucasmdjl.passwordgenerator.server.userService
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object SessionServiceImpl : SessionService {
+
+    private val sessionRepository: SessionRepository = SessionRepositoryImpl
 
     override fun assignNew(oldSessionDto: SessionDto?) = transaction {
         val newSession = sessionRepository.create()
