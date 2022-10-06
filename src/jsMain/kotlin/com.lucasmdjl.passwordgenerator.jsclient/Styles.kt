@@ -39,6 +39,12 @@ object CssClasses {
     val colorPickerContainer = ClassName("colorPickerContainer")
 
     val colorPicker = ClassName("colorPicker")
+
+    val cookieBanner = ClassName("cookieBanner")
+
+    val cookieContainer = ClassName("cookieContainer")
+
+    val cookieButtonContainer = ClassName("cookieButtonContainer")
 }
 
 @Suppress("NOTHING_TO_INLINE")

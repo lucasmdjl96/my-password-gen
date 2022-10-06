@@ -2,8 +2,10 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
+import com.lucasmdjl.passwordgenerator.common.routes.SessionRoute
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
+import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
 import com.lucasmdjl.passwordgenerator.jsclient.hsl
 import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
@@ -30,12 +32,13 @@ import react.useState
 private val toggleOnColor = hsl(200, 100, 45)
 private val toggleOffColor = hsl(0, 0, 50)
 
-val App = { initialBackgroundColor: String ->
+val App = { initialState: InitialState ->
     FC<Props> {
         var userClientDto by useState<UserClientDto>()
         var masterPassword by useState<String>()
-        var online by useState(true)
-        var background by useState(initialBackgroundColor)
+        var online by useState(initialState.online)
+        var background by useState(initialState.initialBackgroundColor)
+        var cookiesAccepted by useState(initialState.cookiesAccepted)
 
         div {
             css(CssClasses.background) {
@@ -56,7 +59,7 @@ val App = { initialBackgroundColor: String ->
                     onChange = { event ->
                         val color = event.target.value
                         background = color
-                        localStorage.setItem("backgroundColor", color)
+                        if (cookiesAccepted == true) localStorage.setItem("backgroundColor", color)
                     }
                 }
             }
@@ -74,7 +77,12 @@ val App = { initialBackgroundColor: String ->
                         className = CssClasses.onlineToggle
                         div {
                             +"Offline"
-                            onClick = { online = false }
+                            onClick = {
+                                if (cookiesAccepted == true) {
+                                    online = false
+                                    localStorage.setItem("online", "false")
+                                }
+                            }
                         }
                         div {
                             css(CssClasses.toggleContainer) {
@@ -84,33 +92,44 @@ val App = { initialBackgroundColor: String ->
                                 className = CssClasses.materialIconOutlined
                                 +if (online) "toggle_on" else "toggle_off"
                                 onClick = {
-                                    online = !online
+                                    if (cookiesAccepted == true) {
+                                        val newOnline = !online
+                                        online = newOnline
+                                        localStorage.setItem("online", "$newOnline")
+                                        if (newOnline) scope.launch {
+                                            updateSession()
+                                        }
+                                    }
                                 }
                             }
                         }
                         div {
                             +"Online"
-                            onClick = { online = true }
+                            onClick = {
+                                if (cookiesAccepted == true) {
+                                    online = true
+                                    localStorage.setItem("online", "true")
+                                    scope.launch {
+                                        updateSession()
+                                    }
+                                }
+                            }
                         }
                     }
                     Login {
                         this.onLogin = { loginData: LoginDto ->
-                            if (online) {
-                                scope.launch {
-                                    userClientDto = loginUser(loginData.username)
-                                    masterPassword = loginData.password
-                                }
+                            if (online) scope.launch {
+                                userClientDto = loginUser(loginData.username)
+                                masterPassword = loginData.password
                             } else {
                                 userClientDto = UserClientDto(loginData.username)
                                 masterPassword = loginData.password
                             }
                         }
                         this.onRegister = { loginData: LoginDto ->
-                            if (online) {
-                                scope.launch {
-                                    userClientDto = registerUser(loginData.username)
-                                    masterPassword = loginData.password
-                                }
+                            if (online) scope.launch {
+                                userClientDto = registerUser(loginData.username)
+                                masterPassword = loginData.password
                             } else {
                                 userClientDto = UserClientDto(loginData.username)
                                 masterPassword = loginData.password
@@ -150,6 +169,12 @@ val App = { initialBackgroundColor: String ->
                     }
                 }
             }
+            if (cookiesAccepted == null) {
+                CookieBanner {
+                    this.background = background
+                    this.updateCookie = { accepted -> cookiesAccepted = accepted }
+                }
+            }
         }
     }
 }
@@ -168,3 +193,7 @@ suspend fun registerUser(username: String): UserClientDto? =
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
     }.body()
+
+suspend fun updateSession() {
+    jsonClient.put(SessionRoute())
+}

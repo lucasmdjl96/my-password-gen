@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 fun Application.installRoutes() {
     routing {
         mainRoute()
+        sessionRoutes()
         authenticate("session-auth") {
             userRoutes()
             emailRoutes()

@@ -1,6 +1,7 @@
 
 .background {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -241,6 +242,36 @@ input + .material-icons {
     color: grey;
     cursor: pointer;
     width: 0;
+}
+
+.cookieBanner {
+    display: flex;
+    width: 100vw;
+    align-items: end;
+    height: 0;
+    position: fixed;
+    justify-content: center;
+    bottom: 0;
+    left: 0;
+}
+
+.cookieContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 1rem;
+    width: 100%;
+    background-color: hsla(0, 0%, 98%, 0.9);
+    height: 10rem;
+    font-size: 1.6rem;
+    border-style: solid;
+    border-radius: 5px;
+}
+
+.cookieButtonContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 @media (hover: none) {
