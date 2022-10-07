@@ -39,6 +39,7 @@ val App = { initialState: InitialState ->
         var online by useState(initialState.online)
         var background by useState(initialState.initialBackgroundColor)
         var cookiesAccepted by useState(initialState.cookiesAccepted)
+        var showCookieBanner by useState(initialState.cookiesAccepted == null)
 
         div {
             css(CssClasses.background) {
@@ -169,10 +170,11 @@ val App = { initialState: InitialState ->
                     }
                 }
             }
-            if (cookiesAccepted == null) {
+            if (showCookieBanner) {
                 CookieBanner {
                     this.background = background
                     this.updateCookie = { accepted -> cookiesAccepted = accepted }
+                    this.dismiss = { showCookieBanner = false }
                 }
             }
         }

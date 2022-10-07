@@ -253,6 +253,7 @@ input + .material-icons {
     justify-content: center;
     bottom: 0;
     left: 0;
+    font-size: 1.6rem;
 }
 
 .cookieContainer {
@@ -262,16 +263,38 @@ input + .material-icons {
     gap: 1rem;
     width: 100%;
     background-color: hsla(0, 0%, 98%, 0.9);
-    height: 10rem;
     font-size: 1.6rem;
     border-style: solid;
     border-radius: 5px;
 }
 
+.cookieText {
+    margin: 1rem;
+}
+
+.cookieText p {
+    margin: 1rem;
+}
+
 .cookieButtonContainer {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+}
+
+.cookieButtonContainer button {
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 5px;
+    color: hsl(0, 0%, 98%);
+    background-color: hsla(0, 0%, 2%, 0.6);
+}
+
+.cookieButtonContainer button:hover {
+    background-color: hsla(0, 0%, 2%, 0.8);
+}
+
+.cookieButtonContainer button:active {
+    background-color: hsla(0, 0%, 2%, 1);
 }
 
 @media (hover: none) {
@@ -294,6 +317,14 @@ input + .material-icons {
     .addButton:disabled {
         background-color: hsl(120, 20%, 65%);
     }
+
+    .cookieButtonContainer button:hover {
+        background-color: hsla(0, 0%, 2%, 0.6);
+    }
+
+    .cookieButtonContainer button:hover {
+        background-color: hsla(0, 0%, 2%, 0.8);
+    }
 }
 
 @media screen and (max-width: 450px) {
@@ -304,6 +335,15 @@ input + .material-icons {
     .popup {
         top: 1.6rem;
         right: 5.0rem;
+    }
+
+    .cookieContainer {
+        flex-direction: column;
+        padding-top: 1rem;
+    }
+
+    .cookieButtonContainer {
+        flex-direction: row;
     }
 }
 

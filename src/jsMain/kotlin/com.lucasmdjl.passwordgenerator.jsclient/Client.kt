@@ -6,6 +6,8 @@ import com.lucasmdjl.passwordgenerator.jsclient.react.App
 import com.lucasmdjl.passwordgenerator.jsclient.react.scope
 import com.lucasmdjl.passwordgenerator.jsclient.react.updateSession
 import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.resources.*
 import kotlinx.browser.document
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
@@ -37,3 +39,5 @@ val jsonClient = HttpClient {
     installDefaultRequest()
     installHttpResponseValidator()
 }
+
+val resourcesFormat = jsonClient.plugin(Resources).resourcesFormat

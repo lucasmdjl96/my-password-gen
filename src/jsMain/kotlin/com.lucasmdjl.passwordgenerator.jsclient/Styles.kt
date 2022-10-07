@@ -44,6 +44,8 @@ object CssClasses {
 
     val cookieContainer = ClassName("cookieContainer")
 
+    val cookieText = ClassName("cookieText")
+
     val cookieButtonContainer = ClassName("cookieButtonContainer")
 }
 
