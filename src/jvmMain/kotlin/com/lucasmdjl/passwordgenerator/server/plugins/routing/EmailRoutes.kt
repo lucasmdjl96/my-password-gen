@@ -31,7 +31,6 @@ fun Route.emailRoutes() {
         val emailAddress = emailRoute.emailAddress
         val emailServerDto = EmailServerDto(emailAddress, username)
         val emailClientDto = emailService.find(emailServerDto, sessionId)?.toEmailClientDto()
-        logger.debug { "/email/find: respond with emailDto: $emailClientDto" }
         call.respondNullable(emailClientDto)
     }
     delete<EmailRoute.Delete> { emailRoute ->
@@ -41,7 +40,6 @@ fun Route.emailRoutes() {
         val emailAddress = emailRoute.emailAddress
         val emailServerDto = EmailServerDto(emailAddress, username)
         val result = emailService.delete(emailServerDto, sessionId)
-        logger.debug { "/email/delete: respond with result: $result" }
         call.respondNullable(result)
     }
 }

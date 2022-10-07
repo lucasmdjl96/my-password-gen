@@ -15,6 +15,7 @@ object SessionServiceImpl : SessionService {
     private val sessionRepository: SessionRepository = SessionRepositoryImpl
 
     override fun assignNew(oldSessionDto: SessionDto?) = transaction {
+        logger.debug { "assignNew" }
         val newSession = sessionRepository.create()
         if (oldSessionDto != null) {
             val oldSession = find(oldSessionDto)
