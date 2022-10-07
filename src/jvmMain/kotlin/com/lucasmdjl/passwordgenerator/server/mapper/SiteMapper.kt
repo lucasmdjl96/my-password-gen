@@ -9,8 +9,8 @@ interface SiteMapper {
 
     fun Site.toSiteClientDto() = siteToSiteClientDto(this)
 
-    fun siteIterableToSiteDtoClientIterable(siteIterable: Iterable<Site>): Iterable<SiteClientDto>
+    fun sitesToSiteClientDtos(sites: Iterable<Site>): Iterable<SiteClientDto>
 
-    fun Iterable<Site>.toSiteClientDtoIterable() = siteIterableToSiteDtoClientIterable(this)
+    fun Iterable<Site>.toSiteClientDtos() = sitesToSiteClientDtos(this)
 
 }

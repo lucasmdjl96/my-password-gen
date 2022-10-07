@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger("EmailRepositoryImpl")
 object EmailRepositoryImpl : EmailRepository {
 
     override fun createAndGetId(emailAddress: String, user: User): Int? {
-        logger.debug { "createAndGetId call with emailAddress: $emailAddress, user: $user" }
+        logger.debug { "createAndGetId" }
         return Emails.insertIgnoreAndGetId {
             it[this.emailAddress] = emailAddress
             it[this.userId] = user.id
@@ -21,18 +21,19 @@ object EmailRepositoryImpl : EmailRepository {
     }
 
     override fun getById(id: Int): Email? {
-        logger.debug { "getById call with id: $id" }
+        logger.debug { "getById" }
         return Email.findById(id)
     }
 
     override fun getByAddressAndUser(emailAddress: String, user: User): Email? {
-        logger.debug { "getByAddressAndUser call with emailAddress: $emailAddress, user: $user" }
+        logger.debug { "getByAddressAndUser" }
         return Email.find {
             Emails.emailAddress eq emailAddress and (Emails.userId eq user.id)
         }.firstOrNull()
     }
 
     override fun delete(email: Email) {
+        logger.debug { "delete" }
         return email.delete()
     }
 

@@ -18,23 +18,17 @@ private val logger = KotlinLogging.logger("UserRoutes")
 
 fun Route.userRoutes() {
     post<UserRoute.Login> {
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val userServerDto = call.receive<UserServerDto>().encode()
-        logger.debug {
-            "/user/login: call with sessionId: $sessionId, userServerDto: $userServerDto"
-        }
         val userClientDto = userService.find(userServerDto, sessionId)?.toUserClientDto()
-        logger.debug { "/user/login: respond with userDto: $userClientDto" }
         call.respondNullable(userClientDto)
     }
     post<UserRoute.Register> {
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val userServerDto = call.receive<UserServerDto>().encode()
-        logger.debug {
-            "/user/register: call with sessionId: $sessionId, userServerDto: $userServerDto"
-        }
         val userClientDto = userService.create(userServerDto, sessionId)?.toUserClientDto()
-        logger.debug { "/user/register: respond with userDto: $userClientDto" }
         call.respondNullable(userClientDto)
     }
 }

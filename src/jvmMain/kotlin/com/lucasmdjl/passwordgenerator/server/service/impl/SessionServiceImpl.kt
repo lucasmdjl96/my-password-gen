@@ -5,7 +5,10 @@ import com.lucasmdjl.passwordgenerator.server.repository.SessionRepository
 import com.lucasmdjl.passwordgenerator.server.repository.impl.SessionRepositoryImpl
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
 import com.lucasmdjl.passwordgenerator.server.userService
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+
+private val logger = KotlinLogging.logger("SessionServiceImpl")
 
 object SessionServiceImpl : SessionService {
 
@@ -24,7 +27,14 @@ object SessionServiceImpl : SessionService {
     }
 
     override fun find(sessionDto: SessionDto) = transaction {
+        logger.debug { "find" }
         sessionRepository.getById(sessionDto.sessionId)
+    }
+
+    override fun delete(sessionDto: SessionDto): Unit = transaction {
+        logger.debug { "delete" }
+        val session = find(sessionDto)
+        if (session != null) sessionRepository.delete(session)
     }
 
 }

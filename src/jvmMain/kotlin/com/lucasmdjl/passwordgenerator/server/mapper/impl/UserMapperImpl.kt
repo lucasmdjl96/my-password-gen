@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger("UserMapperImpl")
 object UserMapperImpl : UserMapper {
 
     override fun userToUserClientDto(user: User): UserClientDto = transaction {
-        logger.debug { "userToUserDto call with user: $user" }
+        logger.debug { "userToUserClientDto: $user" }
         user.load(User::emails)
         UserClientDto(
             user.username,
@@ -21,9 +21,9 @@ object UserMapperImpl : UserMapper {
         )
     }
 
-    override fun userIterableToUserClientDtoIterable(userIterable: Iterable<User>): Iterable<UserClientDto> {
-        logger.debug { "userIterableToUserDtoIterable call with userList: $userIterable" }
-        return userIterable.map(UserMapperImpl::userToUserClientDto)
+    override fun usersToUserClientDtos(users: Iterable<User>): Iterable<UserClientDto> {
+        logger.debug { "usersToUserClientDtos" }
+        return users.map(UserMapperImpl::userToUserClientDto)
     }
 
 }

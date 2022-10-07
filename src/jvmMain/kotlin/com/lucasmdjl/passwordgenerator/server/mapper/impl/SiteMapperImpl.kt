@@ -10,13 +10,13 @@ private val logger = KotlinLogging.logger("SiteMapperImpl")
 object SiteMapperImpl : SiteMapper {
 
     override fun siteToSiteClientDto(site: Site): SiteClientDto {
-        logger.debug { "siteToSiteDto call with site: $site" }
+        logger.debug { "siteToSiteClientDto" }
         return SiteClientDto(site.name)
     }
 
-    override fun siteIterableToSiteDtoClientIterable(siteIterable: Iterable<Site>): Iterable<SiteClientDto> {
-        logger.debug { "siteIterableToSiteDtoIterable call with siteList: $siteIterable" }
-        return siteIterable.map(SiteMapperImpl::siteToSiteClientDto)
+    override fun sitesToSiteClientDtos(sites: Iterable<Site>): Iterable<SiteClientDto> {
+        logger.debug { "sitesToSiteClientDtos" }
+        return sites.map(SiteMapperImpl::siteToSiteClientDto)
     }
 
 }

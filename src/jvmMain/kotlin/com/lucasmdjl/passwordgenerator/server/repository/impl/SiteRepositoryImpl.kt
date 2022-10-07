@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger("SiteRepositoryImpl")
 object SiteRepositoryImpl : SiteRepository {
 
     override fun createAndGetId(siteName: String, email: Email): Int? {
-        logger.debug { "createAndGetId call with siteName: $siteName, email: $email" }
+        logger.debug { "createAndGetId" }
         return Sites.insertIgnoreAndGetId {
             it[this.siteName] = siteName
             it[this.emailId] = email.id
@@ -21,19 +21,20 @@ object SiteRepositoryImpl : SiteRepository {
     }
 
     override fun getById(id: Int): Site? {
-        logger.debug { "getById call with id: $id" }
+        logger.debug { "getById" }
         return Site.findById(id)
     }
 
 
     override fun getByNameAndEmail(siteName: String, email: Email): Site? {
-        logger.debug { "getByNameAndEmail call with siteName: $siteName, email: $email" }
+        logger.debug { "getByNameAndEmail" }
         return Site.find {
             Sites.siteName eq siteName and (Sites.emailId eq email.id)
         }.firstOrNull()
     }
 
     override fun delete(site: Site) {
+        logger.debug { "delete" }
         return site.delete()
     }
 

@@ -18,38 +18,30 @@ private val logger = KotlinLogging.logger("SiteRoutes")
 
 fun Route.siteRoutes() {
     post<SiteRoute.New> {
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val siteServerDto = call.receive<SiteServerDto>()
         val siteClientDto = siteService.create(siteServerDto, sessionId)?.toSiteClientDto()
-        logger.debug { "/site/new: respond with siteDto: $siteClientDto" }
         call.respondNullable(siteClientDto)
     }
     get<SiteRoute.Find> { siteRoute ->
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val username = siteRoute.username
         val emailAddress = siteRoute.emailAddress
         val siteName = siteRoute.siteName
         val siteServerDto = SiteServerDto(siteName, emailAddress, username)
-        logger.debug {
-            "/site/find: call with sessionId: $sessionId, username: $username, " +
-                    "emailAddress: $emailAddress, siteName: $siteName"
-        }
         val siteClientDto = siteService.find(siteServerDto, sessionId)?.toSiteClientDto()
-        logger.debug { "/site/find: respond with siteDto: $siteClientDto" }
         call.respondNullable(siteClientDto)
     }
     delete<SiteRoute.Delete> { siteRoute ->
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val username = siteRoute.username
         val emailAddress = siteRoute.emailAddress
         val siteName = siteRoute.siteName
         val siteServerDto = SiteServerDto(siteName, emailAddress, username)
-        logger.debug {
-            "/site/delete: call with sessionId: $sessionId, username: $username, " +
-                    "emailAddress: $emailAddress, siteName: $siteName"
-        }
         val result = siteService.delete(siteServerDto, sessionId)
-        logger.debug { "/site/delete: respond with result: $result" }
         call.respondNullable(result)
     }
 }

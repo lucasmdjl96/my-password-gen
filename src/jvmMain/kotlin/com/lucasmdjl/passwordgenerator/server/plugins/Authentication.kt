@@ -14,12 +14,12 @@ fun Application.installAuthentication() {
     install(Authentication) {
         session<SessionDto>("session-auth") {
             validate { session ->
-                logger.debug { "validate call with sessionId: ${session.sessionId}" }
+                logger.debug { "validate" }
                 if (sessionService.find(session) != null) session
                 else null
             }
-            challenge { session ->
-                logger.debug { "challenge call with sessionId: ${session?.sessionId}" }
+            challenge {
+                logger.debug { "challenge" }
                 call.respond(HttpStatusCode.Unauthorized)
             }
         }

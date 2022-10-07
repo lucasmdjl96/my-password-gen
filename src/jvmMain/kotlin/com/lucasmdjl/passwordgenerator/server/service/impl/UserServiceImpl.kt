@@ -16,21 +16,21 @@ object UserServiceImpl : UserService {
     private val userRepository: UserRepository = UserRepositoryImpl
 
     override fun create(userServerDto: UserServerDto, sessionId: UUID) = transaction {
+        logger.debug { "create" }
         val username = userServerDto.username
-        logger.debug { "create call with username: $username, sessionId: $sessionId" }
         val id = userRepository.createAndGetId(username, sessionId)
         if (id != null) userRepository.getById(id) else null
     }
 
     override fun find(userServerDto: UserServerDto, sessionId: UUID) = transaction {
+        logger.debug { "find" }
         val username = userServerDto.username
-        logger.debug { "getByName call with username: $username, sessionId: $sessionId" }
         userRepository.getByNameAndSession(username, sessionId)
     }
 
 
     override fun moveAllUsers(fromSession: Session, toSession: Session) = transaction {
-        logger.debug { "moveAllUsers call with fromSession: $fromSession, toSession: $toSession" }
+        logger.debug { "moveAllUsers" }
         userRepository.moveAll(fromSession.id.value, toSession.id.value)
     }
 

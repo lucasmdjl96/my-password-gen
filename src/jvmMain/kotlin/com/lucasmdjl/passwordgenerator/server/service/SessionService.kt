@@ -9,4 +9,6 @@ interface SessionService {
 
     fun find(sessionDto: SessionDto): Session?
 
+    fun delete(sessionDto: SessionDto): Unit
+
 }

@@ -9,8 +9,8 @@ interface SessionMapper {
 
     fun Session.toSessionDto() = sessionToSessionDto(this)
 
-    fun sessionIterableToSessionDtoIterable(sessionIterable: Iterable<Session>): Iterable<SessionDto>
+    fun sessionsToSessionDtos(sessions: Iterable<Session>): Iterable<SessionDto>
 
-    fun Iterable<Session>.toSessionDtoIterable() = sessionIterableToSessionDtoIterable(this)
+    fun Iterable<Session>.toSessionDtos() = sessionsToSessionDtos(this)
 
 }

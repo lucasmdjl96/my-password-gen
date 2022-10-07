@@ -6,6 +6,7 @@ import com.lucasmdjl.passwordgenerator.server.mapper.impl.SessionMapperImpl.toSe
 import com.lucasmdjl.passwordgenerator.server.sessionService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,8 +17,8 @@ private val logger = KotlinLogging.logger("SessionRoutes")
 
 fun Route.sessionRoutes() {
     put<SessionRoute> {
+        logger.debug { call.request.path() }
         val sessionDto = call.sessions.get<SessionDto>()
-        logger.debug { "/session: call with sessionId: ${sessionDto?.sessionId}" }
         val newSession = sessionService.assignNew(sessionDto)
         call.sessions.set(newSession.toSessionDto())
         call.respond(HttpStatusCode.OK)

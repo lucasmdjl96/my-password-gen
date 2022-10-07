@@ -11,13 +11,13 @@ private val logger = KotlinLogging.logger("SessionMapperImpl")
 object SessionMapperImpl : SessionMapper {
 
     override fun sessionToSessionDto(session: Session): SessionDto {
-        logger.debug { "sessionToSessionDto call with session: $session" }
+        logger.debug { "sessionToSessionDto" }
         return SessionDto(session.id.value)
     }
 
-    override fun sessionIterableToSessionDtoIterable(sessionIterable: Iterable<Session>): Iterable<SessionDto> {
-        logger.debug { "sessionIterableToSessionDtoIterable call with sessionList: $sessionIterable" }
-        return sessionIterable.map(SessionMapperImpl::sessionToSessionDto)
+    override fun sessionsToSessionDtos(sessions: Iterable<Session>): Iterable<SessionDto> {
+        logger.debug { "sessionsToSessionDtos" }
+        return sessions.map(SessionMapperImpl::sessionToSessionDto)
     }
 
 }

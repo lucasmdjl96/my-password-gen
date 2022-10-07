@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger("UserRepositoryImpl")
 object UserRepositoryImpl : UserRepository {
 
     override fun createAndGetId(username: String, sessionId: UUID): Int? {
-        logger.debug { "createAndGetId call with username: $username, sessionId: $sessionId" }
+        logger.debug { "createAndGetId" }
         return Users.insertIgnoreAndGetId {
             it[this.username] = username
             it[this.sessionId] = sessionId
@@ -22,18 +22,19 @@ object UserRepositoryImpl : UserRepository {
     }
 
     override fun getById(id: Int): User? {
-        logger.debug { "getById call with id: $id" }
+        logger.debug { "getById" }
         return User.findById(id)
     }
 
     override fun getByNameAndSession(username: String, sessionId: UUID): User? {
-        logger.debug { "getByNameAndSession call with username: $username, sessionId: $sessionId" }
+        logger.debug { "getByNameAndSession" }
         return User.find {
             Users.sessionId eq sessionId and (Users.username eq username)
         }.firstOrNull()
     }
 
     override fun moveAll(fromSessionId: UUID, toSessionId: UUID) {
+        logger.debug { "moveAll" }
         Users.update({ Users.sessionId eq fromSessionId }) {
             it[sessionId] = toSessionId
         }

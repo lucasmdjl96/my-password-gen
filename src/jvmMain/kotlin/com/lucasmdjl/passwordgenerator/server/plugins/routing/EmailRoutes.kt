@@ -18,32 +18,28 @@ private val logger = KotlinLogging.logger("EmailRoutes")
 
 fun Route.emailRoutes() {
     post<EmailRoute.New> {
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val emailServerDto = call.receive<EmailServerDto>()
         val emailClientDto = emailService.create(emailServerDto, sessionId)?.toEmailClientDto()
-        logger.debug { "/email/new: respond with emailDto: $emailClientDto" }
         call.respondNullable(emailClientDto)
     }
     get<EmailRoute.Find> { emailRoute ->
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val username = emailRoute.username
         val emailAddress = emailRoute.emailAddress
         val emailServerDto = EmailServerDto(emailAddress, username)
-        logger.debug {
-            "/email/find: call with sessionId: $sessionId, username: $username, emailAddress: $emailAddress"
-        }
         val emailClientDto = emailService.find(emailServerDto, sessionId)?.toEmailClientDto()
         logger.debug { "/email/find: respond with emailDto: $emailClientDto" }
         call.respondNullable(emailClientDto)
     }
     delete<EmailRoute.Delete> { emailRoute ->
+        logger.debug { call.request.path() }
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
         val username = emailRoute.username
         val emailAddress = emailRoute.emailAddress
         val emailServerDto = EmailServerDto(emailAddress, username)
-        logger.debug {
-            "/email/delete: call with sessionId: $sessionId, username: $username, emailAddress: $emailAddress"
-        }
         val result = emailService.delete(emailServerDto, sessionId)
         logger.debug { "/email/delete: respond with result: $result" }
         call.respondNullable(result)
