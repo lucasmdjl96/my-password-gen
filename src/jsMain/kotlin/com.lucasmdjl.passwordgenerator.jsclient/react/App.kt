@@ -7,7 +7,6 @@ import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
-import com.lucasmdjl.passwordgenerator.jsclient.hsl
 import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
 import csstype.Color
 import emotion.react.css
@@ -15,22 +14,12 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.browser.localStorage
 import kotlinx.coroutines.launch
 import react.FC
 import react.Props
-import react.dom.html.InputType
-import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h1
-import react.dom.html.ReactHTML.input
-import react.dom.html.ReactHTML.label
 import react.dom.html.ReactHTML.main
-import react.dom.html.ReactHTML.span
 import react.useState
-
-private val toggleOnColor = hsl(200, 100, 45)
-private val toggleOffColor = hsl(0, 0, 50)
 
 val App = { initialState: InitialState ->
     FC<Props> {
@@ -45,77 +34,26 @@ val App = { initialState: InitialState ->
             css(CssClasses.background) {
                 backgroundColor = Color(background)
             }
-            div {
-                className = CssClasses.colorPickerContainer
-                label {
-                    +"Background Color"
-                    htmlFor = "backgroundColor"
-                    hidden = true
-                }
-                input {
-                    className = CssClasses.colorPicker
-                    id = "backgroundColor"
-                    type = InputType.color
-                    value = background
-                    onChange = { event ->
-                        val color = event.target.value
-                        background = color
-                        if (cookiesAccepted == true) localStorage.setItem("backgroundColor", color)
-                    }
-                }
+            ColorPicker {
+                this.cookiesAccepted = cookiesAccepted
+                this.background = background
+                this.updateBackground = { color -> background = color }
             }
             main {
                 className = CssClasses.container
-                if (userClientDto == null) {
-                    div {
-                        className = CssClasses.titleContainer
-                        h1 {
-                            className = CssClasses.title
-                            +"Password Generator"
-                        }
+                TitleContainer {
+                    this.loggedIn = userClientDto != null
+                    this.online = online
+                    this.reset = {
+                        userClientDto = null
+                        masterPassword = null
                     }
-                    div {
-                        className = CssClasses.onlineToggle
-                        div {
-                            +"Offline"
-                            onClick = {
-                                if (cookiesAccepted == true) {
-                                    online = false
-                                    localStorage.setItem("online", "false")
-                                }
-                            }
-                        }
-                        div {
-                            css(CssClasses.toggleContainer) {
-                                backgroundColor = if (online) toggleOnColor else toggleOffColor
-                            }
-                            span {
-                                className = CssClasses.materialIconOutlined
-                                +if (online) "toggle_on" else "toggle_off"
-                                onClick = {
-                                    if (cookiesAccepted == true) {
-                                        val newOnline = !online
-                                        online = newOnline
-                                        localStorage.setItem("online", "$newOnline")
-                                        if (newOnline) scope.launch {
-                                            updateSession()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        div {
-                            +"Online"
-                            onClick = {
-                                if (cookiesAccepted == true) {
-                                    online = true
-                                    localStorage.setItem("online", "true")
-                                    scope.launch {
-                                        updateSession()
-                                    }
-                                }
-                            }
-                        }
+                }
+                if (userClientDto == null) {
+                    OnlineToggle {
+                        this.cookiesAccepted = cookiesAccepted
+                        this.online = online
+                        this.updateOnline = { newOnline -> online = newOnline }
                     }
                     Login {
                         this.onLogin = { loginData: LoginDto ->
@@ -137,26 +75,7 @@ val App = { initialState: InitialState ->
                             }
                         }
                     }
-                }
-                if (userClientDto != null) {
-                    div {
-                        className = CssClasses.titleContainer
-                        h1 {
-                            className = CssClasses.title
-                            +"${if (!online) "Offline " else ""}Password Generator"
-                        }
-                        button {
-                            className = CssClasses.logOut
-                            span {
-                                className = CssClasses.materialIcon
-                                +"logout"
-                            }
-                            onClick = {
-                                userClientDto = null
-                                masterPassword = null
-                            }
-                        }
-                    }
+                } else {
                     PasswordGen {
                         this.userClientDto = userClientDto!!
                         this.masterPassword = masterPassword!!

@@ -7,7 +7,6 @@ import io.ktor.resources.*
 import kotlinx.browser.localStorage
 import react.FC
 import react.Props
-import react.dom.html.AnchorTarget
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
@@ -27,16 +26,15 @@ val CookieBanner = FC<CookieBannerProps> { props ->
             div {
                 className = CssClasses.cookieText
                 p {
-                    +("Cookies and using the local storage of your browser allow us to provide a better user " +
+                    +("Cookies and related technologies allow us to provide a better user " +
                             "experience for you.")
                 }
                 p {
-                    +("In particular we use cookies to provide all the online mode functionality, and local storage to " +
-                            "remember your choices of background color, use mode and cookie preferences. ")
+                    +("In particular we use cookies and related technologies to provide all the online mode functionality, and to " +
+                            "remember your choices of background color, use mode and cookie preferences. Read more in our ")
                     a {
                         href = href(resourcesFormat, CookieRoute.Policy())
-                        target = AnchorTarget._blank
-                        +"Read more here"
+                        +"Cookie Policy."
                     }
                 }
                 p {
@@ -46,8 +44,7 @@ val CookieBanner = FC<CookieBannerProps> { props ->
                     +"You can revoke your consent at any time visiting the "
                     a {
                         href = href(resourcesFormat, CookieRoute.OptOut())
-                        target = AnchorTarget._blank
-                        +"opt-out page"
+                        +"Opt-Out Page."
                     }
                 }
             }
