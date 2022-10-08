@@ -22,6 +22,8 @@ object CssClasses {
 
     val logOut = ClassName("logOut")
 
+    val logoutContainer = ClassName("logoutContainer")
+
     val materialIcon = ClassName("material-icons")
 
     val materialIconOutlined = ClassName("material-icons-outlined")

@@ -194,6 +194,10 @@
     background-color: hsla(0, 0%, 10%, 0.5)
 }
 
+.logoutContainer {
+    height: 0;
+}
+
 .logOut {
     color: hsl(0, 100%, 98%);
     font-size: 15px;
@@ -201,6 +205,8 @@
     background-color: hsla(0, 0%, 0%, 0.0);
     cursor: pointer;
     padding: 0;
+    position: relative;
+    bottom: 1.6rem;
 }
 
 .logOut:hover {
@@ -377,6 +383,8 @@ input + .material-icons {
 
     .logOut {
         padding: 1.5rem 2.0rem 0.5rem;
+        bottom: 6.3rem;
+        left: 17.0rem;
     }
 }
 

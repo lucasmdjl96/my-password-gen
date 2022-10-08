@@ -44,10 +44,6 @@ val App = { initialState: InitialState ->
                 TitleContainer {
                     this.loggedIn = userClientDto != null
                     this.online = online
-                    this.reset = {
-                        userClientDto = null
-                        masterPassword = null
-                    }
                 }
                 if (userClientDto == null) {
                     OnlineToggle {
@@ -76,6 +72,12 @@ val App = { initialState: InitialState ->
                         }
                     }
                 } else {
+                    LogoutButton {
+                        this.reset = {
+                            userClientDto = null
+                            masterPassword = null
+                        }
+                    }
                     PasswordGen {
                         this.userClientDto = userClientDto!!
                         this.masterPassword = masterPassword!!
