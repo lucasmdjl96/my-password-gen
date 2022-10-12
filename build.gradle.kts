@@ -3,7 +3,8 @@ val ktorVersion: String by project
 val logbackVersion: String by project
 val kotlinLoggingVersion: String by project
 val kotlinWrappersVersion: String by project
-val kotlinxHtmlVersion : String by project
+val kotlinxHtmlVersion: String by project
+val koinVersion: String by project
 
 val exposedVersion: String by project
 val postgresVersion: String by project
@@ -18,7 +19,6 @@ group = "com.lucasmdjl"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
@@ -26,7 +26,7 @@ repositories {
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "11"
         }
         withJava()
         testRuns["test"].executionTask.configure {
@@ -44,7 +44,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+                implementation(kotlin("stdlib-common"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-resources:$ktorVersion")
             }
         }
@@ -58,7 +60,6 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-server-sessions:$ktorVersion")
                 implementation("io.ktor:ktor-server-auth:$ktorVersion")
                 implementation("io.ktor:ktor-server-http-redirect:$ktorVersion")
@@ -78,9 +79,19 @@ kotlin {
                 implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
                 implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
                 implementation("org.postgresql:postgresql:$postgresVersion")
+
+                implementation("io.insert-koin:koin-ktor:$koinVersion")
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlin:kotlin-test-junit5:1.7.10")
+                //implementation("io.ktor:ktor-server-test-host:$ktorVersion")
+                implementation("io.mockk:mockk:1.9.3")
+                implementation("io.ktor:ktor-client-resources:$ktorVersion")
+                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -88,7 +99,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-client-resources:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom:$kotlinWrappersVersion"))
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinWrappersVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinWrappersVersion")

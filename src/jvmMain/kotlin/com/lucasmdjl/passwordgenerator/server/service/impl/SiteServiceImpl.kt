@@ -1,9 +1,8 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
-import com.lucasmdjl.passwordgenerator.server.emailService
 import com.lucasmdjl.passwordgenerator.server.repository.SiteRepository
-import com.lucasmdjl.passwordgenerator.server.repository.impl.SiteRepositoryImpl
+import com.lucasmdjl.passwordgenerator.server.service.EmailService
 import com.lucasmdjl.passwordgenerator.server.service.SiteService
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,9 +10,10 @@ import java.util.*
 
 private val logger = KotlinLogging.logger("SiteServiceImpl")
 
-object SiteServiceImpl : SiteService {
-
-    private val siteRepository: SiteRepository = SiteRepositoryImpl
+class SiteServiceImpl(
+    private val siteRepository: SiteRepository,
+    private val emailService: EmailService
+) : SiteService {
 
     override fun create(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }

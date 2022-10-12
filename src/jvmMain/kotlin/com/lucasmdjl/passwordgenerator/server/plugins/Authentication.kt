@@ -1,26 +1,28 @@
 package com.lucasmdjl.passwordgenerator.server.plugins
 
+import com.lucasmdjl.passwordgenerator.server.controller.SessionController
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
-import com.lucasmdjl.passwordgenerator.server.sessionService
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.response.*
 import mu.KotlinLogging
+import org.koin.ktor.ext.inject
 
 private val logger = KotlinLogging.logger("Authentication")
 
 fun Application.installAuthentication() {
+
+    val sessionController by inject<SessionController>()
+
+    pluginLogger.debug { "Installing Authentication" }
     install(Authentication) {
         session<SessionDto>("session-auth") {
-            validate { session ->
+            validate { sessionDto ->
                 logger.debug { "validate" }
-                if (sessionService.find(session) != null) session
-                else null
+                sessionController.validate(this, sessionDto)
             }
-            challenge {
+            challenge { sessionDto ->
                 logger.debug { "challenge" }
-                call.respond(HttpStatusCode.Unauthorized)
+                sessionController.challenge(call, sessionDto)
             }
         }
     }

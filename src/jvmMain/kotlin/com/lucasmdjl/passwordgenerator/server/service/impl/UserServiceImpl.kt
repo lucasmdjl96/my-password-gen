@@ -3,7 +3,6 @@ package com.lucasmdjl.passwordgenerator.server.service.impl
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.server.model.Session
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
-import com.lucasmdjl.passwordgenerator.server.repository.impl.UserRepositoryImpl
 import com.lucasmdjl.passwordgenerator.server.service.UserService
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,9 +10,7 @@ import java.util.*
 
 private val logger = KotlinLogging.logger("UserServiceImpl")
 
-object UserServiceImpl : UserService {
-
-    private val userRepository: UserRepository = UserRepositoryImpl
+class UserServiceImpl(private val userRepository: UserRepository) : UserService {
 
     override fun create(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }

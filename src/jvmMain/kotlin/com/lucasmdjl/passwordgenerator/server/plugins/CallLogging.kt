@@ -8,6 +8,7 @@ import org.slf4j.event.Level
 
 
 fun Application.installCallLogging() {
+    pluginLogger.debug { "Installing CallLogging" }
     install(CallLogging) {
         level = Level.DEBUG
         filter { call -> call.request.path().startsWith("/") }

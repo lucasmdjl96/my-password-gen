@@ -7,7 +7,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger("SiteMapperImpl")
 
-object SiteMapperImpl : SiteMapper {
+class SiteMapperImpl : SiteMapper {
 
     override fun siteToSiteClientDto(site: Site): SiteClientDto {
         logger.debug { "siteToSiteClientDto" }
@@ -16,7 +16,7 @@ object SiteMapperImpl : SiteMapper {
 
     override fun sitesToSiteClientDtos(sites: Iterable<Site>): Iterable<SiteClientDto> {
         logger.debug { "sitesToSiteClientDtos" }
-        return sites.map(SiteMapperImpl::siteToSiteClientDto)
+        return sites.map(::siteToSiteClientDto)
     }
 
 }

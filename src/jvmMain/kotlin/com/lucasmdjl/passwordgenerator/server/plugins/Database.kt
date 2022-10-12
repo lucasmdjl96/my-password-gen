@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.initDatabase() {
+    pluginLogger.debug { "Installing Database" }
     val hikariConfig = HikariConfig().apply {
         driverClassName = environment.config.property("postgres.driver").getString()
         jdbcUrl = environment.config.property("postgres.jdbcUrl").getString()

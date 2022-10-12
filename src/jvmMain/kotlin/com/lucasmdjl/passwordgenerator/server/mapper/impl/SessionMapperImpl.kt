@@ -8,7 +8,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger("SessionMapperImpl")
 
-object SessionMapperImpl : SessionMapper {
+class SessionMapperImpl : SessionMapper {
 
     override fun sessionToSessionDto(session: Session): SessionDto {
         logger.debug { "sessionToSessionDto" }
@@ -17,7 +17,7 @@ object SessionMapperImpl : SessionMapper {
 
     override fun sessionsToSessionDtos(sessions: Iterable<Session>): Iterable<SessionDto> {
         logger.debug { "sessionsToSessionDtos" }
-        return sessions.map(SessionMapperImpl::sessionToSessionDto)
+        return sessions.map(::sessionToSessionDto)
     }
 
 }

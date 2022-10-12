@@ -2,18 +2,18 @@ package com.lucasmdjl.passwordgenerator.server.service.impl
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.EmailServerDto
 import com.lucasmdjl.passwordgenerator.server.repository.EmailRepository
-import com.lucasmdjl.passwordgenerator.server.repository.impl.EmailRepositoryImpl
 import com.lucasmdjl.passwordgenerator.server.service.EmailService
-import com.lucasmdjl.passwordgenerator.server.userService
+import com.lucasmdjl.passwordgenerator.server.service.UserService
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 private val logger = KotlinLogging.logger("EmailServiceImpl")
 
-object EmailServiceImpl : EmailService {
-
-    private val emailRepository: EmailRepository = EmailRepositoryImpl
+class EmailServiceImpl(
+    private val emailRepository: EmailRepository,
+    private val userService: UserService
+) : EmailService {
 
     override fun create(emailServerDto: EmailServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }

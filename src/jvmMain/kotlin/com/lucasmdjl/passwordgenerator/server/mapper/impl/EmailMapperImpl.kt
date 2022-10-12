@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 private val logger = KotlinLogging.logger("EmailMapperImpl")
 
-object EmailMapperImpl : EmailMapper {
+class EmailMapperImpl : EmailMapper {
 
     override fun emailToEmailClientDto(email: Email): EmailClientDto = transaction {
         logger.debug { "emailToEmailClientDto" }
@@ -23,7 +23,7 @@ object EmailMapperImpl : EmailMapper {
 
     override fun emailsToEmailClientDtos(emails: Iterable<Email>): Iterable<EmailClientDto> {
         logger.debug { "emailsToEmailClientDtos" }
-        return emails.map(EmailMapperImpl::emailToEmailClientDto)
+        return emails.map(::emailToEmailClientDto)
     }
 
 }

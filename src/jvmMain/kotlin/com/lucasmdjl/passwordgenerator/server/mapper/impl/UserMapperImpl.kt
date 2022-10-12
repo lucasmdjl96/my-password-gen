@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 private val logger = KotlinLogging.logger("UserMapperImpl")
 
-object UserMapperImpl : UserMapper {
+class UserMapperImpl : UserMapper {
 
     override fun userToUserClientDto(user: User): UserClientDto = transaction {
         logger.debug { "userToUserClientDto: $user" }
@@ -23,7 +23,7 @@ object UserMapperImpl : UserMapper {
 
     override fun usersToUserClientDtos(users: Iterable<User>): Iterable<UserClientDto> {
         logger.debug { "usersToUserClientDtos" }
-        return users.map(UserMapperImpl::userToUserClientDto)
+        return users.map(::userToUserClientDto)
     }
 
 }

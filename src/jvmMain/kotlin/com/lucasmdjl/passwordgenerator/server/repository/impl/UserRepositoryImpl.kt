@@ -11,7 +11,7 @@ import java.util.*
 
 private val logger = KotlinLogging.logger("UserRepositoryImpl")
 
-object UserRepositoryImpl : UserRepository {
+class UserRepositoryImpl : UserRepository {
 
     override fun createAndGetId(username: String, sessionId: UUID): Int? {
         logger.debug { "createAndGetId" }

@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 
 private val logger = KotlinLogging.logger("SiteRepositoryImpl")
 
-object SiteRepositoryImpl : SiteRepository {
+class SiteRepositoryImpl : SiteRepository {
 
     override fun createAndGetId(siteName: String, email: Email): Int? {
         logger.debug { "createAndGetId" }

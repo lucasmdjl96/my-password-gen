@@ -7,7 +7,7 @@ import java.util.*
 
 private val logger = KotlinLogging.logger("SessionRepositoryImpl")
 
-object SessionRepositoryImpl : SessionRepository {
+class SessionRepositoryImpl : SessionRepository {
 
     override fun create(): Session {
         logger.debug { "create" }
