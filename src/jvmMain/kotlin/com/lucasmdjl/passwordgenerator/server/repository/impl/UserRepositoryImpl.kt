@@ -45,5 +45,9 @@ class UserRepositoryImpl : UserRepository {
         user.lastEmail = email
     }
 
+    override fun getLastEmail(user: User): Email? {
+        return user.lastEmail
+    }
+
 
 }

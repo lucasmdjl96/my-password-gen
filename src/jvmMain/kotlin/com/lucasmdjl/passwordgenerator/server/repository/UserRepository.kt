@@ -16,4 +16,6 @@ interface UserRepository {
 
     fun setLastEmail(user: User, email: Email?)
 
+    fun getLastEmail(user: User): Email?
+
 }

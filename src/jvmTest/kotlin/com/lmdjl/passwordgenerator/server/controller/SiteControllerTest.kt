@@ -47,7 +47,7 @@ class SiteControllerTest : ControllerTestParent() {
     override fun initDummies() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummySite = Site(EntityID(1, Sites))
-        dummySiteServerDto = SiteServerDto("siteAbc", "email@email.com", "user123")
+        dummySiteServerDto = SiteServerDto("siteAbc")
         dummySiteClientDto = SiteClientDto("Site123")
     }
 
@@ -120,14 +120,7 @@ class SiteControllerTest : ControllerTestParent() {
 
             val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
 
-            siteController.get(
-                callMock,
-                SiteRoute.Find(
-                    dummySiteServerDto.siteName,
-                    dummySiteServerDto.emailServerDto.emailAddress,
-                    dummySiteServerDto.emailServerDto.userServerDto.username
-                )
-            )
+            siteController.get(callMock, SiteRoute.Find(dummySiteServerDto.siteName))
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
@@ -146,14 +139,7 @@ class SiteControllerTest : ControllerTestParent() {
 
             val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
 
-            siteController.get(
-                callMock,
-                SiteRoute.Find(
-                    dummySiteServerDto.siteName,
-                    dummySiteServerDto.emailServerDto.emailAddress,
-                    dummySiteServerDto.emailServerDto.userServerDto.username
-                )
-            )
+            siteController.get(callMock, SiteRoute.Find(dummySiteServerDto.siteName))
 
             verify(exactly = 0) {
                 with(siteMapperMock) {
@@ -178,14 +164,7 @@ class SiteControllerTest : ControllerTestParent() {
 
             val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
 
-            siteController.delete(
-                callMock,
-                SiteRoute.Delete(
-                    dummySiteServerDto.siteName,
-                    dummySiteServerDto.emailServerDto.emailAddress,
-                    dummySiteServerDto.emailServerDto.userServerDto.username
-                )
-            )
+            siteController.delete(callMock, SiteRoute.Delete(dummySiteServerDto.siteName))
 
             verify(exactly = 0) {
                 with(siteMapperMock) {
@@ -206,14 +185,7 @@ class SiteControllerTest : ControllerTestParent() {
 
             val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
 
-            siteController.delete(
-                callMock,
-                SiteRoute.Delete(
-                    dummySiteServerDto.siteName,
-                    dummySiteServerDto.emailServerDto.emailAddress,
-                    dummySiteServerDto.emailServerDto.userServerDto.username
-                )
-            )
+            siteController.delete(callMock, SiteRoute.Delete(dummySiteServerDto.siteName))
 
             verify(exactly = 0) {
                 with(siteMapperMock) {

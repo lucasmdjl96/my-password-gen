@@ -43,8 +43,14 @@ class SessionServiceImpl(
 
     override fun setLastUser(sessionId: UUID, user: User?): Unit = transaction {
         logger.debug { "setLastUser" }
-        val session = sessionRepository.getById(sessionId)
-        if (session != null) sessionRepository.setLastUser(session, user)
+        val session = sessionRepository.getById(sessionId)!!
+        sessionRepository.setLastUser(session, user)
+    }
+
+    override fun getLastUser(sessionId: UUID): User? = transaction {
+        logger.debug { "getLastUser" }
+        val session = sessionRepository.getById(sessionId)!!
+        sessionRepository.getLastUser(session)
     }
 
     override fun moveAllUsers(fromSession: Session, toSession: Session) = transaction {

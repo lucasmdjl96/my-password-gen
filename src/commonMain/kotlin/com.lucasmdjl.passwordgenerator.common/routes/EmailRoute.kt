@@ -12,15 +12,11 @@ class EmailRoute {
     class New(val parent: EmailRoute = EmailRoute())
 
     @Serializable
-    @Resource("/find/{emailAddress}/{username}")
-    class Find(val parent: EmailRoute, val emailAddress: String, val username: String) {
-        constructor(emailAddress: String, username: String) : this(EmailRoute(), emailAddress, username)
-    }
+    @Resource("/find/{emailAddress}")
+    class Find(val emailAddress: String, val parent: EmailRoute = EmailRoute())
 
     @Serializable
-    @Resource("/delete/{emailAddress}/{username}")
-    class Delete(val parent: EmailRoute, val emailAddress: String, val username: String) {
-        constructor(emailAddress: String, username: String) : this(EmailRoute(), emailAddress, username)
-    }
+    @Resource("/delete/{emailAddress}")
+    class Delete(val emailAddress: String, val parent: EmailRoute = EmailRoute())
 
 }

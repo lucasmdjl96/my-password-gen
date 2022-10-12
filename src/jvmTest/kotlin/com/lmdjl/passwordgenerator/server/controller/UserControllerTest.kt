@@ -194,7 +194,7 @@ class UserControllerTest : ControllerTestParent() {
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
+                dummyUserServerDto
                 userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(HttpStatusCode.OK)
             }

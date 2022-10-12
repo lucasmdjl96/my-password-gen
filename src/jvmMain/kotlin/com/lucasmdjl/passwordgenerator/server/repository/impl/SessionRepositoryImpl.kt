@@ -29,4 +29,8 @@ class SessionRepositoryImpl : SessionRepository {
         session.lastUser = user
     }
 
+    override fun getLastUser(session: Session): User? {
+        return session.lastUser
+    }
+
 }

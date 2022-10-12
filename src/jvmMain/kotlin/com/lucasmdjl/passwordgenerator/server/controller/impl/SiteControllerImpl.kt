@@ -27,10 +27,8 @@ class SiteControllerImpl(
 
     override suspend fun get(call: ApplicationCall, siteRoute: SiteRoute.Find) {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val username = siteRoute.username
-        val emailAddress = siteRoute.emailAddress
         val siteName = siteRoute.siteName
-        val siteServerDto = SiteServerDto(siteName, emailAddress, username)
+        val siteServerDto = SiteServerDto(siteName)
         val siteClientDto = with(siteMapper) {
             siteService.find(siteServerDto, sessionId)?.toSiteClientDto()
         }
@@ -39,10 +37,8 @@ class SiteControllerImpl(
 
     override suspend fun delete(call: ApplicationCall, siteRoute: SiteRoute.Delete) {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val username = siteRoute.username
-        val emailAddress = siteRoute.emailAddress
         val siteName = siteRoute.siteName
-        val siteServerDto = SiteServerDto(siteName, emailAddress, username)
+        val siteServerDto = SiteServerDto(siteName)
         val result = siteService.delete(siteServerDto, sessionId)
         call.respondNullable(result)
     }

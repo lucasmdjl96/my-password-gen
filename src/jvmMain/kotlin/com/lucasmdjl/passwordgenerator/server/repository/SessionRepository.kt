@@ -14,4 +14,6 @@ interface SessionRepository {
 
     fun setLastUser(session: Session, user: User?)
 
+    fun getLastUser(session: Session): User?
+
 }

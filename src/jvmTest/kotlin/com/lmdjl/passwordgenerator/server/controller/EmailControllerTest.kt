@@ -47,7 +47,7 @@ class EmailControllerTest : ControllerTestParent() {
     override fun initDummies() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyEmail = Email(EntityID(1, Emails))
-        dummyEmailServerDto = EmailServerDto("email@email.com", "user123")
+        dummyEmailServerDto = EmailServerDto("email@email.com")
         dummyEmailClientDto = EmailClientDto("gmail@email.com", mutableListOf("site1", "site2"))
     }
 
@@ -122,7 +122,7 @@ class EmailControllerTest : ControllerTestParent() {
 
             emailController.get(
                 callMock,
-                EmailRoute.Find(dummyEmailServerDto.emailAddress, dummyEmailServerDto.userServerDto.username)
+                EmailRoute.Find(dummyEmailServerDto.emailAddress)
             )
 
             coVerifyOrder {
@@ -144,7 +144,7 @@ class EmailControllerTest : ControllerTestParent() {
 
             emailController.get(
                 callMock,
-                EmailRoute.Find(dummyEmailServerDto.emailAddress, dummyEmailServerDto.userServerDto.username)
+                EmailRoute.Find(dummyEmailServerDto.emailAddress)
             )
 
             verify(exactly = 0) {
@@ -172,7 +172,7 @@ class EmailControllerTest : ControllerTestParent() {
 
             emailController.delete(
                 callMock,
-                EmailRoute.Delete(dummyEmailServerDto.emailAddress, dummyEmailServerDto.userServerDto.username)
+                EmailRoute.Delete(dummyEmailServerDto.emailAddress)
             )
 
             verify(exactly = 0) {
@@ -196,7 +196,7 @@ class EmailControllerTest : ControllerTestParent() {
 
             emailController.delete(
                 callMock,
-                EmailRoute.Delete(dummyEmailServerDto.emailAddress, dummyEmailServerDto.userServerDto.username)
+                EmailRoute.Delete(dummyEmailServerDto.emailAddress)
             )
 
             verify(exactly = 0) {

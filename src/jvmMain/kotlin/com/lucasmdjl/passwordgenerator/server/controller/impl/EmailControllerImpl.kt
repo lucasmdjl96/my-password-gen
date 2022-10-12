@@ -27,9 +27,8 @@ class EmailControllerImpl(
 
     override suspend fun get(call: ApplicationCall, emailRoute: EmailRoute.Find) {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val username = emailRoute.username
         val emailAddress = emailRoute.emailAddress
-        val emailServerDto = EmailServerDto(emailAddress, username)
+        val emailServerDto = EmailServerDto(emailAddress)
         val emailClientDto = with(emailMapper) {
             emailService.find(emailServerDto, sessionId)?.toEmailClientDto()
         }
@@ -38,9 +37,8 @@ class EmailControllerImpl(
 
     override suspend fun delete(call: ApplicationCall, emailRoute: EmailRoute.Delete) {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val username = emailRoute.username
         val emailAddress = emailRoute.emailAddress
-        val emailServerDto = EmailServerDto(emailAddress, username)
+        val emailServerDto = EmailServerDto(emailAddress)
         val result = emailService.delete(emailServerDto, sessionId)
         call.respondNullable(result)
     }

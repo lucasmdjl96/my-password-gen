@@ -43,7 +43,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 if (props.userClientDto.hasEmail(emailAddress)) {
                     emailClientDto = EmailClientDto(emailAddress)
                     scope.launch {
-                        emailClientDto = checkEmail(props.userClientDto, emailAddress)
+                        emailClientDto = checkEmail(emailAddress)
                     }
                 }
             } else {
@@ -61,7 +61,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 props.addEmail(emailAddress)
                 emailClientDto = EmailClientDto(emailAddress)
                 if (props.online) scope.launch {
-                    val emailDtoTemp = addEmail(props.userClientDto, emailAddress)
+                    val emailDtoTemp = addEmail(emailAddress)
                     emailClientDto = emailDtoTemp
                     if (emailDtoTemp == null) {
                         props.removeEmail(emailAddress)
@@ -76,7 +76,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             if (emailAddress != "" && props.userClientDto.hasEmail(emailAddress)) {
                 props.removeEmail(emailAddress)
                 if (props.online) scope.launch {
-                    val result = removeEmail(props.userClientDto, emailAddress)
+                    val result = removeEmail(emailAddress)
                     if (result == null) {
                         props.addEmail(emailAddress)
                     }
@@ -95,7 +95,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 if (emailClientDto!!.hasSite(siteName)) {
                     siteClientDto = SiteClientDto(siteName)
                     if (props.online) scope.launch {
-                        siteClientDto = checkSite(props.userClientDto.username, emailClientDto!!, siteName)
+                        siteClientDto = checkSite(siteName)
                     }
                 }
             }
@@ -105,7 +105,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                     emailClientDto!!.addSite(siteName)
                     siteClientDto = SiteClientDto(siteName)
                     if (props.online) scope.launch {
-                        val siteDtoTemp = addSite(props.userClientDto.username, emailClientDto!!, siteName)
+                        val siteDtoTemp = addSite(siteName)
                         siteClientDto = siteDtoTemp
                         if (siteDtoTemp == null) emailClientDto!!.removeSite(siteName)
                     }
@@ -117,7 +117,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 if (siteName != "" && emailClientDto!!.hasSite(siteName)) {
                     emailClientDto!!.removeSite(siteName)
                     if (props.online) scope.launch {
-                        val result = removeSite(props.userClientDto.username, emailClientDto!!, siteName)
+                        val result = removeSite(siteName)
                         if (result == null) {
                             emailClientDto!!.addSite(siteName)
                         }
@@ -135,33 +135,34 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.updatePassword = {
             password = it
         }
+        this.online = props.online
     }
 }
 
-suspend fun checkEmail(userClientDto: UserClientDto, emailAddress: String): EmailClientDto? =
-    jsonClient.get(EmailRoute.Find(emailAddress, userClientDto.username)) {
+suspend fun checkEmail(emailAddress: String): EmailClientDto? =
+    jsonClient.get(EmailRoute.Find(emailAddress)) {
     }.body()
 
-suspend fun addEmail(userClientDto: UserClientDto, emailAddress: String): EmailClientDto? =
+suspend fun addEmail(emailAddress: String): EmailClientDto? =
     jsonClient.post(EmailRoute.New()) {
         contentType(ContentType.Application.Json)
-        setBody(EmailServerDto(emailAddress, userClientDto.username))
+        setBody(EmailServerDto(emailAddress))
     }.body()
 
-suspend fun removeEmail(userClientDto: UserClientDto, emailAddress: String): Unit? =
-    jsonClient.delete(EmailRoute.Delete(emailAddress, userClientDto.username)) {
+suspend fun removeEmail(emailAddress: String): Unit? =
+    jsonClient.delete(EmailRoute.Delete(emailAddress)) {
     }.body()
 
-suspend fun checkSite(username: String, emailClientDto: EmailClientDto, siteName: String): SiteClientDto? =
-    jsonClient.get(SiteRoute.Find(siteName, emailClientDto.emailAddress, username)) {
+suspend fun checkSite(siteName: String): SiteClientDto? =
+    jsonClient.get(SiteRoute.Find(siteName)) {
     }.body()
 
-suspend fun addSite(username: String, emailClientDto: EmailClientDto, siteName: String): SiteClientDto? =
+suspend fun addSite(siteName: String): SiteClientDto? =
     jsonClient.post(SiteRoute.New()) {
         contentType(ContentType.Application.Json)
-        setBody(SiteServerDto(siteName, emailClientDto.emailAddress, username))
+        setBody(SiteServerDto(siteName))
     }.body()
 
-suspend fun removeSite(username: String, emailClientDto: EmailClientDto, siteName: String): Unit? =
-    jsonClient.delete(SiteRoute.Delete(siteName, emailClientDto.emailAddress, username)) {
+suspend fun removeSite(siteName: String): Unit? =
+    jsonClient.delete(SiteRoute.Delete(siteName)) {
     }.body()

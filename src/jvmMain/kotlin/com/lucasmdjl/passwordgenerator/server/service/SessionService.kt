@@ -15,7 +15,8 @@ interface SessionService {
 
     fun setLastUser(sessionId: UUID, user: User?)
 
-    fun moveAllUsers(fromSession: Session, toSession: Session)
+    fun getLastUser(sessionId: UUID): User?
 
+    fun moveAllUsers(fromSession: Session, toSession: Session)
 
 }

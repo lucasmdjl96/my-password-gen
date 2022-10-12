@@ -12,10 +12,7 @@ import io.mockk.*
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -230,7 +227,7 @@ class SessionServiceTest : ServiceTestParent() {
     }
 
     @Nested
-    inner class LastUser {
+    inner class SetLastUser {
 
         @Test
         fun `set last user when session found`() {
@@ -267,14 +264,13 @@ class SessionServiceTest : ServiceTestParent() {
         }
 
         @Test
-        fun `logout user when session not found`() {
+        fun `set last user when session not found`() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
             val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
 
-            sessionService.setLastUser(dummySessionId, dummyUser)
-
+            assertThrows<Exception> { sessionService.setLastUser(dummySessionId, dummyUser) }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionRepositoryMock.getById(dummySessionId)
@@ -285,20 +281,77 @@ class SessionServiceTest : ServiceTestParent() {
         }
 
         @Test
-        fun `logout user null when session not found`() {
+        fun `set last user null when session not found`() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
             val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
 
-            sessionService.setLastUser(dummySessionId, null)
-
+            assertThrows<Exception> { sessionService.setLastUser(dummySessionId, null) }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionRepositoryMock.getById(dummySessionId)
             }
             verify(exactly = 0) {
                 sessionRepositoryMock.setLastUser(dummySession, null)
+            }
+        }
+
+    }
+
+    @Nested
+    inner class GetLastUser {
+
+        @Test
+        fun `get existing last user when session found`() {
+            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
+            every { sessionRepositoryMock.getLastUser(dummySession) } returns dummyUser
+            mockTransaction()
+
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+
+            val userResult = sessionService.getLastUser(dummySessionId)
+
+            verifyOrder {
+                transaction(statement = any<Transaction.() -> Any>())
+                sessionRepositoryMock.getById(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySession)
+            }
+            assertEquals(dummyUser, userResult)
+        }
+
+        @Test
+        fun `get non-existing last user when session found`() {
+            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
+            every { sessionRepositoryMock.getLastUser(dummySession) } returns null
+            mockTransaction()
+
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+
+            val userResult = sessionService.getLastUser(dummySessionId)
+
+            verifyOrder {
+                transaction(statement = any<Transaction.() -> Any>())
+                sessionRepositoryMock.getById(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySession)
+            }
+            assertEquals(null, userResult)
+        }
+
+        @Test
+        fun `get last user when session not found`() {
+            every { sessionRepositoryMock.getById(dummySessionId) } returns null
+            mockTransaction()
+
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+
+            assertThrows<Exception> { sessionService.getLastUser(dummySessionId) }
+            verifyOrder {
+                transaction(statement = any<Transaction.() -> Any>())
+                sessionRepositoryMock.getById(dummySessionId)
+            }
+            verify(exactly = 0) {
+                sessionRepositoryMock.getLastUser(dummySession)
             }
         }
 
