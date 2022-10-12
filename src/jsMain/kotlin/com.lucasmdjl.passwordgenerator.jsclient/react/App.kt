@@ -74,6 +74,9 @@ val App = { initialState: InitialState ->
                 } else {
                     LogoutButton {
                         this.reset = {
+                            if (online) scope.launch {
+                                logoutUser(userClientDto!!.username)
+                            }
                             userClientDto = null
                             masterPassword = null
                         }
@@ -116,6 +119,15 @@ suspend fun registerUser(username: String): UserClientDto? =
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
     }.body()
+
+suspend fun logoutUser(username: String) {
+    if (username != "") {
+        jsonClient.patch(UserRoute.Logout()) {
+            contentType(ContentType.Application.Json)
+            setBody(UserServerDto(username))
+        }
+    }
+}
 
 suspend fun updateSession() {
     jsonClient.put(SessionRoute())

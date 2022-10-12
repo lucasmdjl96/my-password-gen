@@ -7,6 +7,7 @@ import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.mapper.UserMapper
 import com.lucasmdjl.passwordgenerator.server.service.UserService
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -33,6 +34,13 @@ class UserControllerImpl(
             userService.create(userServerDto, sessionId)?.toUserClientDto()
         }
         call.respondNullable(userClientDto)
+    }
+
+    override suspend fun patch(call: ApplicationCall, userRoute: UserRoute.Logout) {
+        val sessionId = call.sessions.get<SessionDto>()!!.sessionId
+        val userServerDto = call.receive<UserServerDto>()
+        userService.logout(userServerDto, sessionId)
+        call.respond(HttpStatusCode.OK)
     }
 
 }

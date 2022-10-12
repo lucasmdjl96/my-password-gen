@@ -1,5 +1,6 @@
 package com.lucasmdjl.passwordgenerator.server.repository.impl
 
+import com.lucasmdjl.passwordgenerator.server.model.Email
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.tables.Users
@@ -38,6 +39,10 @@ class UserRepositoryImpl : UserRepository {
         Users.update({ Users.sessionId eq fromSessionId }) {
             it[sessionId] = toSessionId
         }
+    }
+
+    override fun setLastEmail(user: User, email: Email?) {
+        user.lastEmail = email
     }
 
 

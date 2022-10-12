@@ -10,6 +10,7 @@ import com.lucasmdjl.passwordgenerator.server.mapper.UserMapper
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.service.UserService
 import com.lucasmdjl.passwordgenerator.server.tables.Users
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -171,6 +172,33 @@ class UserControllerTest : ControllerTestParent() {
                 userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId)
                 callMock.respondNullable(null as UserClientDto?)
             }
+        }
+
+    }
+
+    @Nested
+    inner class Logout {
+
+        @Test
+        fun `logout user`() = runBlocking {
+            mockCall(callMock, dummySessionDto, dummyUserServerDto)
+            every { userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId) } just Runs
+
+            val userController = UserControllerImpl(userServiceMock, userMapperMock)
+
+            userController.patch(callMock, UserRoute.Logout())
+
+            coVerifyOrder {
+                callMock.sessions.get<SessionDto>()
+                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
+            }
+            coVerifyOrder {
+                callMock.receive<UserServerDto>()
+                dummyUserServerDto.encode()
+                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
+                callMock.respond(HttpStatusCode.OK)
+            }
+
         }
 
     }

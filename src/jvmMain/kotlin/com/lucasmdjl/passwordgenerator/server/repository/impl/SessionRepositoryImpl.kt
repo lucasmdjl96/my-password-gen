@@ -1,6 +1,7 @@
 package com.lucasmdjl.passwordgenerator.server.repository.impl
 
 import com.lucasmdjl.passwordgenerator.server.model.Session
+import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.repository.SessionRepository
 import mu.KotlinLogging
 import java.util.*
@@ -24,5 +25,8 @@ class SessionRepositoryImpl : SessionRepository {
         session.delete()
     }
 
+    override fun setLastUser(session: Session, user: User?) {
+        session.lastUser = user
+    }
 
 }

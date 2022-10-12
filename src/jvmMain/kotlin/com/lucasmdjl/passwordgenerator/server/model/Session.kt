@@ -10,6 +10,7 @@ import java.util.*
 class Session(id: EntityID<UUID>) : Entity<UUID>(id) {
 
     val users by User referrersOn Users.sessionId
+    var lastUser by User optionalReferencedOn Sessions.lastUserId
 
     override fun toString(): String {
         return "[Session#${id.value}]"

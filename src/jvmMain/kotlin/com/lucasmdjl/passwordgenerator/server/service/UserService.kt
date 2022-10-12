@@ -1,7 +1,6 @@
 package com.lucasmdjl.passwordgenerator.server.service
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
-import com.lucasmdjl.passwordgenerator.server.model.Session
 import com.lucasmdjl.passwordgenerator.server.model.User
 import java.util.*
 
@@ -11,6 +10,6 @@ interface UserService {
 
     fun find(userServerDto: UserServerDto, sessionId: UUID): User?
 
-    fun moveAllUsers(fromSession: Session, toSession: Session)
+    fun logout(userServerDto: UserServerDto, sessionId: UUID)
 
 }

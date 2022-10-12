@@ -9,4 +9,6 @@ interface UserController {
 
     suspend fun post(call: ApplicationCall, userRoute: UserRoute.Register)
 
+    suspend fun patch(call: ApplicationCall, userRoute: UserRoute.Logout)
+
 }

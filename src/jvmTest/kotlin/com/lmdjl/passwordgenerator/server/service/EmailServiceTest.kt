@@ -4,6 +4,7 @@ import com.lucasmdjl.passwordgenerator.common.dto.server.EmailServerDto
 import com.lucasmdjl.passwordgenerator.server.model.Email
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.repository.EmailRepository
+import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.service.UserService
 import com.lucasmdjl.passwordgenerator.server.service.impl.EmailServiceImpl
 import com.lucasmdjl.passwordgenerator.server.tables.Emails
@@ -21,6 +22,7 @@ class EmailServiceTest : ServiceTestParent() {
 
     private lateinit var emailRepositoryMock: EmailRepository
     private lateinit var userServiceMock: UserService
+    private lateinit var userRepositoryMock: UserRepository
 
     private lateinit var dummySessionId: UUID
     private lateinit var dummyEmailServerDto: EmailServerDto
@@ -32,6 +34,7 @@ class EmailServiceTest : ServiceTestParent() {
     override fun initMocks() {
         emailRepositoryMock = mockk()
         userServiceMock = mockk()
+        userRepositoryMock = mockk()
     }
 
     @BeforeEach
@@ -56,9 +59,10 @@ class EmailServiceTest : ServiceTestParent() {
                 )
             } returns dummyEmailId
             every { emailRepositoryMock.getById(dummyEmailId) } returns dummyEmail
+            every { userRepositoryMock.setLastEmail(dummyUser, dummyEmail) } just Runs
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             val emailResult = emailService.create(dummyEmailServerDto, dummySessionId)
 
@@ -67,6 +71,7 @@ class EmailServiceTest : ServiceTestParent() {
                 userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId)
                 emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser)
                 emailRepositoryMock.getById(dummyEmailId)
+                userRepositoryMock.setLastEmail(dummyUser, dummyEmail)
             }
 
             assertEquals(dummyEmail, emailResult)
@@ -76,9 +81,10 @@ class EmailServiceTest : ServiceTestParent() {
         fun `create email when user exists and email already exists`() {
             every { userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId) } returns dummyUser
             every { emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser) } returns null
+            every { userRepositoryMock.setLastEmail(dummyUser, null) } just Runs
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             val emailResult = emailService.create(dummyEmailServerDto, dummySessionId)
 
@@ -90,6 +96,7 @@ class EmailServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId)
                 emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser)
+                userRepositoryMock.setLastEmail(dummyUser, null)
             }
 
             assertNull(emailResult)
@@ -100,11 +107,12 @@ class EmailServiceTest : ServiceTestParent() {
             every { userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             assertThrows<Exception> { emailService.create(dummyEmailServerDto, dummySessionId) }
             verify {
                 emailRepositoryMock wasNot Called
+                userRepositoryMock wasNot Called
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -126,9 +134,10 @@ class EmailServiceTest : ServiceTestParent() {
                     dummyUser
                 )
             } returns dummyEmail
+            every { userRepositoryMock.setLastEmail(dummyUser, dummyEmail) } just Runs
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             val emailResult = emailService.find(dummyEmailServerDto, dummySessionId)
 
@@ -136,6 +145,7 @@ class EmailServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId)
                 emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
+                userRepositoryMock.setLastEmail(dummyUser, dummyEmail)
             }
             assertEquals(dummyEmail, emailResult)
         }
@@ -144,9 +154,10 @@ class EmailServiceTest : ServiceTestParent() {
         fun `find email when user exists but email doesn't exist`() {
             every { userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId) } returns dummyUser
             every { emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser) } returns null
+            every { userRepositoryMock.setLastEmail(dummyUser, null) } just Runs
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             val emailResult = emailService.find(dummyEmailServerDto, dummySessionId)
 
@@ -154,6 +165,7 @@ class EmailServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId)
                 emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
+                userRepositoryMock.setLastEmail(dummyUser, null)
             }
             assertNull(emailResult)
         }
@@ -163,11 +175,12 @@ class EmailServiceTest : ServiceTestParent() {
             every { userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             assertThrows<Exception> { emailService.find(dummyEmailServerDto, dummySessionId) }
             verify {
                 emailRepositoryMock wasNot Called
+                userRepositoryMock wasNot Called
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -190,9 +203,10 @@ class EmailServiceTest : ServiceTestParent() {
                 )
             } returns dummyEmail
             every { emailRepositoryMock.delete(dummyEmail) } just Runs
+            every { userRepositoryMock.setLastEmail(dummyUser, dummyEmail) } just Runs
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             val result = emailService.delete(dummyEmailServerDto, dummySessionId)
 
@@ -209,9 +223,10 @@ class EmailServiceTest : ServiceTestParent() {
         fun `delete email when user exists but email doesn't exist`() {
             every { userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId) } returns dummyUser
             every { emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser) } returns null
+            every { userRepositoryMock.setLastEmail(dummyUser, null) } just Runs
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             val result = emailService.delete(dummyEmailServerDto, dummySessionId)
 
@@ -219,6 +234,7 @@ class EmailServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId)
                 emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
+                userRepositoryMock.setLastEmail(dummyUser, null)
             }
             verify(exactly = 0) {
                 emailRepositoryMock.delete(any())
@@ -231,11 +247,12 @@ class EmailServiceTest : ServiceTestParent() {
             every { userServiceMock.find(dummyEmailServerDto.userServerDto, dummySessionId) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userServiceMock)
+            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, userServiceMock)
 
             assertThrows<Exception> { emailService.delete(dummyEmailServerDto, dummySessionId) }
             verify {
                 emailRepositoryMock wasNot Called
+                userRepositoryMock wasNot Called
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())

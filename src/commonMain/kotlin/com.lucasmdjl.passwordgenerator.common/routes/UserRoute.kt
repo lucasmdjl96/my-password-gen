@@ -15,4 +15,8 @@ class UserRoute {
     @Resource("/register")
     class Register(val parent: UserRoute = UserRoute())
 
+    @Serializable
+    @Resource("/logout")
+    class Logout(val parent: UserRoute = UserRoute())
+
 }

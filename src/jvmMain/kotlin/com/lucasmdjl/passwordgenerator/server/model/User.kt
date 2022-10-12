@@ -11,6 +11,7 @@ class User(id: EntityID<Int>) : Entity<Int>(id) {
     var username by Users.username
     val emails by Email referrersOn Emails.userId
     var session by Session referencedOn Users.sessionId
+    var lastEmail by Email optionalReferencedOn Users.lastEmailId
 
     override fun toString(): String {
         return "[User#${id.value}: $username]"

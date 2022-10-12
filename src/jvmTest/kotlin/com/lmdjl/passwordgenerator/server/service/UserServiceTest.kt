@@ -1,11 +1,10 @@
 package com.lmdjl.passwordgenerator.server.service
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
-import com.lucasmdjl.passwordgenerator.server.model.Session
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
+import com.lucasmdjl.passwordgenerator.server.service.SessionService
 import com.lucasmdjl.passwordgenerator.server.service.impl.UserServiceImpl
-import com.lucasmdjl.passwordgenerator.server.tables.Sessions
 import com.lucasmdjl.passwordgenerator.server.tables.Users
 import io.mockk.*
 import org.jetbrains.exposed.dao.id.EntityID
@@ -22,19 +21,17 @@ import kotlin.test.assertNull
 class UserServiceTest : ServiceTestParent() {
 
     private lateinit var userRepositoryMock: UserRepository
+    private lateinit var sessionServiceMock: SessionService
 
     private lateinit var dummyUserServerDto: UserServerDto
     private lateinit var dummyUser: User
     private var dummyUserId = 0
     private lateinit var dummySessionId: UUID
-    private lateinit var dummySessionFromId: UUID
-    private lateinit var dummySessionToId: UUID
-    private lateinit var dummySessionFrom: Session
-    private lateinit var dummySessionTo: Session
 
     @BeforeAll
     override fun initMocks() {
         userRepositoryMock = mockk()
+        sessionServiceMock = mockk()
     }
 
     @BeforeEach
@@ -43,10 +40,6 @@ class UserServiceTest : ServiceTestParent() {
         dummyUser = User(EntityID(2, Users))
         dummyUserId = 7
         dummySessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
-        dummySessionFromId = UUID.fromString("123e4567-e89b-13d2-a456-426614174000")
-        dummySessionToId = UUID.fromString("123e4567-eb98-12d3-a456-426614174000")
-        dummySessionFrom = Session(EntityID(dummySessionFromId, Sessions))
-        dummySessionTo = Session(EntityID(dummySessionToId, Sessions))
     }
 
     @Nested
@@ -56,9 +49,10 @@ class UserServiceTest : ServiceTestParent() {
         fun `create user when it doesn't exist yet`() {
             every { userRepositoryMock.createAndGetId(dummyUserServerDto.username, dummySessionId) } returns dummyUserId
             every { userRepositoryMock.getById(dummyUserId) } returns dummyUser
+            every { sessionServiceMock.setLastUser(dummySessionId, dummyUser) } just Runs
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
 
             val userResult = userService.create(dummyUserServerDto, dummySessionId)
 
@@ -66,6 +60,7 @@ class UserServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 userRepositoryMock.createAndGetId(dummyUserServerDto.username, dummySessionId)
                 userRepositoryMock.getById(dummyUserId)
+                sessionServiceMock.setLastUser(dummySessionId, dummyUser)
             }
             assertEquals(dummyUser, userResult)
         }
@@ -73,9 +68,10 @@ class UserServiceTest : ServiceTestParent() {
         @Test
         fun `create user when it already exists`() {
             every { userRepositoryMock.createAndGetId(dummyUserServerDto.username, dummySessionId) } returns null
+            every { sessionServiceMock.setLastUser(dummySessionId, null) } just Runs
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
 
             val userResult = userService.create(dummyUserServerDto, dummySessionId)
 
@@ -85,6 +81,7 @@ class UserServiceTest : ServiceTestParent() {
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 userRepositoryMock.createAndGetId(dummyUserServerDto.username, dummySessionId)
+                sessionServiceMock.setLastUser(dummySessionId, null)
             }
             assertNull(userResult)
         }
@@ -102,15 +99,17 @@ class UserServiceTest : ServiceTestParent() {
                     dummySessionId
                 )
             } returns dummyUser
+            every { sessionServiceMock.setLastUser(dummySessionId, dummyUser) } just Runs
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
 
             val userResult = userService.find(dummyUserServerDto, dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
+                sessionServiceMock.setLastUser(dummySessionId, dummyUser)
             }
             assertEquals(dummyUser, userResult)
         }
@@ -118,15 +117,17 @@ class UserServiceTest : ServiceTestParent() {
         @Test
         fun `find user when it doesn't exist`() {
             every { userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId) } returns null
+            every { sessionServiceMock.setLastUser(dummySessionId, null) } just Runs
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
 
             val userResult = userService.find(dummyUserServerDto, dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
+                sessionServiceMock.setLastUser(dummySessionId, null)
             }
             assertNull(userResult)
         }
@@ -134,20 +135,53 @@ class UserServiceTest : ServiceTestParent() {
     }
 
     @Nested
-    inner class Move {
+    inner class Logout {
 
         @Test
-        fun `move all users`() {
+        fun `logout when user exists`() {
+            every {
+                userRepositoryMock.getByNameAndSession(
+                    dummyUserServerDto.username,
+                    dummySessionId
+                )
+            } returns dummyUser
+            every { sessionServiceMock.setLastUser(dummySessionId, dummyUser) } just Runs
+            every { userRepositoryMock.setLastEmail(dummyUser, null) } just Runs
+            every { sessionServiceMock.setLastUser(dummySessionId, null) } just Runs
             mockTransaction()
-            every { userRepositoryMock.moveAll(dummySessionFromId, dummySessionToId) } just Runs
 
-            val userService = UserServiceImpl(userRepositoryMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
 
-            userService.moveAllUsers(dummySessionFrom, dummySessionTo)
+            userService.logout(dummyUserServerDto, dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                userRepositoryMock.moveAll(dummySessionFromId, dummySessionToId)
+                userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
+                sessionServiceMock.setLastUser(dummySessionId, dummyUser)
+                userRepositoryMock.setLastEmail(dummyUser, null)
+                sessionServiceMock.setLastUser(dummySessionId, null)
+            }
+
+        }
+
+        @Test
+        fun `logout when user doesn't exist`() {
+            every { userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId) } returns null
+            every { sessionServiceMock.setLastUser(dummySessionId, null) } just Runs
+            mockTransaction()
+
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+
+            userService.logout(dummyUserServerDto, dummySessionId)
+
+            verify(exactly = 0) {
+                sessionServiceMock.setLastUser(dummySessionId, matchNullable { it != null })
+                userRepositoryMock.setLastEmail(any(), any())
+            }
+            verifyOrder {
+                transaction(statement = any<Transaction.() -> Any>())
+                userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
+                sessionServiceMock.setLastUser(dummySessionId, null)
             }
 
         }
