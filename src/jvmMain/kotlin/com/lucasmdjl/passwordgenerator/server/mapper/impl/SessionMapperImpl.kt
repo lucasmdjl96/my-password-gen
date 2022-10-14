@@ -15,9 +15,4 @@ class SessionMapperImpl : SessionMapper {
         return SessionDto(session.id.value)
     }
 
-    override fun sessionsToSessionDtos(sessions: Iterable<Session>): Iterable<SessionDto> {
-        logger.debug { "sessionsToSessionDtos" }
-        return sessions.map(::sessionToSessionDto)
-    }
-
 }

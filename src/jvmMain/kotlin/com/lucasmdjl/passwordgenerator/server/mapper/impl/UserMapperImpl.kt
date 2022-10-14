@@ -21,9 +21,4 @@ class UserMapperImpl : UserMapper {
         )
     }
 
-    override fun usersToUserClientDtos(users: Iterable<User>): Iterable<UserClientDto> {
-        logger.debug { "usersToUserClientDtos" }
-        return users.map(::userToUserClientDto)
-    }
-
 }

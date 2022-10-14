@@ -14,9 +14,4 @@ class SiteMapperImpl : SiteMapper {
         return SiteClientDto(site.name)
     }
 
-    override fun sitesToSiteClientDtos(sites: Iterable<Site>): Iterable<SiteClientDto> {
-        logger.debug { "sitesToSiteClientDtos" }
-        return sites.map(::siteToSiteClientDto)
-    }
-
 }

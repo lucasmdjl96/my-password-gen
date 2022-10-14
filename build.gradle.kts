@@ -86,10 +86,15 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation("org.jetbrains.kotlin:kotlin-test-junit5:1.7.10")
-                //implementation("io.ktor:ktor-server-test-host:$ktorVersion")
+                implementation("io.ktor:ktor-server-test-host:$ktorVersion")
                 implementation("io.mockk:mockk:1.9.3")
                 implementation("io.ktor:ktor-client-resources:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+
+                implementation("org.testcontainers:testcontainers:1.17.5")
+                implementation("org.testcontainers:junit-jupiter:1.17.5")
+                implementation("org.testcontainers:postgresql:1.17.5")
+
             }
         }
         val jsMain by getting {

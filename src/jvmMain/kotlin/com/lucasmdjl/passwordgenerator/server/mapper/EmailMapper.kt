@@ -9,8 +9,4 @@ interface EmailMapper {
 
     fun Email.toEmailClientDto() = emailToEmailClientDto(this)
 
-    fun emailsToEmailClientDtos(emails: Iterable<Email>): Iterable<EmailClientDto>
-
-    fun Iterable<Email>.toEmailClientDtos() = emailsToEmailClientDtos(this)
-
 }

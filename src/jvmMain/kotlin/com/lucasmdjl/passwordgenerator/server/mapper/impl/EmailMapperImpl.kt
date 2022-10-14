@@ -21,9 +21,4 @@ class EmailMapperImpl : EmailMapper {
         )
     }
 
-    override fun emailsToEmailClientDtos(emails: Iterable<Email>): Iterable<EmailClientDto> {
-        logger.debug { "emailsToEmailClientDtos" }
-        return emails.map(::emailToEmailClientDto)
-    }
-
 }

@@ -9,9 +9,4 @@ interface UserMapper {
 
     fun User.toUserClientDto() = userToUserClientDto(this)
 
-    fun usersToUserClientDtos(users: Iterable<User>): Iterable<UserClientDto>
-
-    fun Iterable<User>.toUserClientDtos() = usersToUserClientDtos(this)
-
-
 }
