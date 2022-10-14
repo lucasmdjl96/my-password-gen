@@ -35,7 +35,7 @@ class SessionMapperTest : MapperTestParent() {
     inner class SessionToSessionDto {
 
         @Test
-        fun `with parameter`() {
+        fun `with argument`() {
             every { sessionMock.id.value } returns dummySessionId
             val sessionMapper = SessionMapperImpl()
             val sessionDto = sessionMapper.sessionToSessionDto(sessionMock)
@@ -47,11 +47,11 @@ class SessionMapperTest : MapperTestParent() {
             val sessionMapper = SessionMapperImpl()
             val sessionMapperSpy = spyk(sessionMapper)
             every { sessionMapperSpy.sessionToSessionDto(sessionMock) } returns dummySessionDto
-            with (sessionMapperSpy) {
+            with(sessionMapperSpy) {
                 sessionMock.toSessionDto()
             }
             verifySequence {
-                with (sessionMapperSpy) {
+                with(sessionMapperSpy) {
                     sessionMock.toSessionDto()
                 }
                 sessionMapperSpy.sessionToSessionDto(sessionMock)

@@ -34,7 +34,7 @@ class SiteMapperTest : MapperTestParent() {
     inner class SiteToSiteClientDto {
 
         @Test
-        fun `with no emails`() {
+        fun `with argument`() {
             every { siteMock.name } returns dummySiteName
             val siteMapper = SiteMapperImpl()
             val siteDto = siteMapper.siteToSiteClientDto(siteMock)
@@ -46,12 +46,13 @@ class SiteMapperTest : MapperTestParent() {
             val siteMapper = SiteMapperImpl()
             val siteMapperSpy = spyk(siteMapper)
             every { siteMapperSpy.siteToSiteClientDto(siteMock) } returns dummySiteClientDto
-            with (siteMapperSpy) {
+            with(siteMapperSpy) {
                 siteMock.toSiteClientDto()
             }
             verifySequence {
-                with (siteMapperSpy) {
-                    siteMock.toSiteClientDto()            }
+                with(siteMapperSpy) {
+                    siteMock.toSiteClientDto()
+                }
                 siteMapperSpy.siteToSiteClientDto(siteMock)
             }
         }

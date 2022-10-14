@@ -22,12 +22,14 @@ class UserRepositoryTest : RepositoryTestParent() {
         fun `create when it doesn't exist`() {
             val userRepository = UserRepositoryImpl()
             testTransaction {
-                val beforeUsers = Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
+                val beforeUsers =
+                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
                 val beforeCount = beforeUsers.count()
                 val beforeIds = beforeUsers.map { it[Users.id].value }
                 val userId = userRepository
                     .createAndGetId("not-user", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                val afterUsers = Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
+                val afterUsers =
+                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
                 val afterCount = afterUsers.count()
                 val afterIds = afterUsers.map { it[Users.id].value }
                 assertNotNull(userId)
@@ -46,11 +48,13 @@ class UserRepositoryTest : RepositoryTestParent() {
         fun `create when it already exist`() {
             val userRepository = UserRepositoryImpl()
             testTransaction {
-                val beforeUsers = Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
+                val beforeUsers =
+                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
                 val beforeCount = beforeUsers.count()
                 val userId = userRepository
                     .createAndGetId("User002", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                val afterUsers = Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
+                val afterUsers =
+                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
                 val afterCount = afterUsers.count()
                 assertNull(userId)
                 assertEquals(beforeCount, afterCount)
@@ -100,7 +104,10 @@ class UserRepositoryTest : RepositoryTestParent() {
         fun `get when exists`() {
             val userRepository = UserRepositoryImpl()
             testTransaction {
-                val user = userRepository.getByNameAndSession("User002", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
+                val user = userRepository.getByNameAndSession(
+                    "User002",
+                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
+                )
                 assertNotNull(user)
                 assertEquals("User002", user.username)
                 assertEquals("757f2ad6-aa06-4403-aea3-d5e6cb9f0001", user.session.id.value.toString())
@@ -111,7 +118,10 @@ class UserRepositoryTest : RepositoryTestParent() {
         fun `get when exists in other session`() {
             val userRepository = UserRepositoryImpl()
             testTransaction {
-                val user = userRepository.getByNameAndSession("User002", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
+                val user = userRepository.getByNameAndSession(
+                    "User002",
+                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
+                )
                 assertNull(user)
             }
         }
@@ -120,7 +130,10 @@ class UserRepositoryTest : RepositoryTestParent() {
         fun `get when session doesn't exist`() {
             val userRepository = UserRepositoryImpl()
             testTransaction {
-                val user = userRepository.getByNameAndSession("User002", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019"))
+                val user = userRepository.getByNameAndSession(
+                    "User002",
+                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019")
+                )
                 assertNull(user)
             }
         }
@@ -129,7 +142,10 @@ class UserRepositoryTest : RepositoryTestParent() {
         fun `get when username doesn't exist in session`() {
             val userRepository = UserRepositoryImpl()
             testTransaction {
-                val user = userRepository.getByNameAndSession("not-user", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019"))
+                val user = userRepository.getByNameAndSession(
+                    "not-user",
+                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019")
+                )
                 assertNull(user)
             }
         }

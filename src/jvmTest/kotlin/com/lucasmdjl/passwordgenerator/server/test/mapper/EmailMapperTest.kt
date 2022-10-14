@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 class EmailMapperTest : MapperTestParent() {
 
     private lateinit var emailMock: Email
-    private lateinit var dummyEmailName: String
+    private lateinit var dummyEmailAddress: String
     private lateinit var siteListMock: List<Site>
     private lateinit var dummySiteNameList: List<String>
     private lateinit var dummyEmailClientDto: EmailClientDto
@@ -32,9 +32,9 @@ class EmailMapperTest : MapperTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummyEmailName = "email123"
+        dummyEmailAddress = "email123"
         dummySiteNameList = listOf("site1", "site2")
-        dummyEmailClientDto = EmailClientDto(dummyEmailName)
+        dummyEmailClientDto = EmailClientDto(dummyEmailAddress)
     }
 
     @Nested
@@ -45,11 +45,11 @@ class EmailMapperTest : MapperTestParent() {
             mockTransaction()
             mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
             every { emailMock.load(any()) } returns emailMock
-            every { emailMock.emailAddress } returns dummyEmailName
+            every { emailMock.emailAddress } returns dummyEmailAddress
             every { emailMock.sites } returns emptySized()
             val emailMapper = EmailMapperImpl()
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
-            assertEquals(dummyEmailName, emailDto.emailAddress)
+            assertEquals(dummyEmailAddress, emailDto.emailAddress)
             assert(emailDto.siteList.isEmpty())
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -62,14 +62,14 @@ class EmailMapperTest : MapperTestParent() {
             mockTransaction()
             mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
             every { emailMock.load(any()) } returns emailMock
-            every { emailMock.emailAddress } returns dummyEmailName
+            every { emailMock.emailAddress } returns dummyEmailAddress
             every { emailMock.sites } returns SizedCollection(siteListMock)
-            siteListMock.forEachIndexed { index, site ->
-                every { site.name } returns dummySiteNameList[index]
+            siteListMock.forEachIndexed { index, siteMock ->
+                every { siteMock.name } returns dummySiteNameList[index]
             }
             val emailMapper = EmailMapperImpl()
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
-            assertEquals(dummyEmailName, emailDto.emailAddress)
+            assertEquals(dummyEmailAddress, emailDto.emailAddress)
             assertEquals(dummySiteNameList, emailDto.siteList)
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -82,12 +82,13 @@ class EmailMapperTest : MapperTestParent() {
             val emailMapper = EmailMapperImpl()
             val emailMapperSpy = spyk(emailMapper)
             every { emailMapperSpy.emailToEmailClientDto(emailMock) } returns dummyEmailClientDto
-            with (emailMapperSpy) {
+            with(emailMapperSpy) {
                 emailMock.toEmailClientDto()
             }
             verifySequence {
-                with (emailMapperSpy) {
-                    emailMock.toEmailClientDto()            }
+                with(emailMapperSpy) {
+                    emailMock.toEmailClientDto()
+                }
                 emailMapperSpy.emailToEmailClientDto(emailMock)
             }
         }

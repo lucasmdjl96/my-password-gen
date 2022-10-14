@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 class UserMapperTest : MapperTestParent() {
 
     private lateinit var userMock: User
-    private lateinit var dummyUserName: String
+    private lateinit var dummyUsername: String
     private lateinit var emailListMock: List<Email>
     private lateinit var dummyEmailAddressList: List<String>
     private lateinit var dummyUserClientDto: UserClientDto
@@ -32,9 +32,9 @@ class UserMapperTest : MapperTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummyUserName = "user123"
+        dummyUsername = "user123"
         dummyEmailAddressList = listOf("email1", "email2")
-        dummyUserClientDto = UserClientDto(dummyUserName)
+        dummyUserClientDto = UserClientDto(dummyUsername)
     }
 
     @Nested
@@ -45,11 +45,11 @@ class UserMapperTest : MapperTestParent() {
             mockTransaction()
             mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
             every { userMock.load(any()) } returns userMock
-            every { userMock.username } returns dummyUserName
+            every { userMock.username } returns dummyUsername
             every { userMock.emails } returns emptySized()
             val userMapper = UserMapperImpl()
             val userDto = userMapper.userToUserClientDto(userMock)
-            assertEquals(dummyUserName, userDto.username)
+            assertEquals(dummyUsername, userDto.username)
             assert(userDto.emailList.isEmpty())
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -62,14 +62,14 @@ class UserMapperTest : MapperTestParent() {
             mockTransaction()
             mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
             every { userMock.load(any()) } returns userMock
-            every { userMock.username } returns dummyUserName
+            every { userMock.username } returns dummyUsername
             every { userMock.emails } returns SizedCollection(emailListMock)
-            emailListMock.forEachIndexed { index, email ->
-                every { email.emailAddress } returns dummyEmailAddressList[index]
+            emailListMock.forEachIndexed { index, emailMock ->
+                every { emailMock.emailAddress } returns dummyEmailAddressList[index]
             }
             val userMapper = UserMapperImpl()
             val userDto = userMapper.userToUserClientDto(userMock)
-            assertEquals(dummyUserName, userDto.username)
+            assertEquals(dummyUsername, userDto.username)
             assertEquals(dummyEmailAddressList, userDto.emailList)
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -82,12 +82,13 @@ class UserMapperTest : MapperTestParent() {
             val userMapper = UserMapperImpl()
             val userMapperSpy = spyk(userMapper)
             every { userMapperSpy.userToUserClientDto(userMock) } returns dummyUserClientDto
-            with (userMapperSpy) {
+            with(userMapperSpy) {
                 userMock.toUserClientDto()
             }
             verifySequence {
-                with (userMapperSpy) {
-                    userMock.toUserClientDto()            }
+                with(userMapperSpy) {
+                    userMock.toUserClientDto()
+                }
                 userMapperSpy.userToUserClientDto(userMock)
             }
         }

@@ -23,11 +23,13 @@ abstract class RoutesTestParent : TestParent() {
             install(Resources)
             install(HttpCookies) {
                 runBlocking {
-                    storage.addCookie("https://localhost:443",Cookie(
-                        "session",
-                        "sessionId%3D%2523s4bc1bd68%2D243a%2D41ec%2Dbdd8%2D29233e04705d",
-                        CookieEncoding.RAW
-                    ))
+                    storage.addCookie(
+                        "https://localhost:443", Cookie(
+                            "session",
+                            "sessionId%3D%2523s4bc1bd68%2D243a%2D41ec%2Dbdd8%2D29233e04705d",
+                            CookieEncoding.RAW
+                        )
+                    )
                 }
             }
             install(ContentNegotiation) {
