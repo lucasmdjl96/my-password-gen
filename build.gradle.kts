@@ -52,6 +52,7 @@ kotlin {
                 }
             }
         }
+        withJava()
     }
     js(IR) {
         binaries.executable()
