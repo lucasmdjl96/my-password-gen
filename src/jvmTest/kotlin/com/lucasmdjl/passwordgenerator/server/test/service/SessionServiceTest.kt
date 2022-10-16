@@ -61,9 +61,11 @@ class SessionServiceTest : ServiceTestParent() {
     inner class AssignNew {
 
         @Test
-        fun `assign new session from existing session`() {
+        fun `assign new session from existing session with last user`() {
             every { sessionRepositoryMock.create() } returns dummySessionNew
             every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
+            every { sessionRepositoryMock.getLastUser(dummySession) } returns dummyUser
+            every { userRepositoryMock.setLastEmail(dummyUser, null) } just Runs
             every { sessionRepositoryMock.delete(dummySession) } just Runs
             mockTransaction()
 
@@ -84,6 +86,46 @@ class SessionServiceTest : ServiceTestParent() {
                 sessionRepositoryMock.getById(dummySessionId)
                 sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew)
                 sessionRepositoryMock.delete(dummySession)
+            }
+            verifyOrder {
+                sessionRepositoryMock.getById(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySession)
+                userRepositoryMock.setLastEmail(dummyUser, null)
+            }
+        }
+
+        @Test
+        fun `assign new session from existing session without last user`() {
+            every { sessionRepositoryMock.create() } returns dummySessionNew
+            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
+            every { sessionRepositoryMock.getLastUser(dummySession) } returns null
+            every { sessionRepositoryMock.delete(dummySession) } just Runs
+            mockTransaction()
+
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionServiceSpy = spyk(sessionService)
+            every { sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew) } just Runs
+
+            sessionServiceSpy.assignNew(dummySessionDto)
+
+            verifyOrder {
+                transaction(statement = any<Transaction.() -> Any>())
+                sessionRepositoryMock.create()
+                sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew)
+                sessionRepositoryMock.delete(dummySession)
+            }
+            verifyOrder {
+                transaction(statement = any<Transaction.() -> Any>())
+                sessionRepositoryMock.getById(dummySessionId)
+                sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew)
+                sessionRepositoryMock.delete(dummySession)
+            }
+            verifyOrder {
+                sessionRepositoryMock.getById(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySession)
+            }
+            verify {
+                userRepositoryMock wasNot Called
             }
         }
 

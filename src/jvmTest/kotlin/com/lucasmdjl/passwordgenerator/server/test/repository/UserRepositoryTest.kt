@@ -12,6 +12,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class UserRepositoryTest : RepositoryTestParent() {
 
@@ -33,8 +34,8 @@ class UserRepositoryTest : RepositoryTestParent() {
                 val afterCount = afterUsers.count()
                 val afterIds = afterUsers.map { it[Users.id].value }
                 assertNotNull(userId)
-                assert(userId !in beforeIds)
-                assert(userId in afterIds)
+                assertTrue(userId !in beforeIds)
+                assertTrue(userId in afterIds)
                 assertEquals(beforeCount + 1, afterCount)
                 val user = User.findById(userId)
                 assertNotNull(user)

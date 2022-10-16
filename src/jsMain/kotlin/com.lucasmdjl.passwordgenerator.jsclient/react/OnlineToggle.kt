@@ -2,6 +2,7 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.hsl
+import com.lucasmdjl.passwordgenerator.jsclient.updateSession
 import emotion.react.css
 import kotlinx.browser.localStorage
 import kotlinx.coroutines.launch

@@ -11,6 +11,7 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SessionRepositoryTest : RepositoryTestParent() {
 
@@ -29,7 +30,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 assertEquals(beforeCount + 1, afterCount)
                 assertNotNull(session)
                 assertNull(session.lastUser)
-                assert(session.id.value.toString() !in existingIds)
+                assertTrue(session.id.value.toString() !in existingIds)
             }
         }
 

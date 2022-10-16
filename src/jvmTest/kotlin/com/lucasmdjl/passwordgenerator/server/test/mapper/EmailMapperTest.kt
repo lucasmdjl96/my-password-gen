@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class EmailMapperTest : MapperTestParent() {
 
@@ -50,7 +51,7 @@ class EmailMapperTest : MapperTestParent() {
             val emailMapper = EmailMapperImpl()
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
             assertEquals(dummyEmailAddress, emailDto.emailAddress)
-            assert(emailDto.siteList.isEmpty())
+            assertTrue(emailDto.siteList.isEmpty())
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 emailMock.load(Email::sites)

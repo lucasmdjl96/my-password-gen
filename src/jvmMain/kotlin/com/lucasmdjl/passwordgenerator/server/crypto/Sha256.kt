@@ -10,6 +10,6 @@ private fun sha256(message: String): String {
     return Base64.getUrlEncoder().encodeToString(bytes)
 }
 
-private fun String.encode() = sha256(this)
+fun String.encode() = sha256(this)
 
 fun UserServerDto.encode() = UserServerDto(this.username.encode())

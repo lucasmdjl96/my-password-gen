@@ -28,9 +28,29 @@ kotlin {
         compilations.all {
             kotlinOptions.jvmTarget = "11"
         }
-        withJava()
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
+        }
+        compilations {
+            val main by getting
+            val integrationTest by compilations.creating {
+                defaultSourceSet {
+                    dependencies {
+                        // Compile against the main compilation's compile classpath and outputs:
+                        implementation(main.compileDependencyFiles + main.output.classesDirs)
+                    }
+                }
+
+                // Create a test task to run the tests produced by this compilation:
+                tasks.register<Test>("integrationTest") {
+                    // Run the tests with the classpath containing the compile dependencies (including 'main'),
+                    // runtime dependencies, and the outputs of this compilation:
+                    classpath = compileDependencyFiles + runtimeDependencyFiles + output.allOutputs
+
+                    // Run only the tests from this compilation's outputs:
+                    testClassesDirs = output.classesDirs
+                }
+            }
         }
     }
     js(IR) {
@@ -94,7 +114,21 @@ kotlin {
                 implementation("org.testcontainers:testcontainers:1.17.5")
                 implementation("org.testcontainers:junit-jupiter:1.17.5")
                 implementation("org.testcontainers:postgresql:1.17.5")
+            }
+        }
+        val jvmIntegrationTest by getting {
+            dependsOn(commonMain)
+            dependencies {
+                // Compile against the main compilation's compile classpath and outputs:
+                implementation("org.jetbrains.kotlin:kotlin-test-junit5:1.7.10")
+                implementation("io.ktor:ktor-server-test-host:$ktorVersion")
+                implementation("io.ktor:ktor-client-resources:$ktorVersion")
+                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
+                implementation("org.testcontainers:testcontainers:1.17.5")
+                implementation("org.testcontainers:junit-jupiter:1.17.5")
+                implementation("org.testcontainers:postgresql:1.17.5")
+                /* ... */
             }
         }
         val jsMain by getting {

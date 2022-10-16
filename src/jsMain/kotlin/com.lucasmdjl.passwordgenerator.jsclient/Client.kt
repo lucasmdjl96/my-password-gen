@@ -1,10 +1,10 @@
 package com.lucasmdjl.passwordgenerator.jsclient
 
+import com.lucasmdjl.passwordgenerator.common.routes.SessionRoute
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
 import com.lucasmdjl.passwordgenerator.jsclient.plugins.*
 import com.lucasmdjl.passwordgenerator.jsclient.react.App
 import com.lucasmdjl.passwordgenerator.jsclient.react.scope
-import com.lucasmdjl.passwordgenerator.jsclient.react.updateSession
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.resources.*
@@ -41,3 +41,7 @@ val jsonClient = HttpClient {
 }
 
 val resourcesFormat = jsonClient.plugin(Resources).resourcesFormat
+
+suspend fun updateSession() {
+    jsonClient.put(SessionRoute())
+}

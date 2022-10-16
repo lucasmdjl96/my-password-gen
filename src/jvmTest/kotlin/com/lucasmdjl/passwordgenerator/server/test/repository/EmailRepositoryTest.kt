@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class EmailRepositoryTest : RepositoryTestParent() {
 
@@ -31,8 +32,8 @@ class EmailRepositoryTest : RepositoryTestParent() {
                 val afterCount = afterEmails.count()
                 val afterIds = afterEmails.map { it[Emails.id].value }
                 assertNotNull(emailId)
-                assert(emailId !in beforeIds)
-                assert(emailId in afterIds)
+                assertTrue(emailId !in beforeIds)
+                assertTrue(emailId in afterIds)
                 assertEquals(beforeCount + 1, afterCount)
                 val email = Email.findById(emailId)
                 assertNotNull(email)

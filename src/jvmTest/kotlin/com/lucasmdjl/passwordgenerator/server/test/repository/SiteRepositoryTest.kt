@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SiteRepositoryTest : RepositoryTestParent() {
 
@@ -31,8 +32,8 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 val afterCount = afterSites.count()
                 val afterIds = afterSites.map { it[Sites.id].value }
                 assertNotNull(siteId)
-                assert(siteId !in beforeIds)
-                assert(siteId in afterIds)
+                assertTrue(siteId !in beforeIds)
+                assertTrue(siteId in afterIds)
                 assertEquals(beforeCount + 1, afterCount)
                 val site = Site.findById(siteId)
                 assertNotNull(site)

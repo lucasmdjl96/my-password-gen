@@ -2,7 +2,6 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
-import com.lucasmdjl.passwordgenerator.common.routes.SessionRoute
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
@@ -127,8 +126,4 @@ suspend fun logoutUser(username: String) {
             setBody(UserServerDto(username))
         }
     }
-}
-
-suspend fun updateSession() {
-    jsonClient.put(SessionRoute())
 }

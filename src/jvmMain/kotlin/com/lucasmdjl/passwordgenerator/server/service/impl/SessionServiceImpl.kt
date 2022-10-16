@@ -23,6 +23,8 @@ class SessionServiceImpl(
         if (oldSessionDto != null) {
             val oldSession = find(oldSessionDto)
             if (oldSession != null) {
+                val lastUser = sessionRepository.getLastUser(oldSession)
+                if (lastUser != null) userRepository.setLastEmail(lastUser, null)
                 moveAllUsers(oldSession, newSession)
                 sessionRepository.delete(oldSession)
             }

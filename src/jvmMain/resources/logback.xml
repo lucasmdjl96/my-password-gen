@@ -11,4 +11,7 @@
 
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="WARN"/>
     <logger name="com.zaxxer.hikari.pool.PoolBase" level="WARN"/>
+    <logger name="org.testcontainers" level="INFO"/>
+    <logger name="com.github.dockerjava" level="WARN"/>
+    <logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.wire" level="OFF"/>
 </configuration>

@@ -3,7 +3,6 @@ package com.lucasmdjl.passwordgenerator.server.test.crypto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.test.TestParent
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -15,16 +14,29 @@ class Sha256Test : TestParent() {
     private lateinit var dummyUserServerDtoSame: UserServerDto
     private lateinit var dummyUserServerDtoOther: UserServerDto
 
-    @BeforeAll
-    override fun initMocks() {
-
-    }
+    override fun initMocks() {}
 
     @BeforeEach
     override fun initDummies() {
         dummyUserServerDto = UserServerDto("user123")
         dummyUserServerDtoSame = UserServerDto("user123")
         dummyUserServerDtoOther = UserServerDto("123user")
+    }
+
+    @Test
+    fun `same strings`() {
+        val string = "string1234".encode()
+        val stringSame = "string1234".encode()
+
+        assertEquals(string, stringSame)
+    }
+
+    @Test
+    fun `different strings`() {
+        val string = "string1234".encode()
+        val stringOther = "string1432".encode()
+
+        assertNotEquals(string, stringOther)
     }
 
     @Test
@@ -36,7 +48,7 @@ class Sha256Test : TestParent() {
     }
 
     @Test
-    fun `users with different usernam`() {
+    fun `users with different username`() {
         val resultUserServerDto = dummyUserServerDto.encode()
         val resultUserServerDtoOther = dummyUserServerDtoOther.encode()
 
