@@ -138,30 +138,44 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     }
 }
 
-suspend fun checkEmail(emailAddress: String): EmailClientDto? =
-    jsonClient.get(EmailRoute.Find(emailAddress)) {
-    }.body()
+suspend fun checkEmail(emailAddress: String): EmailClientDto? {
+    val response = jsonClient.get(EmailRoute.Find(emailAddress))
+    return if (response.status != HttpStatusCode.OK) null
+    else response.body()
+}
 
-suspend fun addEmail(emailAddress: String): EmailClientDto? =
-    jsonClient.post(EmailRoute.New()) {
+suspend fun addEmail(emailAddress: String): EmailClientDto? {
+    val response = jsonClient.post(EmailRoute.New()) {
         contentType(ContentType.Application.Json)
         setBody(EmailServerDto(emailAddress))
-    }.body()
+    }
+    return if (response.status != HttpStatusCode.OK) null
+    else response.body()
+}
 
-suspend fun removeEmail(emailAddress: String): Unit? =
-    jsonClient.delete(EmailRoute.Delete(emailAddress)) {
-    }.body()
+suspend fun removeEmail(emailAddress: String): Unit? {
+    val response = jsonClient.delete(EmailRoute.Delete(emailAddress))
+    return if (response.status != HttpStatusCode.OK) null
+    else Unit
+}
 
-suspend fun checkSite(siteName: String): SiteClientDto? =
-    jsonClient.get(SiteRoute.Find(siteName)) {
-    }.body()
+suspend fun checkSite(siteName: String): SiteClientDto? {
+    val response = jsonClient.get(SiteRoute.Find(siteName))
+    return if (response.status != HttpStatusCode.OK) null
+    else response.body()
+}
 
-suspend fun addSite(siteName: String): SiteClientDto? =
-    jsonClient.post(SiteRoute.New()) {
+suspend fun addSite(siteName: String): SiteClientDto? {
+    val response = jsonClient.post(SiteRoute.New()) {
         contentType(ContentType.Application.Json)
         setBody(SiteServerDto(siteName))
-    }.body()
+    }
+    return if (response.status != HttpStatusCode.OK) null
+    else response.body()
+}
 
-suspend fun removeSite(siteName: String): Unit? =
-    jsonClient.delete(SiteRoute.Delete(siteName)) {
-    }.body()
+suspend fun removeSite(siteName: String): Unit? {
+    val response = jsonClient.delete(SiteRoute.Delete(siteName))
+    return if (response.status != HttpStatusCode.OK) null
+    else Unit
+}

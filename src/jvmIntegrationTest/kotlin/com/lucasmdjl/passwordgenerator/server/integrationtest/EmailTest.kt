@@ -12,9 +12,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -56,11 +56,17 @@ class EmailTest : TestParent() {
             @Test
             fun `no last user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                assertThrows<Exception> {
-                    client.post(EmailRoute.New()) {
-                        setBody(EmailServerDto("emailXXX"))
-                        contentType(ContentType.Application.Json)
-                    }
+                val emailsBefore = testTransaction {
+                    Emails.selectAll().count()
+                }
+                val response = client.post(EmailRoute.New()) {
+                    setBody(EmailServerDto("emailXXX"))
+                    contentType(ContentType.Application.Json)
+                }
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
+                testTransaction {
+                    assertEquals(emailsBefore, Emails.selectAll().count())
+                    assertEmpty(Email.find { Emails.emailAddress eq "emailXXX" })
                 }
             }
 
@@ -126,9 +132,7 @@ class EmailTest : TestParent() {
                     setBody(EmailServerDto("email003"))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<EmailClientDto?>()
-                assertNull(responseBody)
+                assertEquals(HttpStatusCode.Conflict, response.status)
                 testTransaction {
                     val user = User.findById(6)
                     assertNotNull(user)
@@ -168,17 +172,15 @@ class EmailTest : TestParent() {
             @Test
             fun `no last user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                assertThrows<Exception> {
-                    client.get(EmailRoute.Find("email002"))
-                }
+                val response = client.get(EmailRoute.Find("email002"))
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
             }
 
             @Test
             fun `non-existing email`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
                 val response = client.get(EmailRoute.Find("emailXYZ"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<EmailClientDto?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val user = User.findById(6)
                     assertNotNull(user)
@@ -190,8 +192,7 @@ class EmailTest : TestParent() {
             fun `email from other user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
                 val response = client.get(EmailRoute.Find("email011"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<EmailClientDto?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val user = User.findById(6)
                     assertNotNull(user)
@@ -204,7 +205,7 @@ class EmailTest : TestParent() {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
                 val response = client.get(EmailRoute.Find("email003"))
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<EmailClientDto?>()
+                val responseBody = response.body<EmailClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("email003", responseBody.emailAddress)
                 assertEquals(mutableListOf("site001", "site007"), responseBody.siteList)
@@ -248,8 +249,14 @@ class EmailTest : TestParent() {
             @Test
             fun `no last user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                assertThrows<Exception> {
-                    client.delete(EmailRoute.Delete("email002"))
+                val emailsBefore = testTransaction {
+                    Emails.selectAll().count()
+                }
+                val response = client.delete(EmailRoute.Delete("email002"))
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
+                testTransaction {
+                    assertEquals(emailsBefore, Emails.selectAll().count())
+                    assertEmpty(Email.find { Emails.emailAddress eq "emailXXX" })
                 }
             }
 
@@ -260,8 +267,7 @@ class EmailTest : TestParent() {
                     Email.find { Emails.userId eq 6 }.count()
                 }
                 val response = client.delete(EmailRoute.Delete("emailXYZ"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<Boolean?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val user = User.findById(6)
                     assertNotNull(user)
@@ -277,8 +283,7 @@ class EmailTest : TestParent() {
                     Email.find { Emails.userId eq 6 }.count()
                 }
                 val response = client.delete(EmailRoute.Delete("email011"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<Boolean?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val user = User.findById(6)
                     assertNotNull(user)
@@ -296,8 +301,6 @@ class EmailTest : TestParent() {
                 }
                 val response = client.delete(EmailRoute.Delete("email003"))
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<Unit?>()
-                assertNotNull(responseBody)
                 testTransaction {
                     val user = User.findById(6)
                     assertNotNull(user)

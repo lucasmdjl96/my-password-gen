@@ -62,8 +62,7 @@ class UserTest : TestParent() {
                     setBody(UserServerDto("UserXYZ"))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<UserClientDto?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val session = Session.findById(sessionId)
                     assertNotNull(session)
@@ -79,8 +78,7 @@ class UserTest : TestParent() {
                     setBody(UserServerDto("User009"))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<UserClientDto?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val session = Session.findById(sessionId)
                     assertNotNull(session)
@@ -101,7 +99,7 @@ class UserTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<UserClientDto?>()
+                val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("User002".encode(), responseBody.username)
                 assertEquals(mutableListOf("email002", "email003"), responseBody.emailList)
@@ -170,7 +168,7 @@ class UserTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<UserClientDto?>()
+                val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("UserXYZ".encode(), responseBody.username)
                 assertEquals(mutableListOf(), responseBody.emailList)
@@ -200,7 +198,7 @@ class UserTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<UserClientDto?>()
+                val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("User009".encode(), responseBody.username)
                 assertEquals(mutableListOf(), responseBody.emailList)
@@ -233,8 +231,7 @@ class UserTest : TestParent() {
                     setBody(UserServerDto("User002"))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<UserClientDto?>())
+                assertEquals(HttpStatusCode.Conflict, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
                     val session = Session.findById(sessionId)
@@ -300,7 +297,7 @@ class UserTest : TestParent() {
             }
 
             @Test
-            fun `logout with good cookie and not last username`() = testApplication {
+            fun `logout with good cookie and username not last`() = testApplication {
                 val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
                 val client = createAndConfigureClientWithCookie(sessionId)
                 testTransaction {
@@ -314,10 +311,10 @@ class UserTest : TestParent() {
                     setBody(UserServerDto("User007".encode()))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
-                    assertNull(Session.findById(sessionId)!!.lastUser)
+                    assertNotNull(Session.findById(sessionId)!!.lastUser)
                 }
             }
 
@@ -336,10 +333,10 @@ class UserTest : TestParent() {
                     setBody(UserServerDto("UserXYZ".encode()))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
-                    assertNull(Session.findById(sessionId)!!.lastUser)
+                    assertNotNull(Session.findById(sessionId)!!.lastUser)
                 }
             }
         }

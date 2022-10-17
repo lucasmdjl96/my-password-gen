@@ -130,6 +130,7 @@ fun Application.module() {
     installAuthentication()
     installHttpsRedirect()
     installResources()
+    installStatusPages()
     installRoutes()
     installCallLogging()
 }

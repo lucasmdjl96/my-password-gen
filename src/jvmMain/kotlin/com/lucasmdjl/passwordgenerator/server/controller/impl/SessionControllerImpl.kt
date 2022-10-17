@@ -4,6 +4,7 @@ import com.lucasmdjl.passwordgenerator.common.routes.SessionRoute
 import com.lucasmdjl.passwordgenerator.server.controller.SessionController
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.mapper.SessionMapper
+import com.lucasmdjl.passwordgenerator.server.plugins.NotAuthenticatedException
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -28,7 +29,7 @@ class SessionControllerImpl(
     }
 
     override suspend fun challenge(call: ApplicationCall, sessionDto: SessionDto?) {
-        call.respond(HttpStatusCode.Unauthorized)
+        throw NotAuthenticatedException()
     }
 
 }

@@ -1,6 +1,9 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
+import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
+import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
+import com.lucasmdjl.passwordgenerator.server.plugins.NotEnoughInformationException
 import com.lucasmdjl.passwordgenerator.server.repository.SiteRepository
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
@@ -20,25 +23,24 @@ class SiteServiceImpl(
     override fun create(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }
         val (siteName) = siteServerDto
-        val user = sessionService.getLastUser(sessionId)!!
-        val email = userRepository.getLastEmail(user)!!
-        val id = siteRepository.createAndGetId(siteName, email)
-        if (id != null) siteRepository.getById(id) else null
+        val user = sessionService.getLastUser(sessionId) ?: throw NotEnoughInformationException()
+        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException()
+        val id = siteRepository.createAndGetId(siteName, email) ?: throw DataConflictException()
+        siteRepository.getById(id) ?: throw DataNotFoundException()
     }
 
     override fun find(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "find" }
         val (siteName) = siteServerDto
-        val user = sessionService.getLastUser(sessionId)!!
-        val email = userRepository.getLastEmail(user)!!
-        siteRepository.getByNameAndEmail(siteName, email)
+        val user = sessionService.getLastUser(sessionId) ?: throw NotEnoughInformationException()
+        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException()
+        siteRepository.getByNameAndEmail(siteName, email) ?: throw DataNotFoundException()
     }
 
     override fun delete(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "delete" }
         val site = find(siteServerDto, sessionId)
-        if (site != null) siteRepository.delete(site)
-        else null
+        siteRepository.delete(site)
     }
 
 }

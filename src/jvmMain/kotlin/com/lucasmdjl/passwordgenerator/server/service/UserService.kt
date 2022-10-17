@@ -6,9 +6,9 @@ import java.util.*
 
 interface UserService {
 
-    fun create(userServerDto: UserServerDto, sessionId: UUID): User?
+    fun create(userServerDto: UserServerDto, sessionId: UUID): User
 
-    fun find(userServerDto: UserServerDto, sessionId: UUID): User?
+    fun find(userServerDto: UserServerDto, sessionId: UUID): User
 
     fun logout(userServerDto: UserServerDto, sessionId: UUID)
 

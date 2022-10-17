@@ -16,6 +16,7 @@ fun Application.module() {
     installSessions()
     installAuthentication()
     installHttpsRedirect()
+    installStatusPages()
     installResources()
     installRoutes()
     installCallLogging()

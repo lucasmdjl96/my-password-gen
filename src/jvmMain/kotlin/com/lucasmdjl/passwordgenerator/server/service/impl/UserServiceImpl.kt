@@ -1,6 +1,8 @@
 package com.lucasmdjl.passwordgenerator.server.service.impl
 
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
+import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
+import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
 import com.lucasmdjl.passwordgenerator.server.service.UserService
@@ -16,8 +18,8 @@ class UserServiceImpl(private val userRepository: UserRepository, private val se
     override fun create(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }
         val username = userServerDto.username
-        val id = userRepository.createAndGetId(username, sessionId)
-        val user = if (id != null) userRepository.getById(id) else null
+        val id = userRepository.createAndGetId(username, sessionId) ?: throw DataConflictException()
+        val user = userRepository.getById(id) ?: throw DataNotFoundException()
         sessionService.setLastUser(sessionId, user)
         user
     }
@@ -25,7 +27,7 @@ class UserServiceImpl(private val userRepository: UserRepository, private val se
     override fun find(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "find" }
         val username = userServerDto.username
-        val user = userRepository.getByNameAndSession(username, sessionId)
+        val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException()
         sessionService.setLastUser(sessionId, user)
         user
     }
@@ -33,10 +35,9 @@ class UserServiceImpl(private val userRepository: UserRepository, private val se
     override fun logout(userServerDto: UserServerDto, sessionId: UUID): Unit = transaction {
         logger.debug { "logout" }
         val user = find(userServerDto, sessionId)
-        if (user != null) {
-            userRepository.setLastEmail(user, null)
-            sessionService.setLastUser(sessionId, null)
-        }
+        userRepository.setLastEmail(user, null)
+        sessionService.setLastUser(sessionId, null)
+
     }
 
 }

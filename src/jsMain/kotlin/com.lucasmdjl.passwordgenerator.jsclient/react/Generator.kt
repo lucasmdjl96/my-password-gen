@@ -86,6 +86,3 @@ suspend fun generatePassword(username: String, emailAddress: String, siteName: S
             $masterPassword
         """.trimIndent()
     )
-
-suspend fun encodeUsername(username: String) =
-    sha256(username)

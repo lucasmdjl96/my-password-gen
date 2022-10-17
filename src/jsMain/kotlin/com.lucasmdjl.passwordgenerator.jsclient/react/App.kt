@@ -105,24 +105,24 @@ val App = { initialState: InitialState ->
 }
 
 suspend fun loginUser(username: String): UserClientDto? {
-    val userClientDto = if (username == "") null
-    else jsonClient.post(UserRoute.Login()) {
+    if (username == "") return null
+    val response = jsonClient.post(UserRoute.Login()) {
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
-    }.body<UserClientDto?>()
-    return if (userClientDto == null) null
-    else UserClientDto(username, userClientDto.emailList)
+    }
+    return if (response.status != HttpStatusCode.OK) null
+    else UserClientDto(username, response.body<UserClientDto>().emailList)
 }
 
 
 suspend fun registerUser(username: String): UserClientDto? {
-    val userClientDto = if (username == "") null
-    else jsonClient.post(UserRoute.Register()) {
+    if (username == "") return null
+    val response = jsonClient.post(UserRoute.Register()) {
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
-    }.body<UserClientDto?>()
-    return if (userClientDto == null) null
-    else UserClientDto(username, userClientDto.emailList)
+    }
+    return if (response.status != HttpStatusCode.OK) null
+    else UserClientDto(username, response.body<UserClientDto>().emailList)
 }
 
 suspend fun logoutUser(username: String) {

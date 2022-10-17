@@ -7,22 +7,19 @@ import com.lucasmdjl.passwordgenerator.server.controller.impl.EmailControllerImp
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.mapper.EmailMapper
 import com.lucasmdjl.passwordgenerator.server.model.Email
+import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
+import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
 import com.lucasmdjl.passwordgenerator.server.service.EmailService
 import com.lucasmdjl.passwordgenerator.server.tables.Emails
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
-import io.mockk.coVerifyOrder
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.dao.id.EntityID
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import java.util.*
 
 class EmailControllerTest : ControllerTestParent() {
@@ -76,18 +73,25 @@ class EmailControllerTest : ControllerTestParent() {
                 with(emailMapperMock) {
                     dummyEmail.toEmailClientDto()
                 }
-                callMock.respondNullable(dummyEmailClientDto as EmailClientDto?)
+                callMock.respond(dummyEmailClientDto)
             }
         }
 
         @Test
         fun `create new email when it already exists`() = runBlocking {
-            every { emailServiceMock.create(dummyEmailServerDto, dummySessionDto.sessionId) } returns null
+            every {
+                emailServiceMock.create(
+                    dummyEmailServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataConflictException()
             mockCall(callMock, dummySessionDto, dummyEmailServerDto)
 
             val emailController = EmailControllerImpl(emailServiceMock, emailMapperMock)
 
-            emailController.post(callMock, EmailRoute.New())
+            assertThrows<DataConflictException> {
+                emailController.post(callMock, EmailRoute.New())
+            }
 
             verify(exactly = 0) {
                 with(emailMapperMock) {
@@ -101,7 +105,6 @@ class EmailControllerTest : ControllerTestParent() {
             coVerifyOrder {
                 callMock.receive<EmailServerDto>()
                 emailServiceMock.create(dummyEmailServerDto, dummySessionDto.sessionId)
-                callMock.respondNullable(null as EmailClientDto?)
             }
         }
 
@@ -131,21 +134,25 @@ class EmailControllerTest : ControllerTestParent() {
                 with(emailMapperMock) {
                     dummyEmail.toEmailClientDto()
                 }
-                callMock.respondNullable(dummyEmailClientDto as EmailClientDto?)
+                callMock.respond(dummyEmailClientDto)
             }
         }
 
         @Test
         fun `find email when it doesn't exist`() = runBlocking {
-            every { emailServiceMock.find(dummyEmailServerDto, dummySessionDto.sessionId) } returns null
+            every {
+                emailServiceMock.find(
+                    dummyEmailServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataNotFoundException()
             mockCall(callMock, dummySessionDto)
 
             val emailController = EmailControllerImpl(emailServiceMock, emailMapperMock)
 
-            emailController.get(
-                callMock,
-                EmailRoute.Find(dummyEmailServerDto.emailAddress)
-            )
+            assertThrows<DataNotFoundException> {
+                emailController.get(callMock, EmailRoute.Find(dummyEmailServerDto.emailAddress))
+            }
 
             verify(exactly = 0) {
                 with(emailMapperMock) {
@@ -155,7 +162,6 @@ class EmailControllerTest : ControllerTestParent() {
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
                 emailServiceMock.find(dummyEmailServerDto, dummySessionDto.sessionId)
-                callMock.respondNullable(null as EmailClientDto?)
             }
         }
 
@@ -165,7 +171,7 @@ class EmailControllerTest : ControllerTestParent() {
     inner class Delete {
         @Test
         fun `delete email when it already exists`() = runBlocking {
-            every { emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId) } returns Unit
+            every { emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId) } just Runs
             mockCall(callMock, dummySessionDto)
 
             val emailController = EmailControllerImpl(emailServiceMock, emailMapperMock)
@@ -183,21 +189,25 @@ class EmailControllerTest : ControllerTestParent() {
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
                 emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId)
-                callMock.respondNullable(Unit as Unit?)
+                callMock.respond(HttpStatusCode.OK)
             }
         }
 
         @Test
         fun `delete email when it doesn't exist`() = runBlocking {
-            every { emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId) } returns null
+            every {
+                emailServiceMock.delete(
+                    dummyEmailServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataNotFoundException()
             mockCall(callMock, dummySessionDto)
 
             val emailController = EmailControllerImpl(emailServiceMock, emailMapperMock)
 
-            emailController.delete(
-                callMock,
-                EmailRoute.Delete(dummyEmailServerDto.emailAddress)
-            )
+            assertThrows<DataNotFoundException> {
+                emailController.delete(callMock, EmailRoute.Delete(dummyEmailServerDto.emailAddress))
+            }
 
             verify(exactly = 0) {
                 with(emailMapperMock) {
@@ -207,7 +217,6 @@ class EmailControllerTest : ControllerTestParent() {
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
                 emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId)
-                callMock.respondNullable(null as Unit?)
             }
         }
     }

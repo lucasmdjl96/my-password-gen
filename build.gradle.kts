@@ -91,6 +91,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-config-yaml:$ktorVersion")
                 implementation("io.ktor:ktor-server-resources:$ktorVersion")
                 implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+                implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
 
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
                 implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")

@@ -4,6 +4,8 @@ import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
 import com.lucasmdjl.passwordgenerator.server.model.Email
 import com.lucasmdjl.passwordgenerator.server.model.Site
 import com.lucasmdjl.passwordgenerator.server.model.User
+import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
+import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
 import com.lucasmdjl.passwordgenerator.server.repository.SiteRepository
 import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
@@ -18,7 +20,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.*
 import java.util.*
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class SiteServiceTest : ServiceTestParent() {
 
@@ -84,7 +85,9 @@ class SiteServiceTest : ServiceTestParent() {
 
             val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock)
 
-            val siteResult = siteService.create(dummySiteServerDto, dummySessionId)
+            assertThrows<DataConflictException> {
+                siteService.create(dummySiteServerDto, dummySessionId)
+            }
 
             verify(exactly = 0) {
                 siteRepositoryMock.getById(any())
@@ -95,7 +98,6 @@ class SiteServiceTest : ServiceTestParent() {
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.createAndGetId(dummySiteServerDto.siteName, dummyEmail)
             }
-            assertNull(siteResult)
         }
 
         @Test
@@ -171,7 +173,9 @@ class SiteServiceTest : ServiceTestParent() {
 
             val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock)
 
-            val siteResult = siteService.find(dummySiteServerDto, dummySessionId)
+            assertThrows<DataNotFoundException> {
+                siteService.find(dummySiteServerDto, dummySessionId)
+            }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -179,7 +183,6 @@ class SiteServiceTest : ServiceTestParent() {
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
             }
-            assertNull(siteResult)
         }
 
         @Test
@@ -256,7 +259,9 @@ class SiteServiceTest : ServiceTestParent() {
 
             val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock)
 
-            val result = siteService.delete(dummySiteServerDto, dummySessionId)
+            assertThrows<DataNotFoundException> {
+                siteService.delete(dummySiteServerDto, dummySessionId)
+            }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -267,7 +272,6 @@ class SiteServiceTest : ServiceTestParent() {
             verify(exactly = 0) {
                 siteRepositoryMock.delete(any())
             }
-            assertNull(result)
         }
 
         @Test

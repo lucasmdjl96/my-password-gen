@@ -13,9 +13,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -57,22 +57,34 @@ class SiteTest : TestParent() {
             @Test
             fun `no last user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                assertThrows<Exception> {
-                    client.post(SiteRoute.New()) {
-                        setBody(SiteServerDto("siteXXX"))
-                        contentType(ContentType.Application.Json)
-                    }
+                val sitesBefore = testTransaction {
+                    Sites.selectAll().count()
+                }
+                val response = client.post(SiteRoute.New()) {
+                    setBody(SiteServerDto("siteXXX"))
+                    contentType(ContentType.Application.Json)
+                }
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
+                testTransaction {
+                    assertEquals(sitesBefore, Sites.selectAll().count())
+                    assertEmpty(Site.find { Sites.siteName eq "siteXXX" })
                 }
             }
 
             @Test
             fun `no last email`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
-                assertThrows<Exception> {
-                    client.post(SiteRoute.New()) {
-                        setBody(SiteServerDto("siteXXX"))
-                        contentType(ContentType.Application.Json)
-                    }
+                val sitesBefore = testTransaction {
+                    Sites.selectAll().count()
+                }
+                val response = client.post(SiteRoute.New()) {
+                    setBody(SiteServerDto("siteXXX"))
+                    contentType(ContentType.Application.Json)
+                }
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
+                testTransaction {
+                    assertEquals(sitesBefore, Sites.selectAll().count())
+                    assertEmpty(Site.find { Sites.siteName eq "siteXXX" })
                 }
             }
 
@@ -90,7 +102,7 @@ class SiteTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto?>()
+                val responseBody = response.body<SiteClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("siteXXX", responseBody.siteName)
                 testTransaction {
@@ -113,8 +125,7 @@ class SiteTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto?>()
+                val responseBody = response.body<SiteClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("site006", responseBody.siteName)
                 testTransaction {
@@ -136,9 +147,7 @@ class SiteTest : TestParent() {
                     setBody(SiteServerDto("site007"))
                     contentType(ContentType.Application.Json)
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto?>()
-                assertNull(responseBody)
+                assertEquals(HttpStatusCode.Conflict, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Site.find { Sites.emailId eq 10 }.count())
                 }
@@ -175,17 +184,15 @@ class SiteTest : TestParent() {
             @Test
             fun `no last user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                assertThrows<Exception> {
-                    client.get(SiteRoute.Find("site002"))
-                }
+                val response = client.get(SiteRoute.Find("site002"))
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
             }
 
             @Test
             fun `no last email`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
-                assertThrows<Exception> {
-                    client.get(SiteRoute.Find("site002"))
-                }
+                val response = client.get(SiteRoute.Find("site002"))
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
             }
 
             @Test
@@ -195,8 +202,7 @@ class SiteTest : TestParent() {
                     User.findById(6)!!.lastEmail = Email.findById(10)
                 }
                 val response = client.get(SiteRoute.Find("siteXXX"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<SiteClientDto?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
             }
 
             @Test
@@ -206,8 +212,7 @@ class SiteTest : TestParent() {
                     User.findById(6)!!.lastEmail = Email.findById(10)
                 }
                 val response = client.get(SiteRoute.Find("site006"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<SiteClientDto?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
             }
 
             @Test
@@ -218,7 +223,7 @@ class SiteTest : TestParent() {
                 }
                 val response = client.get(SiteRoute.Find("site007"))
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto?>()
+                val responseBody = response.body<SiteClientDto>()
                 assertNotNull(responseBody)
                 assertEquals("site007", responseBody.siteName)
             }
@@ -254,16 +259,28 @@ class SiteTest : TestParent() {
             @Test
             fun `no last user`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                assertThrows<Exception> {
-                    client.delete(SiteRoute.Delete("site002"))
+                val sitesBefore = testTransaction {
+                    Sites.selectAll().count()
+                }
+                val response = client.delete(SiteRoute.Delete("site002"))
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
+                testTransaction {
+                    assertEquals(sitesBefore, Sites.selectAll().count())
+                    assertEmpty(Site.find { Sites.siteName eq "siteXXX" })
                 }
             }
 
             @Test
             fun `no last email`() = testApplication {
                 val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002"))
-                assertThrows<Exception> {
-                    client.delete(SiteRoute.Delete("site002"))
+                val sitesBefore = testTransaction {
+                    Sites.selectAll().count()
+                }
+                val response = client.delete(SiteRoute.Delete("site002"))
+                assertEquals(HttpStatusCode.PreconditionFailed, response.status)
+                testTransaction {
+                    assertEquals(sitesBefore, Sites.selectAll().count())
+                    assertEmpty(Site.find { Sites.siteName eq "siteXXX" })
                 }
             }
 
@@ -277,8 +294,7 @@ class SiteTest : TestParent() {
                     Site.find { Sites.emailId eq 10 }.count()
                 }
                 val response = client.delete(SiteRoute.Delete("siteXXX"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<Boolean?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Site.find { Sites.emailId eq 10 }.count())
                 }
@@ -294,8 +310,7 @@ class SiteTest : TestParent() {
                     Site.find { Sites.emailId eq 10 }.count()
                 }
                 val response = client.delete(SiteRoute.Delete("site006"))
-                assertEquals(HttpStatusCode.OK, response.status)
-                assertNull(response.body<Boolean?>())
+                assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Site.find { Sites.emailId eq 10 }.count())
                     assertNotNull(Email.findById(9))
@@ -313,8 +328,6 @@ class SiteTest : TestParent() {
                 }
                 val response = client.delete(SiteRoute.Delete("site007"))
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<Unit?>()
-                assertNotNull(responseBody)
                 testTransaction {
                     assertEquals(sitesBefore - 1, Site.find { Sites.emailId eq 10 }.count())
                     assertNull(Site.findById(19))

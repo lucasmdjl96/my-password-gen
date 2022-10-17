@@ -8,6 +8,8 @@ import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.mapper.UserMapper
 import com.lucasmdjl.passwordgenerator.server.model.User
+import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
+import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
 import com.lucasmdjl.passwordgenerator.server.service.UserService
 import com.lucasmdjl.passwordgenerator.server.tables.Users
 import io.ktor.http.*
@@ -18,10 +20,7 @@ import io.ktor.server.sessions.*
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.dao.id.EntityID
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import java.util.*
 
 class UserControllerTest : ControllerTestParent() {
@@ -80,7 +79,7 @@ class UserControllerTest : ControllerTestParent() {
                 with(userMapperMock) {
                     dummyUser.toUserClientDto()
                 }
-                callMock.respondNullable(dummyUserClientDto as UserClientDto?)
+                callMock.respond(dummyUserClientDto)
             }
         }
 
@@ -88,12 +87,19 @@ class UserControllerTest : ControllerTestParent() {
         fun `user login when not already registered`() = runBlocking {
             mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
             every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
-            every { userServiceMock.find(dummyEncodedUserServerDto, dummySessionDto.sessionId) } returns null
+            every {
+                userServiceMock.find(
+                    dummyEncodedUserServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataNotFoundException()
             mockCall(callMock, dummySessionDto, dummyUserServerDto)
 
             val userController = UserControllerImpl(userServiceMock, userMapperMock)
 
-            userController.post(callMock, UserRoute.Login())
+            assertThrows<DataNotFoundException> {
+                userController.post(callMock, UserRoute.Login())
+            }
 
             verify(exactly = 0) {
                 with(userMapperMock) {
@@ -108,7 +114,6 @@ class UserControllerTest : ControllerTestParent() {
                 callMock.receive<UserServerDto>()
                 dummyUserServerDto.encode()
                 userServiceMock.find(dummyEncodedUserServerDto, dummySessionDto.sessionId)
-                callMock.respondNullable(null as UserClientDto?)
             }
         }
 
@@ -142,7 +147,7 @@ class UserControllerTest : ControllerTestParent() {
                 with(userMapperMock) {
                     dummyUser.toUserClientDto()
                 }
-                callMock.respondNullable(dummyUserClientDto as UserClientDto?)
+                callMock.respond(dummyUserClientDto)
             }
         }
 
@@ -150,12 +155,19 @@ class UserControllerTest : ControllerTestParent() {
         fun `user register when already registered`() = runBlocking {
             mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
             every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
-            every { userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId) } returns null
+            every {
+                userServiceMock.create(
+                    dummyEncodedUserServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataConflictException()
             mockCall(callMock, dummySessionDto, dummyUserServerDto)
 
             val userController = UserControllerImpl(userServiceMock, userMapperMock)
 
-            userController.post(callMock, UserRoute.Register())
+            assertThrows<DataConflictException> {
+                userController.post(callMock, UserRoute.Register())
+            }
 
             verify(exactly = 0) {
                 with(userMapperMock) {
@@ -170,7 +182,6 @@ class UserControllerTest : ControllerTestParent() {
                 callMock.receive<UserServerDto>()
                 dummyUserServerDto.encode()
                 userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId)
-                callMock.respondNullable(null as UserClientDto?)
             }
         }
 

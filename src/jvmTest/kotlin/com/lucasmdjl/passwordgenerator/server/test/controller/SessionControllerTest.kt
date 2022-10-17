@@ -5,6 +5,7 @@ import com.lucasmdjl.passwordgenerator.server.controller.impl.SessionControllerI
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.mapper.SessionMapper
 import com.lucasmdjl.passwordgenerator.server.model.Session
+import com.lucasmdjl.passwordgenerator.server.plugins.NotAuthenticatedException
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
 import com.lucasmdjl.passwordgenerator.server.tables.Sessions
 import io.ktor.http.*
@@ -14,10 +15,7 @@ import io.ktor.server.sessions.*
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.dao.id.EntityID
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -137,15 +135,15 @@ class SessionControllerTest : ControllerTestParent() {
     inner class Challenge {
 
         @Test
-        fun challenge() = runBlocking {
-            mockCall(callMock, dummySessionDto)
+        fun challenge() {
+            runBlocking {
+                mockCall(callMock, dummySessionDto)
 
-            val sessionController = SessionControllerImpl(sessionServiceMock, sessionMapperMock)
+                val sessionController = SessionControllerImpl(sessionServiceMock, sessionMapperMock)
 
-            sessionController.challenge(callMock, dummySessionDto)
-
-            coVerify {
-                callMock.respond(HttpStatusCode.Unauthorized)
+                assertThrows<NotAuthenticatedException> {
+                    sessionController.challenge(callMock, dummySessionDto)
+                }
             }
         }
 
