@@ -22,7 +22,6 @@ external interface GeneratorProps : Props {
     var siteName: String?
     var password: String?
     var updatePassword: (String) -> Unit
-    var online: Boolean
 }
 
 val Generator = FC<GeneratorProps> { props ->
@@ -37,8 +36,7 @@ val Generator = FC<GeneratorProps> { props ->
                 scope.launch {
                     props.updatePassword(
                         generatePassword(
-                            if (props.online) props.username
-                            else encodeUsername(props.username),
+                            props.username,
                             props.emailAddress!!,
                             props.siteName!!,
                             props.masterPassword

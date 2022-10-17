@@ -151,7 +151,13 @@ kotlin {
 
             }
         }
-        val jsTest by getting
+        val jsTest by getting {
+            dependencies {
+                implementation("io.mockk:mockk:1.9.3")
+                implementation(npm("react-test-renderer","18.2.0"))
+                implementation(npm("@testing-library/react", "13.4.0"))
+            }
+        }
     }
 }
 
