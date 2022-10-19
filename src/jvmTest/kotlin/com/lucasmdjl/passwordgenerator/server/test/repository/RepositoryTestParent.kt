@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -28,18 +29,20 @@ abstract class RepositoryTestParent : TestParent() {
     private lateinit var database: Database
 
     @BeforeAll
-    fun initDatabase() {
+    fun connectDatabase() {
         database = Database.connect(postgres.jdbcUrl, postgres.driverClassName, postgres.username, postgres.password)
+    }
+
+    @BeforeEach
+    fun initDatabase() {
         transaction(database) {
             SchemaUtils.drop(Sessions, Users, Emails, Sites)
             SchemaUtils.create(Sessions, Users, Emails, Sites)
-            exec(this::class.java.classLoader.getResource("testDatabaseInit.sql")!!.readText())
         }
     }
 
     fun <T> testTransaction(block: Transaction.() -> T) = transaction(database) {
         block()
-        rollback()
     }
 
     override fun initMocks() {}

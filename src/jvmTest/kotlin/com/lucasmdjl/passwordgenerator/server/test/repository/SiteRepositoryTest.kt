@@ -19,43 +19,61 @@ class SiteRepositoryTest : RepositoryTestParent() {
     inner class CreateAndGetId {
 
         @Test
-        fun `create when it doesn't exist`() {
+        fun `create when it doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val beforeSites = Sites.select { Sites.emailId eq 2 }
-                val beforeCount = beforeSites.count()
-                val beforeIds = beforeSites.map { it[Sites.id].value }
-                val email = Email.findById(2)!!
-                val siteId = siteRepository
-                    .createAndGetId("not-site", email)
-                val afterSites = Sites.select { Sites.emailId eq 2 }
-                val afterCount = afterSites.count()
-                val afterIds = afterSites.map { it[Sites.id].value }
-                assertNotNull(siteId)
-                assertTrue(siteId !in beforeIds)
-                assertTrue(siteId in afterIds)
-                assertEquals(beforeCount + 1, afterCount)
-                val site = Site.findById(siteId)
-                assertNotNull(site)
-                assertEquals("not-site", site.name)
-                assertEquals(2, site.email.id.value)
-            }
+            val beforeSites = Sites.select { Sites.emailId eq 1 }
+            val beforeCount = beforeSites.count()
+            val beforeIds = beforeSites.map { it[Sites.id].value }
+            val email = Email.findById(1)!!
+            val siteId = siteRepository
+                .createAndGetId("not-site", email)
+            val afterSites = Sites.select { Sites.emailId eq 1 }
+            val afterCount = afterSites.count()
+            val afterIds = afterSites.map { it[Sites.id].value }
+            assertNotNull(siteId)
+            assertTrue(siteId !in beforeIds)
+            assertTrue(siteId in afterIds)
+            assertEquals(beforeCount + 1, afterCount)
+            val site = Site.findById(siteId)
+            assertNotNull(site)
+            assertEquals("not-site", site.name)
+            assertEquals(1, site.email.id.value)
         }
 
         @Test
-        fun `create when it already exist`() {
+        fun `create when it already exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val beforeSites = Sites.select { Sites.emailId eq 2 }
-                val beforeCount = beforeSites.count()
-                val email = Email.findById(2)!!
-                val siteId = siteRepository
-                    .createAndGetId("site002", email)
-                val afterSites = Sites.select { Sites.emailId eq 2 }
-                val afterCount = afterSites.count()
-                assertNull(siteId)
-                assertEquals(beforeCount, afterCount)
-            }
+            val beforeSites = Sites.select { Sites.emailId eq 1 }
+            val beforeCount = beforeSites.count()
+            val email = Email.findById(1)!!
+            val siteId = siteRepository
+                .createAndGetId("Site001", email)
+            val afterSites = Sites.select { Sites.emailId eq 1 }
+            val afterCount = afterSites.count()
+            assertNull(siteId)
+            assertEquals(beforeCount, afterCount)
         }
 
     }
@@ -64,22 +82,40 @@ class SiteRepositoryTest : RepositoryTestParent() {
     inner class GetById {
 
         @Test
-        fun `get by id when it exists`() {
+        fun `get by id when it exists`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val site = siteRepository.getById(2)
-                assertNotNull(site)
-                assertEquals(2, site.id.value)
-            }
+            val site = siteRepository.getById(1)
+            assertNotNull(site)
+            assertEquals(1, site.id.value)
         }
 
         @Test
-        fun `get by id when it doesn't exist`() {
+        fun `get by id when it doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val site = siteRepository.getById(50)
-                assertNull(site)
-            }
+            val site = siteRepository.getById(2)
+            assertNull(site)
         }
 
     }
@@ -88,35 +124,64 @@ class SiteRepositoryTest : RepositoryTestParent() {
     inner class GetByNameAndEmail {
 
         @Test
-        fun `get when exists`() {
+        fun `get when exists`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val email = Email.findById(2)!!
-                val site = siteRepository.getByNameAndEmail("site002", email)
-                assertNotNull(site)
-                assertEquals("site002", site.name)
-                assertEquals(2, site.email.id.value)
-            }
+            val email = Email.findById(1)!!
+            val site = siteRepository.getByNameAndEmail("Site001", email)
+            assertNotNull(site)
+            assertEquals("Site001", site.name)
+            assertEquals(1, site.email.id.value)
         }
 
         @Test
-        fun `get when exists in other email`() {
+        fun `get when exists in other email`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email002', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val email = Email.findById(3)!!
-                val site = siteRepository.getByNameAndEmail("site002", email)
-                assertNull(site)
-            }
+            val email = Email.findById(2)!!
+            val site = siteRepository.getByNameAndEmail("Site001", email)
+            assertNull(site)
         }
 
         @Test
-        fun `get when site doesn't exist`() {
+        fun `get when site doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val email = Email.findById(2)!!
-                val site = siteRepository.getByNameAndEmail("not-site", email)
-                assertNull(site)
-            }
+            val email = Email.findById(1)!!
+            val site = siteRepository.getByNameAndEmail("not-site", email)
+            assertNull(site)
         }
 
     }
@@ -125,16 +190,25 @@ class SiteRepositoryTest : RepositoryTestParent() {
     inner class Delete {
 
         @Test
-        fun `delete site`() {
+        fun `delete site`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                INSERT INTO SITES (SITE_NAME, EMAIL_ID)
+                    VALUES ('Site001', 1);
+            """.trimIndent()
+            )
             val siteRepository = SiteRepositoryImpl()
-            testTransaction {
-                val before = Sites.selectAll().count()
-                val site = Site.findById(2)!!
-                siteRepository.delete(site)
-                val after = Sites.selectAll().count()
-                assertEquals(before - 1, after)
-                assertNull(Site.findById(2))
-            }
+            val before = Sites.selectAll().count()
+            val site = Site.findById(1)!!
+            siteRepository.delete(site)
+            val after = Sites.selectAll().count()
+            assertEquals(before - 1, after)
+            assertNull(Site.findById(1))
         }
 
     }

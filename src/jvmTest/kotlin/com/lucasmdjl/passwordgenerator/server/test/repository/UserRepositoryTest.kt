@@ -20,56 +20,73 @@ class UserRepositoryTest : RepositoryTestParent() {
     inner class CreateAndGetId {
 
         @Test
-        fun `create when it doesn't exist`() {
+        fun `create when it doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val beforeUsers =
-                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
-                val beforeCount = beforeUsers.count()
-                val beforeIds = beforeUsers.map { it[Users.id].value }
-                val userId = userRepository
-                    .createAndGetId("not-user", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                val afterUsers =
-                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
-                val afterCount = afterUsers.count()
-                val afterIds = afterUsers.map { it[Users.id].value }
-                assertNotNull(userId)
-                assertTrue(userId !in beforeIds)
-                assertTrue(userId in afterIds)
-                assertEquals(beforeCount + 1, afterCount)
-                val user = User.findById(userId)
-                assertNotNull(user)
-                assertEquals("not-user", user.username)
-                assertEquals(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"), user.session.id.value)
-                assertNull(user.lastEmail)
-            }
+            val beforeUsers =
+                Users.select { Users.sessionId eq UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c") }
+            val beforeCount = beforeUsers.count()
+            val beforeIds = beforeUsers.map { it[Users.id].value }
+            val userId = userRepository
+                .createAndGetId("not-user", UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c"))
+            val afterUsers =
+                Users.select { Users.sessionId eq UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c") }
+            val afterCount = afterUsers.count()
+            val afterIds = afterUsers.map { it[Users.id].value }
+            assertNotNull(userId)
+            assertTrue(userId !in beforeIds)
+            assertTrue(userId in afterIds)
+            assertEquals(beforeCount + 1, afterCount)
+            val user = User.findById(userId)
+            assertNotNull(user)
+            assertEquals("not-user", user.username)
+            assertEquals(UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c"), user.session.id.value)
+            assertNull(user.lastEmail)
         }
 
         @Test
-        fun `create when it already exist`() {
+        fun `create when it already exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val beforeUsers =
-                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
-                val beforeCount = beforeUsers.count()
-                val userId = userRepository
-                    .createAndGetId("User002", UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001"))
-                val afterUsers =
-                    Users.select { Users.sessionId eq UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001") }
-                val afterCount = afterUsers.count()
-                assertNull(userId)
-                assertEquals(beforeCount, afterCount)
-            }
+            val beforeUsers =
+                Users.select { Users.sessionId eq UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c") }
+            val beforeCount = beforeUsers.count()
+            val userId = userRepository
+                .createAndGetId("User123", UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c"))
+            val afterUsers =
+                Users.select { Users.sessionId eq UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c") }
+            val afterCount = afterUsers.count()
+            assertNull(userId)
+            assertEquals(beforeCount, afterCount)
         }
 
         @Test
-        fun `create when session doesn't exist`() {
+        fun `create when session doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val userId = userRepository
-                    .createAndGetId("User002", UUID.fromString("757f2ad6-aa06-0000-aea3-d5e6cb9f0001"))
-                assertNull(userId)
+            assertThrows<Exception> {
+                userRepository
+                    .createAndGetId("User123", UUID.fromString("757f2ad6-aa06-0000-aea3-d5e6cb9f0001"))
             }
+            Unit
         }
 
     }
@@ -78,22 +95,32 @@ class UserRepositoryTest : RepositoryTestParent() {
     inner class GetById {
 
         @Test
-        fun `get by id when it exists`() {
+        fun `get by id when it exists`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = userRepository.getById(2)
-                assertNotNull(user)
-                assertEquals(2, user.id.value)
-            }
+            val user = userRepository.getById(1)
+            assertNotNull(user)
+            assertEquals(1, user.id.value)
         }
 
         @Test
-        fun `get by id when it doesn't exist`() {
+        fun `get by id when it doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = userRepository.getById(50)
-                assertNull(user)
-            }
+            val user = userRepository.getById(2)
+            assertNull(user)
         }
 
     }
@@ -102,53 +129,76 @@ class UserRepositoryTest : RepositoryTestParent() {
     inner class GetByNameAndSession {
 
         @Test
-        fun `get when exists`() {
+        fun `get when exists`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = userRepository.getByNameAndSession(
-                    "User002",
-                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                )
-                assertNotNull(user)
-                assertEquals("User002", user.username)
-                assertEquals("757f2ad6-aa06-4403-aea3-d5e6cb9f0001", user.session.id.value.toString())
-            }
+            val user = userRepository.getByNameAndSession(
+                "User123",
+                UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c")
+            )
+            assertNotNull(user)
+            assertEquals("User123", user.username)
+            assertEquals("868f9d04-d1e8-44c9-84d3-2ef3da517d4c", user.session.id.value.toString())
         }
 
         @Test
-        fun `get when exists in other session`() {
+        fun `get when exists in other session`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO SESSIONS (ID) VALUES ('2b3777f9-fa56-4304-b7e6-c80058f5b7f4');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                    INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User002', '2b3777f9-fa56-4304-b7e6-c80058f5b7f4');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = userRepository.getByNameAndSession(
-                    "User002",
-                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
-                )
-                assertNull(user)
-            }
+            val user = userRepository.getByNameAndSession(
+                "User002",
+                UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c")
+            )
+            assertNull(user)
         }
 
         @Test
-        fun `get when session doesn't exist`() {
+        fun `get when session doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = userRepository.getByNameAndSession(
-                    "User002",
-                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019")
-                )
-                assertNull(user)
-            }
+            val user = userRepository.getByNameAndSession(
+                "User123",
+                UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019")
+            )
+            assertNull(user)
         }
 
         @Test
-        fun `get when username doesn't exist in session`() {
+        fun `get when username doesn't exist in session`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = userRepository.getByNameAndSession(
-                    "not-user",
-                    UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0019")
-                )
-                assertNull(user)
-            }
+            val user = userRepository.getByNameAndSession(
+                "not-user",
+                UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c")
+            )
+            assertNull(user)
         }
 
     }
@@ -157,43 +207,71 @@ class UserRepositoryTest : RepositoryTestParent() {
     inner class MoveAll {
 
         @Test
-        fun `move all when both sessions exist`() {
+        fun `move all when both sessions exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO SESSIONS (ID) VALUES ('bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User234', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            val oldSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-            val newSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0003")
-            testTransaction {
-                val userIds = Users.select { Users.sessionId eq oldSessionId }.map { it[Users.id].value }
-                userRepository.moveAll(oldSessionId, newSessionId)
-                for (id in userIds) {
-                    val user = User.findById(id)
-                    assertNotNull(user)
-                    assertEquals(newSessionId, user.session.id.value)
-                }
+            val oldSessionId = UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c")
+            val newSessionId = UUID.fromString("bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5")
+            val userIds = Users.select { Users.sessionId eq oldSessionId }.map { it[Users.id].value }
+            userRepository.moveAll(oldSessionId, newSessionId)
+            for (id in userIds) {
+                val user = User.findById(id)
+                assertNotNull(user)
+                assertEquals(newSessionId, user.session.id.value)
             }
         }
 
         @Test
-        fun `move all when origin session doesn't exist`() {
+        fun `move all when origin session doesn't exist`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO SESSIONS (ID) VALUES ('bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User234', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
             val oldSessionId = UUID.fromString("757f2ad6-aa06-0000-aea3-d5e6cb9f0001")
-            val newSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0003")
-            testTransaction {
-                val countNewBefore = Users.select { Users.sessionId eq newSessionId }.count()
-                userRepository.moveAll(oldSessionId, newSessionId)
-                val countOldAfter = Users.select { Users.sessionId eq oldSessionId }.count()
-                val countNewAfter = Users.select { Users.sessionId eq newSessionId }.count()
-                assertEquals(countNewBefore, countNewAfter)
-                assertEquals(0, countOldAfter)
-            }
+            val newSessionId = UUID.fromString("bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5")
+            val countNewBefore = Users.select { Users.sessionId eq newSessionId }.count()
+            userRepository.moveAll(oldSessionId, newSessionId)
+            val countOldAfter = Users.select { Users.sessionId eq oldSessionId }.count()
+            val countNewAfter = Users.select { Users.sessionId eq newSessionId }.count()
+            assertEquals(countNewBefore, countNewAfter)
+            assertEquals(0, countOldAfter)
         }
 
         @Test
         fun `move all when target session doesn't exist`() {
-            val userRepository = UserRepositoryImpl()
-            val oldSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-            val newSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0020")
-            var userIds = listOf<Int>()
+            var userIds = emptyList<Int>()
+            var oldSessionId = UUID.randomUUID()
             testTransaction {
+                exec(
+                    """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO SESSIONS (ID) VALUES ('bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User234', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                COMMIT;
+            """.trimIndent()
+                )
+                val userRepository = UserRepositoryImpl()
+                oldSessionId = UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c")
+                val newSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0020")
                 userIds = Users.select { Users.sessionId eq oldSessionId }.map { it[Users.id].value }
                 assertThrows<Exception> { userRepository.moveAll(oldSessionId, newSessionId) }
             }
@@ -206,13 +284,28 @@ class UserRepositoryTest : RepositoryTestParent() {
             }
         }
 
+
         @Test
         fun `move all when target session has conflict`() {
-            val userRepository = UserRepositoryImpl()
-            val oldSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-            val newSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
-            var userIds = listOf<Int>()
+            var userIds = emptyList<Int>()
+            var oldSessionId = UUID.randomUUID()
             testTransaction {
+                exec(
+                    """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO SESSIONS (ID) VALUES ('bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User234', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User234', 'bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5');
+                COMMIT;
+            """.trimIndent()
+                )
+                val userRepository = UserRepositoryImpl()
+                oldSessionId = UUID.fromString("868f9d04-d1e8-44c9-84d3-2ef3da517d4c")
+                val newSessionId = UUID.fromString("bd8cd8bb-1c1b-4602-8447-b99f7db0dbd5")
                 userIds = Users.select { Users.sessionId eq oldSessionId }.map { it[Users.id].value }
                 assertThrows<Exception> { userRepository.moveAll(oldSessionId, newSessionId) }
             }
@@ -231,55 +324,89 @@ class UserRepositoryTest : RepositoryTestParent() {
     inner class SetLastEmail {
 
         @Test
-        fun `set last email from null to not null`() {
+        fun `set last email from null to not null`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = User.findById(2)!!
-                val email = Email.findById(3)!!
-                userRepository.setLastEmail(user, email)
-                val newUser = User.findById(2)
-                assertNotNull(newUser)
-                assertNotNull(newUser.lastEmail)
-                assertEquals(email.id.value, newUser.lastEmail!!.id.value)
-            }
+            val user = User.findById(1)!!
+            val email = Email.findById(1)!!
+            userRepository.setLastEmail(user, email)
+            val newUser = User.findById(1)
+            assertNotNull(newUser)
+            assertNotNull(newUser.lastEmail)
+            assertEquals(email.id.value, newUser.lastEmail!!.id.value)
         }
 
         @Test
-        fun `set last email from not null to null`() {
+        fun `set last email from not null to null`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                UPDATE USERS
+                    SET LAST_EMAIL_ID=1
+                    WHERE ID=1;
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = User.findById(3)!!
-                userRepository.setLastEmail(user, null)
-                val newUser = User.findById(3)
-                assertNotNull(newUser)
-                assertNull(newUser.lastEmail)
-            }
+            val user = User.findById(1)!!
+            userRepository.setLastEmail(user, null)
+            val newUser = User.findById(1)
+            assertNotNull(newUser)
+            assertNull(newUser.lastEmail)
         }
 
         @Test
-        fun `set last email from not null to not null`() {
+        fun `set last email from not null to not null`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                UPDATE USERS
+                    SET LAST_EMAIL_ID=1
+                    WHERE ID=1;
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = User.findById(3)!!
-                val email = Email.findById(4)!!
-                userRepository.setLastEmail(user, email)
-                val newUser = User.findById(3)
-                assertNotNull(newUser)
-                assertNotNull(newUser.lastEmail)
-                assertEquals(email.id.value, newUser.lastEmail!!.id.value)
-            }
+            val user = User.findById(1)!!
+            val email = Email.findById(1)!!
+            userRepository.setLastEmail(user, email)
+            val newUser = User.findById(1)
+            assertNotNull(newUser)
+            assertNotNull(newUser.lastEmail)
+            assertEquals(email.id.value, newUser.lastEmail!!.id.value)
         }
 
         @Test
-        fun `set last email from null to null`() {
+        fun `set last email from null to null`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = User.findById(2)!!
-                userRepository.setLastEmail(user, null)
-                val newUser = User.findById(2)
-                assertNotNull(newUser)
-                assertNull(newUser.lastEmail)
-            }
+            val user = User.findById(1)!!
+            userRepository.setLastEmail(user, null)
+            val newUser = User.findById(1)
+            assertNotNull(newUser)
+            assertNull(newUser.lastEmail)
         }
 
     }
@@ -288,24 +415,41 @@ class UserRepositoryTest : RepositoryTestParent() {
     inner class GetLastEmail {
 
         @Test
-        fun `get last email when null`() {
+        fun `get last email when null`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = User.findById(2)!!
-                val email = userRepository.getLastEmail(user)
-                assertNull(email)
-            }
+            val user = User.findById(1)!!
+            val email = userRepository.getLastEmail(user)
+            assertNull(email)
         }
 
         @Test
-        fun `get last email when not null`() {
+        fun `get last email when not null`() = testTransaction {
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO USERS (USERNAME, SESSION_ID) 
+                    VALUES ('User123', '868f9d04-d1e8-44c9-84d3-2ef3da517d4c');
+                INSERT INTO EMAILS (EMAIL_ADDRESS, USER_ID) 
+                    VALUES ('Email001', 1);
+                UPDATE USERS
+                    SET LAST_EMAIL_ID=1
+                    WHERE ID=1;
+            """.trimIndent()
+            )
             val userRepository = UserRepositoryImpl()
-            testTransaction {
-                val user = User.findById(3)!!
-                val email = userRepository.getLastEmail(user)
-                assertNotNull(email)
-                assertEquals(4, email.id.value)
-            }
+            val user = User.findById(1)!!
+            val email = userRepository.getLastEmail(user)
+            assertNotNull(email)
+            assertEquals(1, email.id.value)
         }
 
     }
