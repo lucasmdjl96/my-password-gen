@@ -28,7 +28,7 @@ class EmailServiceTest : ServiceTestParent() {
     private lateinit var dummySessionId: UUID
     private lateinit var dummyEmailServerDto: EmailServerDto
     private lateinit var dummyUser: User
-    private var dummyEmailId: Int = 0
+    private lateinit var dummyEmailId: UUID
     private lateinit var dummyEmail: Email
 
     @BeforeAll
@@ -42,9 +42,9 @@ class EmailServiceTest : ServiceTestParent() {
     override fun initDummies() {
         dummySessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
         dummyEmailServerDto = EmailServerDto("email@gmail.com")
-        dummyUser = User(EntityID(1, Users))
-        dummyEmailId = 3
-        dummyEmail = Email(EntityID(2, Emails))
+        dummyUser = User(EntityID(UUID.fromString("c26ffe47-d0dd-402c-a692-16552cb039ec"), Users))
+        dummyEmailId = UUID.fromString("b4145017-ce98-439b-91c8-4a6c05ecbcc9")
+        dummyEmail = Email(EntityID(UUID.fromString("7e91ff67-3de2-47bb-970d-9b76ea4c7883"), Emails))
     }
 
     @Nested
@@ -53,6 +53,7 @@ class EmailServiceTest : ServiceTestParent() {
         @Test
         fun `create email when user exists and email doesn't exist yet`() {
             every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser) } returns null
             every {
                 emailRepositoryMock.createAndGetId(
                     dummyEmailServerDto.emailAddress,
@@ -70,6 +71,7 @@ class EmailServiceTest : ServiceTestParent() {
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionServiceMock.getLastUser(dummySessionId)
+                emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
                 emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser)
                 emailRepositoryMock.getById(dummyEmailId)
                 userRepositoryMock.setLastEmail(dummyUser, dummyEmail)
@@ -81,7 +83,12 @@ class EmailServiceTest : ServiceTestParent() {
         @Test
         fun `create email when user exists and email already exists`() {
             every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
-            every { emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser) } returns null
+            every {
+                emailRepositoryMock.getByAddressAndUser(
+                    dummyEmailServerDto.emailAddress,
+                    dummyUser
+                )
+            } returns dummyEmail
             mockTransaction()
 
             val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
@@ -91,13 +98,13 @@ class EmailServiceTest : ServiceTestParent() {
             }
 
             verify(exactly = 0) {
+                emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser)
                 emailRepositoryMock.getById(any())
             }
-
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionServiceMock.getLastUser(dummySessionId)
-                emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser)
+                emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
             }
             verify {
                 userRepositoryMock wasNot Called

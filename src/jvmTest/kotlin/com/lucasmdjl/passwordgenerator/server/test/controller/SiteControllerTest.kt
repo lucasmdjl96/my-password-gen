@@ -46,7 +46,7 @@ class SiteControllerTest : ControllerTestParent() {
     @BeforeEach
     override fun initDummies() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-        dummySite = Site(EntityID(1, Sites))
+        dummySite = Site(EntityID(UUID.fromString("3db7d073-c96b-4a2f-b959-1cdd4eef7e99"), Sites))
         dummySiteServerDto = SiteServerDto("siteAbc")
         dummySiteClientDto = SiteClientDto("Site123")
     }

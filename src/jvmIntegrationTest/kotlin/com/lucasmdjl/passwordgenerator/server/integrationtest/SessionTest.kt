@@ -24,8 +24,17 @@ class SessionTest : TestParent() {
 
         @Test
         fun `create new session when bad cookie`() = testApplication {
-            val oldSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0999")
-            val client = createAndConfigureClientWithCookie(oldSessionId)
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val initSessionId2 = UUID.fromString("f7e628f1-9afe-475a-9c57-9426bd45596d")
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId2)
             val sessionNumber = testTransaction {
                 Sessions.selectAll().count()
             }
@@ -33,7 +42,7 @@ class SessionTest : TestParent() {
             val sessionId = response.getSessionIdFromCookie()
             assertEquals(HttpStatusCode.OK, response.status)
             assertNotNull(sessionId)
-            assertNotEquals(oldSessionId, sessionId)
+            assertNotEquals(initSessionId2, sessionId)
             testTransaction {
                 assertEquals(sessionNumber + 1, Sessions.selectAll().count())
                 val session = Session.findById(sessionId)
@@ -45,6 +54,15 @@ class SessionTest : TestParent() {
 
         @Test
         fun `create new session when no cookie`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
             val client = createAndConfigureClientWithoutCookie()
             val sessionNumber = testTransaction {
                 Sessions.selectAll().count()
@@ -64,22 +82,30 @@ class SessionTest : TestParent() {
 
         @Test
         fun `update session when good cookie`() = testApplication {
-            val oldSessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-            val client = createAndConfigureClientWithCookie(oldSessionId)
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
             var sessionNumber = 0L
-            var oldUsers = emptyList<Int>()
+            var oldUsers = emptyList<UUID>()
             testTransaction {
                 sessionNumber = Sessions.selectAll().count()
-                oldUsers = User.find { Users.sessionId eq oldSessionId }.map { it.id.value }
+                oldUsers = User.find { Users.sessionId eq initSessionId }.map { it.id.value }
             }
             val response = client.put(SessionRoute())
             val sessionId = response.getSessionIdFromCookie()
             assertEquals(HttpStatusCode.OK, response.status)
             assertNotNull(sessionId)
-            assertNotEquals(oldSessionId, sessionId)
+            assertNotEquals(initSessionId, sessionId)
             testTransaction {
                 assertEquals(sessionNumber, Sessions.selectAll().count())
-                assertNull(Session.findById(oldSessionId))
+                assertNull(Session.findById(initSessionId))
                 val session = Session.findById(sessionId)
                 assertNotNull(session)
                 assertNull(session.lastUser)

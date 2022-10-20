@@ -1,9 +1,9 @@
 package com.lucasmdjl.passwordgenerator.server.tables
 
-import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 
-object Users : IntIdTable() {
+object Users : UUIDTable() {
 
     val username = varchar("username", 64)
     var sessionId = reference("session_id", Sessions.id, onDelete = ReferenceOption.CASCADE)

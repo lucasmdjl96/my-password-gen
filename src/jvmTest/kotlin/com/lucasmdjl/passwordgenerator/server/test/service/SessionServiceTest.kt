@@ -49,7 +49,7 @@ class SessionServiceTest : ServiceTestParent() {
         dummySession = Session(EntityID(dummySessionId1, Sessions))
         dummySessionIdNew = UUID.fromString("3c084a2e-b46e-45dd-a08e-cbba4ce17d49")
         dummySessionNew = Session(EntityID(dummySessionIdNew, Sessions))
-        dummyUser = User(EntityID(4, Users))
+        dummyUser = User(EntityID(UUID.fromString("8af39a64-0a75-4334-bf8e-9a30f8124819"), Users))
 
         dummySessionFromId = UUID.fromString("123e4567-e89b-13d2-a456-426614174000")
         dummySessionToId = UUID.fromString("123e4567-eb98-12d3-a456-426614174000")

@@ -32,6 +32,15 @@ class UserTest : TestParent() {
 
             @Test
             fun `login without cookie`() = testApplication {
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                    """.trimIndent()
+                    )
+                }
                 val client = createAndConfigureClientWithoutCookie()
                 val response = client.post(UserRoute.Login()) {
                     setBody(UserServerDto("UserXYZ"))
@@ -42,7 +51,17 @@ class UserTest : TestParent() {
 
             @Test
             fun `login with bad cookie`() = testApplication {
-                val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f9999"))
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initSessionId2 = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId2)
                 val response = client.post(UserRoute.Login()) {
                     setBody(UserServerDto("UserXYZ"))
                     contentType(ContentType.Application.Json)
@@ -56,15 +75,29 @@ class UserTest : TestParent() {
 
             @Test
             fun `login with good cookie and non-existing username`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initUsername2 = "UserXYZ"
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto("UserXYZ"))
+                    setBody(UserServerDto(initUsername2))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
-                    val session = Session.findById(sessionId)
+                    val session = Session.findById(initSessionId)
                     assertNotNull(session)
                     assertNull(session.lastUser)
                 }
@@ -72,15 +105,36 @@ class UserTest : TestParent() {
 
             @Test
             fun `login with good cookie and username from other session`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initSessionId2 = UUID.fromString("87302283-27a9-4823-bca2-2e418fa55081")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUserId2 = UUID.fromString("ae83b738-3bfc-4156-9eec-777a53f2f662")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initUsername2 = "UserXYZ"
+                val initUsername2Encoded = initUsername2.encode()
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId2');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId2', '$initUsername2Encoded', '$initSessionId2');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto("User009"))
+                    setBody(UserServerDto(initUsername2))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
-                    val session = Session.findById(sessionId)
+                    val session = Session.findById(initSessionId)
                     assertNotNull(session)
                     assertNull(session.lastUser)
                 }
@@ -88,26 +142,43 @@ class UserTest : TestParent() {
 
             @Test
             fun `login with good cookie and existing username`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
+                val initEmailId2 = UUID.fromString("cc5ead72-7345-4897-aed7-aad45b3eb2d3")
+                val initEmailAddress = "Email001"
+                val initEmailAddress2 = "Email002"
                 testTransaction {
-                    val user = User.findById(2)!!
-                    user.username = "User002".encode()
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId2', '$initEmailAddress2', '$initUserId');
+                    """.trimIndent()
+                    )
                 }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto("User002"))
+                    setBody(UserServerDto(initUsername))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
-                assertEquals("User002".encode(), responseBody.username)
-                assertEquals(mutableListOf("email002", "email003"), responseBody.emailList)
+                assertEquals(initUsernameEncoded, responseBody.username)
+                assertEquals(mutableListOf(initEmailAddress, initEmailAddress2), responseBody.emailList)
                 testTransaction {
-                    val session = Session.findById(sessionId)
+                    val session = Session.findById(initSessionId)
                     assertNotNull(session)
                     assertNotNull(session.lastUser)
-                    assertEquals(2, session.lastUser!!.id.value)
+                    assertEquals(initUserId, session.lastUser!!.id.value)
                 }
             }
         }
@@ -122,6 +193,15 @@ class UserTest : TestParent() {
 
             @Test
             fun `register without cookie`() = testApplication {
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                    """.trimIndent()
+                    )
+                }
                 val client = createAndConfigureClientWithoutCookie()
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
@@ -138,7 +218,17 @@ class UserTest : TestParent() {
 
             @Test
             fun `register with bad cookie`() = testApplication {
-                val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f9999"))
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initSessionId2 = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId2)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
@@ -158,83 +248,125 @@ class UserTest : TestParent() {
 
             @Test
             fun `register with good cookie and non-existing username`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initUsername2 = "UserXYZ"
+                val initUsername2Encoded = initUsername2.encode()
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
                 val response = client.post(UserRoute.Register()) {
-                    setBody(UserServerDto("UserXYZ"))
+                    setBody(UserServerDto(initUsername2))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
-                assertEquals("UserXYZ".encode(), responseBody.username)
+                assertEquals(initUsername2Encoded, responseBody.username)
                 assertEquals(mutableListOf(), responseBody.emailList)
                 testTransaction {
                     assertEquals(usersBefore + 1, Users.selectAll().count())
-                    val user = User.find { Users.sessionId eq sessionId and (Users.username eq "UserXYZ".encode()) }
+                    val user =
+                        User.find { Users.sessionId eq initSessionId and (Users.username eq initUsername2Encoded) }
                     assertTrue(user.count() == 1L)
                     assertNotNull(user.first())
                     assertNull(user.first().lastEmail)
-                    val session = Session.findById(sessionId)
+                    val session = Session.findById(initSessionId)
                     assertNotNull(session)
                     assertNotNull(session.lastUser)
-                    assertEquals("UserXYZ".encode(), session.lastUser!!.username)
-                    assertEquals(sessionId, session.lastUser!!.session.id.value)
+                    assertEquals(initUsername2Encoded, session.lastUser!!.username)
+                    assertEquals(initSessionId, session.lastUser!!.session.id.value)
                 }
             }
 
             @Test
             fun `register with good cookie and username from other session`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initSessionId2 = UUID.fromString("2a81c217-52e8-4ee3-aace-95e8462ccf70")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId2');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId2)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
                 val response = client.post(UserRoute.Register()) {
-                    setBody(UserServerDto("User009"))
+                    setBody(UserServerDto(initUsername))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
-                assertEquals("User009".encode(), responseBody.username)
+                assertEquals(initUsernameEncoded, responseBody.username)
                 assertEquals(mutableListOf(), responseBody.emailList)
                 testTransaction {
                     assertEquals(usersBefore + 1, Users.selectAll().count())
-                    val user = User.find { Users.sessionId eq sessionId and (Users.username eq "User009".encode()) }
+                    val user =
+                        User.find { Users.sessionId eq initSessionId2 and (Users.username eq initUsernameEncoded) }
                     assertTrue(user.count() == 1L)
                     assertNotNull(user.first())
                     assertNull(user.first().lastEmail)
-                    val session = Session.findById(sessionId)
+                    val session = Session.findById(initSessionId2)
                     assertNotNull(session)
                     assertNotNull(session.lastUser)
-                    assertEquals("User009".encode(), session.lastUser!!.username)
-                    assertEquals(sessionId, session.lastUser!!.session.id.value)
+                    assertEquals(initUsernameEncoded, session.lastUser!!.username)
+                    assertEquals(initSessionId2, session.lastUser!!.session.id.value)
                 }
             }
 
             @Test
             fun `register with good cookie and existing username`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0001")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
                 testTransaction {
-                    val user = User.findById(2)!!
-                    user.username = "User002".encode()
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                    """.trimIndent()
+                    )
                 }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
                 val response = client.post(UserRoute.Register()) {
-                    setBody(UserServerDto("User002"))
+                    setBody(UserServerDto(initUsername))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.Conflict, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
-                    val session = Session.findById(sessionId)
+                    val session = Session.findById(initSessionId)
                     assertNotNull(session)
                     assertNull(session.lastUser)
                 }
@@ -250,6 +382,15 @@ class UserTest : TestParent() {
 
             @Test
             fun `logout without cookie`() = testApplication {
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                    """.trimIndent()
+                    )
+                }
                 val client = createAndConfigureClientWithoutCookie()
                 val response = client.patch(UserRoute.Logout()) {
                     setBody(UserServerDto("UserXYZ"))
@@ -260,7 +401,17 @@ class UserTest : TestParent() {
 
             @Test
             fun `logout with bad cookie`() = testApplication {
-                val client = createAndConfigureClientWithCookie(UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f9999"))
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initSessionId2 = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId2)
                 val response = client.patch(UserRoute.Logout()) {
                     setBody(UserServerDto("UserXYZ"))
                     contentType(ContentType.Application.Json)
@@ -275,68 +426,167 @@ class UserTest : TestParent() {
 
             @Test
             fun `logout with good cookie and last username`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initEmailId = UUID.fromString("d962f6d5-4758-44f4-80dc-fcf5edf31d33")
+                val initEmailAddress = "Email001"
                 testTransaction {
-                    val user = User.findById(6)!!
-                    user.username = "User006".encode()
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        UPDATE SESSIONS
+                            SET LAST_USER_ID = '$initUserId'
+                            WHERE ID = '$initSessionId';
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                        UPDATE USERS
+                            SET LAST_EMAIL_ID = '$initEmailId'
+                            WHERE ID = '$initUserId';
+                    """.trimIndent()
+                    )
                 }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
                 val response = client.patch(UserRoute.Logout()) {
-                    setBody(UserServerDto("User006".encode()))
+                    setBody(UserServerDto(initUsername))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
-                    assertNull(Session.findById(sessionId)!!.lastUser)
-                    assertNull(User.findById(6)!!.lastEmail)
+                    assertNull(Session.findById(initSessionId)!!.lastUser)
+                    assertNull(User.findById(initUserId)!!.lastEmail)
                 }
             }
 
             @Test
             fun `logout with good cookie and username not last`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initUserId2 = UUID.fromString("9c1dc390-30c4-4b3a-b1fd-5b99bac62c53")
+                val initUsername2 = "UserXYZ"
+                val initUsername2Encoded = initUsername2.encode()
+                val initEmailId = UUID.fromString("d962f6d5-4758-44f4-80dc-fcf5edf31d33")
+                val initEmailAddress = "Email001"
                 testTransaction {
-                    val user = User.findById(6)!!
-                    user.username = "User006".encode()
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId2', '$initUsername2Encoded', '$initSessionId');
+                        UPDATE SESSIONS
+                            SET LAST_USER_ID = '$initUserId'
+                            WHERE ID = '$initSessionId';
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                        UPDATE USERS
+                            SET LAST_EMAIL_ID = '$initEmailId'
+                            WHERE ID = '$initUserId';
+                    """.trimIndent()
+                    )
                 }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
                 val response = client.patch(UserRoute.Logout()) {
-                    setBody(UserServerDto("User007".encode()))
+                    setBody(UserServerDto(initUsername2Encoded))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
-                    assertNotNull(Session.findById(sessionId)!!.lastUser)
+                    assertNotNull(Session.findById(initSessionId)!!.lastUser)
+                }
+            }
+
+            @Test
+            fun `logout with good cookie and no last user`() = testApplication {
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initEmailId = UUID.fromString("d962f6d5-4758-44f4-80dc-fcf5edf31d33")
+                val initEmailAddress = "Email001"
+                testTransaction {
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    """.trimIndent()
+                    )
+                }
+                val client = createAndConfigureClientWithCookie(initSessionId)
+                val usersBefore = testTransaction {
+                    Users.selectAll().count()
+                }
+                val response = client.patch(UserRoute.Logout()) {
+                    setBody(UserServerDto(initUsernameEncoded))
+                    contentType(ContentType.Application.Json)
+                }
+                assertEquals(HttpStatusCode.NotFound, response.status)
+                testTransaction {
+                    assertEquals(usersBefore, Users.selectAll().count())
+                    assertNull(Session.findById(initSessionId)!!.lastUser)
                 }
             }
 
             @Test
             fun `logout with good cookie and non-existing username`() = testApplication {
-                val sessionId = UUID.fromString("757f2ad6-aa06-4403-aea3-d5e6cb9f0002")
-                val client = createAndConfigureClientWithCookie(sessionId)
+                val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+                val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+                val initUsername = "User123"
+                val initUsernameEncoded = initUsername.encode()
+                val initUsername2 = "UserABC"
+                val initUsername2Encoded = initUsername2.encode()
+                val initEmailId = UUID.fromString("d962f6d5-4758-44f4-80dc-fcf5edf31d33")
+                val initEmailAddress = "Email001"
                 testTransaction {
-                    val user = User.findById(6)!!
-                    user.username = "User006".encode()
+                    exec(
+                        """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        UPDATE SESSIONS
+                            SET LAST_USER_ID = '$initUserId'
+                            WHERE ID = '$initSessionId';
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                        UPDATE USERS
+                            SET LAST_EMAIL_ID = '$initEmailId'
+                            WHERE ID = '$initUserId';
+                    """.trimIndent()
+                    )
                 }
+                val client = createAndConfigureClientWithCookie(initSessionId)
                 val usersBefore = testTransaction {
                     Users.selectAll().count()
                 }
                 val response = client.patch(UserRoute.Logout()) {
-                    setBody(UserServerDto("UserXYZ".encode()))
+                    setBody(UserServerDto(initUsername2Encoded))
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     assertEquals(usersBefore, Users.selectAll().count())
-                    assertNotNull(Session.findById(sessionId)!!.lastUser)
+                    assertNotNull(Session.findById(initSessionId)!!.lastUser)
                 }
             }
         }

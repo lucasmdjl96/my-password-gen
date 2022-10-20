@@ -6,21 +6,22 @@ import com.lucasmdjl.passwordgenerator.server.repository.SiteRepository
 import com.lucasmdjl.passwordgenerator.server.tables.Sites
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertIgnoreAndGetId
+import org.jetbrains.exposed.sql.insertAndGetId
+import java.util.*
 
 private val logger = KotlinLogging.logger("SiteRepositoryImpl")
 
 class SiteRepositoryImpl : SiteRepository {
 
-    override fun createAndGetId(siteName: String, email: Email): Int? {
+    override fun createAndGetId(siteName: String, email: Email): UUID {
         logger.debug { "createAndGetId" }
-        return Sites.insertIgnoreAndGetId {
+        return Sites.insertAndGetId {
             it[this.siteName] = siteName
             it[this.emailId] = email.id
-        }?.value
+        }.value
     }
 
-    override fun getById(id: Int): Site? {
+    override fun getById(id: UUID): Site? {
         logger.debug { "getById" }
         return Site.findById(id)
     }

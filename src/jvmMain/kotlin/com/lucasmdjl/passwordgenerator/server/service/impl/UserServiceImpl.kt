@@ -18,7 +18,8 @@ class UserServiceImpl(private val userRepository: UserRepository, private val se
     override fun create(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }
         val username = userServerDto.username
-        val id = userRepository.createAndGetId(username, sessionId) ?: throw DataConflictException()
+        if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException()
+        val id = userRepository.createAndGetId(username, sessionId)
         val user = userRepository.getById(id) ?: throw DataNotFoundException()
         sessionService.setLastUser(sessionId, user)
         user
@@ -34,10 +35,10 @@ class UserServiceImpl(private val userRepository: UserRepository, private val se
 
     override fun logout(userServerDto: UserServerDto, sessionId: UUID): Unit = transaction {
         logger.debug { "logout" }
-        val user = find(userServerDto, sessionId)
+        val user = sessionService.getLastUser(sessionId) ?: throw DataNotFoundException()
+        if (user.username != userServerDto.username) throw DataNotFoundException()
         userRepository.setLastEmail(user, null)
         sessionService.setLastUser(sessionId, null)
-
     }
 
 }

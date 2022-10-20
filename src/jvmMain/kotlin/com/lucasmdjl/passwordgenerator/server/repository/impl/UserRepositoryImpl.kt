@@ -6,7 +6,7 @@ import com.lucasmdjl.passwordgenerator.server.repository.UserRepository
 import com.lucasmdjl.passwordgenerator.server.tables.Users
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertIgnoreAndGetId
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.update
 import java.util.*
 
@@ -14,15 +14,15 @@ private val logger = KotlinLogging.logger("UserRepositoryImpl")
 
 class UserRepositoryImpl : UserRepository {
 
-    override fun createAndGetId(username: String, sessionId: UUID): Int? {
+    override fun createAndGetId(username: String, sessionId: UUID): UUID {
         logger.debug { "createAndGetId" }
-        return Users.insertIgnoreAndGetId {
+        return Users.insertAndGetId {
             it[this.username] = username
             it[this.sessionId] = sessionId
-        }?.value
+        }.value
     }
 
-    override fun getById(id: Int): User? {
+    override fun getById(id: UUID): User? {
         logger.debug { "getById" }
         return User.findById(id)
     }

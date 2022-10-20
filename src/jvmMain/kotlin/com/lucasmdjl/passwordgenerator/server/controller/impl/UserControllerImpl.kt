@@ -39,7 +39,7 @@ class UserControllerImpl(
 
     override suspend fun patch(call: ApplicationCall, userRoute: UserRoute.Logout) {
         val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
-        val userServerDto = call.receive<UserServerDto>()
+        val userServerDto = call.receive<UserServerDto>().encode()
         userService.logout(userServerDto, sessionId)
         call.respond(HttpStatusCode.OK)
     }

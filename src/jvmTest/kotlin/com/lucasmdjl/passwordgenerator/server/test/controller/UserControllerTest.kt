@@ -44,7 +44,7 @@ class UserControllerTest : ControllerTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummyUser = User(EntityID(1, Users))
+        dummyUser = User(EntityID(UUID.fromString("cff48f5f-5b1c-4336-ae25-c80de052f8cf"), Users))
         dummyUserClientDto = UserClientDto("userClient123", mutableListOf("email1", "email2"))
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyUserServerDto = UserServerDto("userServer123")
@@ -193,7 +193,9 @@ class UserControllerTest : ControllerTestParent() {
         @Test
         fun `logout user`() = runBlocking {
             mockCall(callMock, dummySessionDto, dummyUserServerDto)
-            every { userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId) } just Runs
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
+            every { userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId) } just Runs
 
             val userController = UserControllerImpl(userServiceMock, userMapperMock)
 
@@ -201,13 +203,43 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto
-                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
+                dummyUserServerDto.encode()
+                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(HttpStatusCode.OK)
+            }
+
+        }
+
+        @Test
+        fun `logout user when bad data`() = runBlocking {
+            mockCall(callMock, dummySessionDto, dummyUserServerDto)
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
+            every {
+                userServiceMock.logout(
+                    dummyEncodedUserServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataNotFoundException()
+
+            val userController = UserControllerImpl(userServiceMock, userMapperMock)
+
+            assertThrows<DataNotFoundException> {
+                userController.patch(callMock, UserRoute.Logout())
+            }
+
+            coVerifyOrder {
+                callMock.sessions.get<SessionDto>()
+                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+            }
+            coVerifyOrder {
+                callMock.receive<UserServerDto>()
+                dummyUserServerDto.encode()
+                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
             }
 
         }

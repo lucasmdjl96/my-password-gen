@@ -5,8 +5,9 @@ import com.lucasmdjl.passwordgenerator.server.tables.Sites
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import java.util.*
 
-class Email(id: EntityID<Int>) : Entity<Int>(id) {
+class Email(id: EntityID<UUID>) : Entity<UUID>(id) {
 
     var emailAddress by Emails.emailAddress
     var user by User referencedOn Emails.userId
@@ -16,6 +17,6 @@ class Email(id: EntityID<Int>) : Entity<Int>(id) {
         return "[Email#${id.value}: $emailAddress]"
     }
 
-    companion object : EntityClass<Int, Email>(Emails)
+    companion object : EntityClass<UUID, Email>(Emails)
 
 }

@@ -24,7 +24,8 @@ class EmailServiceImpl(
         logger.debug { "create" }
         val (emailAddress) = emailServerDto
         val user = sessionService.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        val id = emailRepository.createAndGetId(emailAddress, user) ?: throw DataConflictException()
+        if (emailRepository.getByAddressAndUser(emailAddress, user) != null) throw DataConflictException()
+        val id = emailRepository.createAndGetId(emailAddress, user)
         val email = emailRepository.getById(id) ?: throw DataNotFoundException()
         userRepository.setLastEmail(user, email)
         email

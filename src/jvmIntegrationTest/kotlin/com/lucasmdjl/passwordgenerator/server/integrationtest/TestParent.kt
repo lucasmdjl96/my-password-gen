@@ -21,8 +21,8 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
@@ -48,19 +48,13 @@ abstract class TestParent {
     fun installTestDatabase() {
         database =
             Database.connect(postgres.jdbcUrl, postgres.driverClassName, postgres.username, postgres.password)
-        transaction(database) {
-            SchemaUtils.drop(Sessions, Users, Emails, Sites)
-            SchemaUtils.create(Sessions, Users, Emails, Sites)
-            exec(this::class.java.classLoader.getResource("testDatabaseInit.sql")!!.readText())
-        }
     }
 
-    @AfterEach
+    @BeforeEach
     fun reinitializeDatabase() {
         transaction(database) {
             SchemaUtils.drop(Sessions, Users, Emails, Sites)
             SchemaUtils.create(Sessions, Users, Emails, Sites)
-            exec(this::class.java.classLoader.getResource("testDatabaseInit.sql")!!.readText())
         }
     }
 

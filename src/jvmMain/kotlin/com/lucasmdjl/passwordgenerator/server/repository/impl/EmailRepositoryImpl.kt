@@ -6,21 +6,22 @@ import com.lucasmdjl.passwordgenerator.server.repository.EmailRepository
 import com.lucasmdjl.passwordgenerator.server.tables.Emails
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertIgnoreAndGetId
+import org.jetbrains.exposed.sql.insertAndGetId
+import java.util.*
 
 private val logger = KotlinLogging.logger("EmailRepositoryImpl")
 
 class EmailRepositoryImpl : EmailRepository {
 
-    override fun createAndGetId(emailAddress: String, user: User): Int? {
+    override fun createAndGetId(emailAddress: String, user: User): UUID {
         logger.debug { "createAndGetId" }
-        return Emails.insertIgnoreAndGetId {
+        return Emails.insertAndGetId {
             it[this.emailAddress] = emailAddress
             it[this.userId] = user.id
-        }?.value
+        }.value
     }
 
-    override fun getById(id: Int): Email? {
+    override fun getById(id: UUID): Email? {
         logger.debug { "getById" }
         return Email.findById(id)
     }

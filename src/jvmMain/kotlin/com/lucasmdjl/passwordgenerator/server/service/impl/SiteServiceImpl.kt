@@ -25,7 +25,8 @@ class SiteServiceImpl(
         val (siteName) = siteServerDto
         val user = sessionService.getLastUser(sessionId) ?: throw NotEnoughInformationException()
         val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException()
-        val id = siteRepository.createAndGetId(siteName, email) ?: throw DataConflictException()
+        if (siteRepository.getByNameAndEmail(siteName, email) != null) throw DataConflictException()
+        val id = siteRepository.createAndGetId(siteName, email)
         siteRepository.getById(id) ?: throw DataNotFoundException()
     }
 

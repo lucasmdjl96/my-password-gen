@@ -43,7 +43,7 @@ class EmailControllerTest : ControllerTestParent() {
     @BeforeEach
     override fun initDummies() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-        dummyEmail = Email(EntityID(1, Emails))
+        dummyEmail = Email(EntityID(UUID.fromString("60a1ec64-374e-4b13-be94-e70d61cec48d"), Emails))
         dummyEmailServerDto = EmailServerDto("email@email.com")
         dummyEmailClientDto = EmailClientDto("gmail@email.com", mutableListOf("site1", "site2"))
     }
