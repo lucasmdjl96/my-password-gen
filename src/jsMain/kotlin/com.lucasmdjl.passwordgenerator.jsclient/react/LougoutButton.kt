@@ -16,6 +16,7 @@ val LogoutButton = FC<LogoutButtonProps> { props ->
         className = CssClasses.logoutContainer
         button {
             className = CssClasses.logOut
+            id = "logout"
             span {
                 className = CssClasses.materialIcon
                 +"logout"

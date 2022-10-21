@@ -1,6 +1,8 @@
 package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
+import kotlinx.browser.document
+import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.html.InputType
@@ -23,10 +25,22 @@ val Password = FC<PasswordProps> { props ->
         onChange = {
             props.onChange(it.target.value)
         }
+        onKeyDown = { event ->
+            if (!event.ctrlKey && event.key == "Enter") {
+                val buttonId = if (event.altKey) "register" else "logIn"
+                (document.getElementById(buttonId)!! as HTMLElement).click()
+            } else if (event.ctrlKey && event.key == "s") {
+                event.preventDefault()
+                (document.getElementById("showPassword")!! as HTMLElement).click()
+            } else if (event.ctrlKey && event.key == "ArrowUp") {
+                (document.getElementById("username")!! as HTMLElement).focus()
+            }
+        }
     }
     span {
         className = CssClasses.materialIcon
         +if (visible) "visibility_off" else "visibility"
+        id = "showPassword"
         onClick = {
             visible = !visible
         }

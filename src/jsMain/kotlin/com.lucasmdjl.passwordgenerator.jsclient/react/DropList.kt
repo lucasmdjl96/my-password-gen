@@ -2,8 +2,10 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import kotlinx.coroutines.MainScope
+import org.w3c.dom.HTMLInputElement
 import react.FC
 import react.Props
+import react.dom.events.KeyboardEvent
 import react.dom.html.AutoComplete
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
@@ -25,6 +27,8 @@ external interface DropListProps : Props {
     var disableAdd: Boolean
     var doOnAdd: (String) -> Unit
     var doOnRemove: (String) -> Unit
+    var doOnEnter: (KeyboardEvent<HTMLInputElement>) -> Unit
+    var autoFocus: Boolean
 }
 
 val DropList = FC<DropListProps> { props ->
@@ -34,6 +38,7 @@ val DropList = FC<DropListProps> { props ->
         className = CssClasses.inputContainer
         button {
             className = CssClasses.removeButton
+            id = "${props.name}Remove"
             disabled = !props.disableAdd || inputValue == ""
             span {
                 className = CssClasses.materialIcon
@@ -56,9 +61,13 @@ val DropList = FC<DropListProps> { props ->
             placeholder = props.name.replaceFirstChar { it.uppercaseChar() }
             autoComplete = AutoComplete.off
             value = inputValue
+            autoFocus = props.autoFocus
             onChange = { event ->
                 inputValue = event.target.value
                 props.doOnChange(event.target.value)
+            }
+            onKeyDown = { event ->
+                props.doOnEnter(event)
             }
         }
         datalist {
@@ -72,6 +81,7 @@ val DropList = FC<DropListProps> { props ->
         }
         button {
             className = CssClasses.addButton
+            id = "${props.name}Add"
             disabled = props.disableAdd || inputValue == ""
             +"Add"
             onClick = {

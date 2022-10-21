@@ -31,6 +31,7 @@ val Generator = FC<GeneratorProps> { props ->
         className = CssClasses.buttonContainer
         button {
             +"Generate Password"
+            id = "passwordGenerator"
             disabled = props.siteName == null
             onClick = {
                 scope.launch {
@@ -55,6 +56,7 @@ val Generator = FC<GeneratorProps> { props ->
                     className = CssClasses.materialIcon
                     +"content_copy"
                 }
+                id = "copyButton"
                 onClick = {
                     clipboard.writeText(props.password!!)
                     showPopup = true

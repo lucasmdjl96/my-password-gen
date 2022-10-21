@@ -39,6 +39,7 @@ val OnlineToggle = FC<OnlineToggleProps> { props ->
             span {
                 className = CssClasses.materialIconOutlined
                 +if (props.online) "toggle_on" else "toggle_off"
+                id = "onlineToggle"
                 onClick = {
                     if (props.cookiesAccepted == true) {
                         val newOnline = !props.online

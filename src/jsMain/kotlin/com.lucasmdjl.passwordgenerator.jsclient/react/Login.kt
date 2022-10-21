@@ -2,6 +2,8 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
+import kotlinx.browser.document
+import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.html.AutoComplete
@@ -35,8 +37,16 @@ val Login = FC<LoginProps> { props ->
             autoComplete = AutoComplete.username
             type = InputType.text
             value = username
+            autoFocus = true
             onChange = {
                 username = it.target.value
+            }
+            onKeyDown = { event ->
+                if (!event.ctrlKey && event.key == "Enter") {
+                    (document.getElementById("password")!! as HTMLElement).focus()
+                } else if (event.ctrlKey && event.key == "ArrowDown") {
+                    (document.getElementById("password")!! as HTMLElement).focus()
+                }
             }
         }
     }
@@ -58,12 +68,14 @@ val Login = FC<LoginProps> { props ->
         className = CssClasses.buttonContainer
         button {
             +"Log in"
+            id = "logIn"
             onClick = {
                 props.onLogin(LoginDto(username, password))
             }
         }
         button {
             +"Register"
+            id = "register"
             onClick = {
                 props.onRegister(LoginDto(username, password))
             }

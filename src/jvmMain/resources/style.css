@@ -303,6 +303,22 @@ input + .material-icons {
     background-color: hsla(0, 0%, 2%, 1);
 }
 
+.foot {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+.foot a {
+    color: hsl(0, 100%, 100%);
+    margin: 2rem;
+    font-size: 1.6rem;
+}
+
 @media (hover: none) {
     .buttonContainer button:hover {
         background-color: hsl(181, 100%, 41%);
@@ -391,5 +407,11 @@ input + .material-icons {
 @media screen and (max-height: 400px) {
     .buttonContainer {
         margin: 0;
+    }
+}
+
+@media screen and (orientation: landscape) {
+    .foot {
+        flex-direction: column;
     }
 }

@@ -12,7 +12,9 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.browser.document
 import kotlinx.coroutines.launch
+import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.html.InputType
@@ -35,6 +37,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.name = "email"
         this.inputType = InputType.email
         this.list = props.userClientDto.emailList
+        this.autoFocus = true
         this.doOnChange = { emailAddress ->
             if (props.online) {
                 emailClientDto = null
@@ -83,12 +86,24 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 }
             }
         }
+        this.doOnEnter = { event ->
+            if (event.key == "Enter" && emailClientDto == null) {
+                (document.getElementById("emailAdd")!! as HTMLElement).click()
+            } else if (event.key == "Enter" && emailClientDto != null) {
+                (document.getElementById("site")!! as HTMLElement).focus()
+            } else if (event.ctrlKey && event.key == "Delete") {
+                (document.getElementById("emailRemove")!! as HTMLElement).click()
+            } else if (event.ctrlKey && event.key == "ArrowDown") {
+                (document.getElementById("site")!! as HTMLElement).focus()
+            }
+        }
     }
     if (emailClientDto != null) {
         DropList {
             this.name = "site"
             this.inputType = InputType.text
             this.list = emailClientDto!!.siteList
+            this.autoFocus = false
             this.doOnChange = { siteName ->
                 siteClientDto = null
                 password = null
@@ -122,6 +137,19 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                             emailClientDto!!.addSite(siteName)
                         }
                     }
+                }
+            }
+            this.doOnEnter = { event ->
+                if (event.key == "Enter" && siteClientDto == null) {
+                    (document.getElementById("siteAdd")!! as HTMLElement).click()
+                } else if (event.key == "Enter" && siteClientDto != null) {
+                    (document.getElementById("passwordGenerator")!! as HTMLElement).click()
+                } else if (event.ctrlKey && event.key == "c") {
+                    (document.getElementById("copyButton")!! as HTMLElement).click()
+                } else if (event.ctrlKey && event.key == "ArrowUp") {
+                    (document.getElementById("email")!! as HTMLElement).focus()
+                } else if (event.ctrlKey && event.key == "Delete") {
+                    (document.getElementById("siteRemove")!! as HTMLElement).click()
                 }
             }
         }

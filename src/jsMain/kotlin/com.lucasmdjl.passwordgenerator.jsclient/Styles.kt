@@ -49,6 +49,8 @@ object CssClasses {
     val cookieText = ClassName("cookieText")
 
     val cookieButtonContainer = ClassName("cookieButtonContainer")
+
+    val foot = ClassName("foot")
 }
 
 @Suppress("NOTHING_TO_INLINE")
