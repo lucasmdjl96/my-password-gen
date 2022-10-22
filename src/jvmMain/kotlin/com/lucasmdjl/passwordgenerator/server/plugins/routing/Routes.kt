@@ -22,6 +22,7 @@ fun Application.installRoutes() {
         mainRoute()
         sessionRoutes()
         cookieRoutes()
+        aboutRoute()
         authenticate("session-auth") {
             userRoutes()
             emailRoutes()

@@ -51,6 +51,7 @@ fun Application.installKoin() {
             singleOf(::SiteControllerImpl) { bind<SiteController>() }
             singleOf(::MainControllerImpl) { bind<MainController>() }
             singleOf(::CookieControllerImpl) { bind<CookieController>() }
+            singleOf(::AboutControllerImpl) { bind<AboutController>() }
 
             singleOf(::SessionMapperImpl) { bind<SessionMapper>() }
             singleOf(::UserMapperImpl) { bind<UserMapper>() }

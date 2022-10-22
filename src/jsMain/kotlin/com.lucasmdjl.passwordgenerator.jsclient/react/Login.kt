@@ -68,7 +68,7 @@ val Login = FC<LoginProps> { props ->
         className = CssClasses.buttonContainer
         button {
             +"Log in"
-            id = "logIn"
+            id = "login"
             onClick = {
                 props.onLogin(LoginDto(username, password))
             }

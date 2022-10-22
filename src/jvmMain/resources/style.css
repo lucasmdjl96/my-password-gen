@@ -216,6 +216,11 @@
 
 .material-icons {
     font-size: 2.4rem;
+    user-select: none;
+}
+
+.material-icons-outlined {
+    user-select: none;
 }
 
 .popupContainer {

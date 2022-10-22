@@ -27,7 +27,7 @@ val Password = FC<PasswordProps> { props ->
         }
         onKeyDown = { event ->
             if (!event.ctrlKey && event.key == "Enter") {
-                val buttonId = if (event.altKey) "register" else "logIn"
+                val buttonId = if (event.altKey) "register" else "login"
                 (document.getElementById(buttonId)!! as HTMLElement).click()
             } else if (event.ctrlKey && event.key == "s") {
                 event.preventDefault()

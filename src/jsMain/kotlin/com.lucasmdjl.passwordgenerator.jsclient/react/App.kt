@@ -2,26 +2,22 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
-import com.lucasmdjl.passwordgenerator.common.routes.CookieRoute
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
 import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
-import com.lucasmdjl.passwordgenerator.jsclient.resourcesFormat
 import csstype.Color
 import emotion.react.css
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.resources.*
 import kotlinx.browser.document
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
-import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.main
 import react.useState
@@ -116,17 +112,7 @@ val App = { initialState: InitialState ->
                     this.dismiss = { showCookieBanner = false }
                 }
             } else {
-                div {
-                    className = CssClasses.foot
-                    a {
-                        href = "#"
-                        +"About"
-                    }
-                    a {
-                        href = href(resourcesFormat, CookieRoute.Policy())
-                        +"Privacy policy"
-                    }
-                }
+                Foot {}
             }
         }
     }
