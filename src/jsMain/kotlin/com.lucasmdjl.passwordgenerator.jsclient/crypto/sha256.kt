@@ -21,12 +21,13 @@ external class TextEncoder {
 
 suspend fun sha256(message: String): String {
     val msgBuffer = TextEncoder().encode(message)
-    return Crypto.Subtle.digest("SHA-256", msgBuffer).then {
+    return Crypto.Subtle.digest("SHA-512", msgBuffer).then {
         val hashArray = Uint8Array(it).unsafeCast<IntArray>()
         var binaryString = ""
         for (byte in hashArray) {
             binaryString += byte.toChar()
         }
-        return@then btoa(binaryString).replace('/', '_').replace('+', '-')
+        val truncatedBinaryString = binaryString.substring(0..31)
+        return@then btoa(truncatedBinaryString).replace('/', '_').replace('+', '-')
     }.await()
 }
