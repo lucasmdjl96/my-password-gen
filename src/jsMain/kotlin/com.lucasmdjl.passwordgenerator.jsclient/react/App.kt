@@ -16,6 +16,7 @@ import io.ktor.http.*
 import kotlinx.browser.document
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.EventTarget
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.div
@@ -30,6 +31,12 @@ val App = { initialState: InitialState ->
         var background by useState(initialState.initialBackgroundColor)
         var cookiesAccepted by useState(initialState.cookiesAccepted)
         var showCookieBanner by useState(initialState.cookiesAccepted == null)
+        var keyboardUp by useState(false)
+
+        Window.visualViewport.addEventListener("resize", {
+            keyboardUp = Window.visualViewport.height < 500 && Window.visualViewport.width < 500
+        })
+
 
         div {
             css(CssClasses.background) {
@@ -111,7 +118,7 @@ val App = { initialState: InitialState ->
                     this.updateCookie = { accepted -> cookiesAccepted = accepted }
                     this.dismiss = { showCookieBanner = false }
                 }
-            } else {
+            } else if (!keyboardUp) {
                 Foot {}
             }
         }
@@ -146,4 +153,16 @@ suspend fun logoutUser(username: String) {
             setBody(UserServerDto(username))
         }
     }
+}
+
+abstract external class VisualViewport : EventTarget {
+    var height: Int
+    var width: Int
+}
+
+@JsName("window")
+external object Window {
+
+    val visualViewport: VisualViewport
+
 }

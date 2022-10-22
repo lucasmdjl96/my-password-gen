@@ -6,7 +6,8 @@ import io.ktor.http.*
 
 fun HttpClientConfig<*>.installDefaultRequest() {
     install(DefaultRequest) {
-        host = "localhost"
+        //host = "localhost"
+        host = "192.168.2.88"
         port = 8443
         url { protocol = URLProtocol.HTTPS }
     }

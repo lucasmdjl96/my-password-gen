@@ -34,7 +34,7 @@ val Login = FC<LoginProps> { props ->
         input {
             id = "username"
             placeholder = "Username"
-            autoComplete = AutoComplete.username
+            autoComplete = AutoComplete.off
             type = InputType.text
             value = username
             autoFocus = true
