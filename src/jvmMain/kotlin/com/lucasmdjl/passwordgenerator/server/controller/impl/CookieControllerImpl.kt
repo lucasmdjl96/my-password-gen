@@ -19,14 +19,14 @@ class CookieControllerImpl(private val sessionService: SessionService) :
             call.sessions.clear<SessionDto>()
         }
         call.respondText(
-            this::class.java.classLoader.getResource("opt-out.html")!!.readText(),
+            this::class.java.classLoader.getResource("html/opt-out.html")!!.readText(),
             ContentType.Text.Html
         )
     }
 
     override suspend fun get(call: ApplicationCall, cookieRoute: CookieRoute.Policy) {
         call.respondText(
-            this::class.java.classLoader.getResource("policy.html")!!.readText(),
+            this::class.java.classLoader.getResource("html/policy.html")!!.readText(),
             ContentType.Text.Html
         )
     }

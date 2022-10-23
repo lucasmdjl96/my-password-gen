@@ -10,7 +10,7 @@ class MainControllerImpl : MainController {
 
     override suspend fun get(call: ApplicationCall, mainRoute: MainRoute) {
         call.respondText(
-            this::class.java.classLoader.getResource("index.html")!!.readText(),
+            this::class.java.classLoader.getResource("html/index.html")!!.readText(),
             ContentType.Text.Html
         )
     }

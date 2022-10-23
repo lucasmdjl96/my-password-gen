@@ -10,7 +10,7 @@ class AboutControllerImpl : AboutController {
 
     override suspend fun get(call: ApplicationCall, aboutRoute: AboutRoute) {
         call.respondText(
-            this::class.java.classLoader.getResource("about.html")!!.readText(),
+            this::class.java.classLoader.getResource("html/about.html")!!.readText(),
             ContentType.Text.Html
         )
     }
