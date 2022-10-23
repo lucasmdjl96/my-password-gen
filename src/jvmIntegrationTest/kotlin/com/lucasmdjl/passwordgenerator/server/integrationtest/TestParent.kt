@@ -122,7 +122,6 @@ fun Application.module() {
     installCompression()
     installSessions()
     installAuthentication()
-    installHttpsRedirect()
     installResources()
     installStatusPages()
     installRoutes()

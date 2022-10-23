@@ -2,7 +2,6 @@ ktor:
   development: true
   deployment:
     environment:
-      port: 8080
       host: localhost
       sslPort: 8443
   application:

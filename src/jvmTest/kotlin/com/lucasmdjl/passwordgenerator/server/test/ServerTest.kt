@@ -15,7 +15,6 @@ fun Application.module() {
     installCompression()
     installSessions()
     installAuthentication()
-    installHttpsRedirect()
     installStatusPages()
     installResources()
     installRoutes()
