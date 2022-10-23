@@ -6,12 +6,12 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
+import react.dom.aria.ariaLabel
 import react.dom.html.AutoComplete
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
-import react.dom.html.ReactHTML.label
 import react.useState
 
 external interface LoginProps : Props {
@@ -26,14 +26,10 @@ val Login = FC<LoginProps> { props ->
 
     div {
         className = CssClasses.inputContainer
-        label {
-            +"Username"
-            htmlFor = "username"
-            hidden = true
-        }
         input {
             id = "username"
             placeholder = "Username"
+            ariaLabel = "Username"
             autoComplete = AutoComplete.off
             type = InputType.text
             value = username
@@ -52,11 +48,6 @@ val Login = FC<LoginProps> { props ->
     }
     div {
         className = CssClasses.inputContainer
-        label {
-            +"Password"
-            htmlFor = "password"
-            hidden = true
-        }
         Password {
             this.password = password
             this.onChange = {

@@ -5,6 +5,7 @@ import kotlinx.browser.document
 import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
+import react.dom.aria.ariaLabel
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.span
@@ -20,6 +21,7 @@ val Password = FC<PasswordProps> { props ->
     input {
         id = "password"
         placeholder = "Password"
+        ariaLabel = "Password"
         type = if (visible) InputType.text else InputType.password
         value = props.password
         onChange = {
