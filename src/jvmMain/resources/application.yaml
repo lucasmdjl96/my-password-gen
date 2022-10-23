@@ -1,8 +1,7 @@
 ktor:
   development: true
   deployment:
-    #host: localhost
-    host: 192.168.2.88
+    host: 0.0.0.0
     sslPort: 8443
   application:
     modules:
@@ -18,4 +17,6 @@ postgres:
   username: postgres
   password: postgres
   driver: org.postgresql.Driver
-  jdbcUrl: "jdbc:postgresql://localhost:5432/"
+  jdbcUrlBase: "jdbc:postgresql"
+  host: $POSTGRES_HOST
+  port: 5432

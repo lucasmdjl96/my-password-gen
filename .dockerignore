@@ -1,0 +1,6 @@
+build
+.idea
+postgres_data
+.gradle
+.dockerignore
+.git

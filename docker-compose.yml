@@ -1,6 +1,15 @@
 version: '1'
 
 services:
+  web:
+    build:
+      context: .
+    environment:
+        POSTGRES_HOST: database
+    ports:
+      - 8443:8443
+    depends_on:
+      - database
   database:
     image: 'postgres:14.5-alpine'
     ports:

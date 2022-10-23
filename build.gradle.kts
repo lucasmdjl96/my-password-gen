@@ -13,6 +13,7 @@ plugins {
     kotlin("multiplatform") version "1.7.10"
     application
     kotlin("plugin.serialization") version "1.7.10"
+    id("io.ktor.plugin") version "2.1.2"
 }
 
 group = "com.lucasmdjl"
