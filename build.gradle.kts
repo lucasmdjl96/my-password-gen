@@ -145,11 +145,6 @@ kotlin {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinWrappersVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinWrappersVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:$kotlinWrappersVersion")
-
-                implementation(npm("postcss", "8.4.16"))
-                implementation(npm("postcss-loader", "7.0.1"))
-                implementation(npm("autoprefixer", "10.4.12"))
-
             }
         }
         val jsTest by getting {
