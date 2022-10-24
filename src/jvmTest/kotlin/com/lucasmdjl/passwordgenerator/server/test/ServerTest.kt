@@ -11,7 +11,6 @@ import io.ktor.server.routing.*
 fun Application.module() {
     installKoin()
     installContentNegotiation()
-    installCORS()
     installCompression()
     installSessions()
     installAuthentication()

@@ -11,7 +11,6 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 fun Application.module() {
     installKoin()
     installContentNegotiation()
-    installCORS()
     installCompression()
     installSessions()
     installAuthentication()

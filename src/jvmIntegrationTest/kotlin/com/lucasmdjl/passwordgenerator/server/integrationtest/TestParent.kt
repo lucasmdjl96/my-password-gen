@@ -118,7 +118,6 @@ abstract class TestParent {
 fun Application.module() {
     installKoin()
     installContentNegotiation()
-    installCORS()
     installCompression()
     installSessions()
     installAuthentication()
