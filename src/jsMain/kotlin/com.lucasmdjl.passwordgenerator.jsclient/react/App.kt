@@ -14,6 +14,7 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.EventTarget
@@ -32,9 +33,21 @@ val App = { initialState: InitialState ->
         var cookiesAccepted by useState(initialState.cookiesAccepted)
         var showCookieBanner by useState(initialState.cookiesAccepted == null)
         var keyboardUp by useState(false)
+        var connectionOn by useState(window.navigator.onLine)
 
         Window.visualViewport.addEventListener("resize", {
             keyboardUp = Window.visualViewport.height < 500 && Window.visualViewport.width < 500
+        })
+
+        window.addEventListener("offline", {
+            connectionOn = false
+            online = false
+            console.log("offline")
+        })
+
+        window.addEventListener("online", {
+            connectionOn = true
+            console.log("online")
         })
 
 
@@ -63,6 +76,7 @@ val App = { initialState: InitialState ->
                         this.cookiesAccepted = cookiesAccepted
                         this.online = online
                         this.updateOnline = { newOnline -> online = newOnline }
+                        this.connectionOn = connectionOn
                     }
                     Login {
                         this.onLogin = { loginData: LoginDto ->
