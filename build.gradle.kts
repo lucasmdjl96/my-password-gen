@@ -160,8 +160,16 @@ application {
 }
 
 tasks.named<Copy>("jvmProcessResources") {
+    dependsOn(tasks.named<Copy>("copyJs"))
+}
+
+tasks.register<Copy>("copyJs") {
     val jsBrowserDistribution = tasks.named("jsBrowserDistribution")
-    from(jsBrowserDistribution)
+    val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
+    from(jsBrowserDistribution) {
+        include("*.js")
+    }
+    into(jvmProcessResources.get().destinationDir.resolve("static/js"))
 }
 
 tasks.named<JavaExec>("run") {

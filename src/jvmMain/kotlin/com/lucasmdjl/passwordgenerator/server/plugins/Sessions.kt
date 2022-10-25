@@ -13,6 +13,7 @@ fun Application.installSessions() {
             cookie.maxAgeInSeconds = 30 * 24 * 60 * 60
             cookie.secure = true
             cookie.path = "/"
+            cookie.httpOnly = true
         }
     }
 }

@@ -29,7 +29,7 @@ fun Application.installRoutes() {
             siteRoutes()
         }
         static("/static") {
-            resources()
+            resources("static")
         }
     }
 }

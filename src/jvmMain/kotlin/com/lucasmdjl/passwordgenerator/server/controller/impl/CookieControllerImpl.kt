@@ -4,8 +4,8 @@ import com.lucasmdjl.passwordgenerator.common.routes.CookieRoute
 import com.lucasmdjl.passwordgenerator.server.controller.CookieController
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.service.SessionService
-import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.http.content.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
 
@@ -18,17 +18,11 @@ class CookieControllerImpl(private val sessionService: SessionService) :
             sessionService.delete(sessionDto)
             call.sessions.clear<SessionDto>()
         }
-        call.respondText(
-            this::class.java.classLoader.getResource("html/opt-out.html")!!.readText(),
-            ContentType.Text.Html
-        )
+        call.respond(call.resolveResource("opt-out.html", "html")!!)
     }
 
     override suspend fun get(call: ApplicationCall, cookieRoute: CookieRoute.Policy) {
-        call.respondText(
-            this::class.java.classLoader.getResource("html/policy.html")!!.readText(),
-            ContentType.Text.Html
-        )
+        call.respond(call.resolveResource("policy.html", "html")!!)
     }
 
 }
