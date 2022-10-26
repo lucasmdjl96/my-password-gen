@@ -10,5 +10,6 @@ object Sites : UUIDTable() {
 
     init {
         uniqueIndex(siteName, emailId)
+        index(isUnique = false, emailId)
     }
 }

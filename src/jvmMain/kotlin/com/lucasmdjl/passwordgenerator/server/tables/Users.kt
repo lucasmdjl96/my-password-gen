@@ -11,6 +11,8 @@ object Users : UUIDTable() {
 
     init {
         uniqueIndex(username, sessionId)
+        index(isUnique = false, sessionId)
+        index(isUnique = false, lastEmailId)
     }
 
 }
