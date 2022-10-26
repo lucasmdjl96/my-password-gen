@@ -1,6 +1,5 @@
 package com.lucasmdjl.passwordgenerator.server.integrationtest
 
-import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
 import com.lucasmdjl.passwordgenerator.server.crypto.encode
@@ -170,10 +169,9 @@ class UserTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<UserClientDto>()
+                val responseBody = response.body<MutableList<String>>()
                 assertNotNull(responseBody)
-                assertEquals(initUsernameEncoded, responseBody.username)
-                assertEquals(mutableListOf(initEmailAddress, initEmailAddress2), responseBody.emailList)
+                assertEquals(mutableListOf(initEmailAddress, initEmailAddress2), responseBody)
                 testTransaction {
                     val session = Session.findById(initSessionId)
                     assertNotNull(session)
@@ -273,10 +271,9 @@ class UserTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<UserClientDto>()
+                val responseBody = response.body<MutableList<String>>()
                 assertNotNull(responseBody)
-                assertEquals(initUsername2Encoded, responseBody.username)
-                assertEquals(mutableListOf(), responseBody.emailList)
+                assertEquals(mutableListOf(), responseBody)
                 testTransaction {
                     assertEquals(usersBefore + 1, Users.selectAll().count())
                     val user =
@@ -320,10 +317,9 @@ class UserTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<UserClientDto>()
+                val responseBody = response.body<MutableList<String>>()
                 assertNotNull(responseBody)
-                assertEquals(initUsernameEncoded, responseBody.username)
-                assertEquals(mutableListOf(), responseBody.emailList)
+                assertEquals(mutableListOf(), responseBody)
                 testTransaction {
                     assertEquals(usersBefore + 1, Users.selectAll().count())
                     val user =

@@ -25,7 +25,7 @@ class UserControllerImpl(
         val userClientDto = with(userMapper) {
             userService.find(userServerDto, sessionId).toUserClientDto()
         }
-        call.respond(userClientDto)
+        call.respond(userClientDto.emailList)
     }
 
     override suspend fun post(call: ApplicationCall, userRoute: UserRoute.Register) {
@@ -34,7 +34,7 @@ class UserControllerImpl(
         val userClientDto = with(userMapper) {
             userService.create(userServerDto, sessionId).toUserClientDto()
         }
-        call.respond(userClientDto)
+        call.respond(userClientDto.emailList)
     }
 
     override suspend fun patch(call: ApplicationCall, userRoute: UserRoute.Logout) {

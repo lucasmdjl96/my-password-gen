@@ -79,7 +79,7 @@ class UserControllerTest : ControllerTestParent() {
                 with(userMapperMock) {
                     dummyUser.toUserClientDto()
                 }
-                callMock.respond(dummyUserClientDto)
+                callMock.respond(dummyUserClientDto.emailList)
             }
         }
 
@@ -147,7 +147,7 @@ class UserControllerTest : ControllerTestParent() {
                 with(userMapperMock) {
                     dummyUser.toUserClientDto()
                 }
-                callMock.respond(dummyUserClientDto)
+                callMock.respond(dummyUserClientDto.emailList)
             }
         }
 

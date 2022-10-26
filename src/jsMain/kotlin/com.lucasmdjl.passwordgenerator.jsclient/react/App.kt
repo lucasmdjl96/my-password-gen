@@ -146,7 +146,7 @@ suspend fun loginUser(username: String): UserClientDto? {
         setBody(UserServerDto(username))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else UserClientDto(username, response.body<UserClientDto>().emailList)
+    else UserClientDto(username, response.body<MutableList<String>>())
 }
 
 
@@ -157,7 +157,7 @@ suspend fun registerUser(username: String): UserClientDto? {
         setBody(UserServerDto(username))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else UserClientDto(username, response.body<UserClientDto>().emailList)
+    else UserClientDto(username, response.body<MutableList<String>>())
 }
 
 suspend fun logoutUser(username: String) {
