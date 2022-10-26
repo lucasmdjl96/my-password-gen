@@ -8,7 +8,7 @@ object Sessions : UUIDTable() {
     var lastUserId = reference("last_user_id", Users.id, onDelete = ReferenceOption.SET_NULL).nullable()
 
     init {
-        index(isUnique = false, lastUserId)
+        index(isUnique = true, lastUserId)
     }
 
 }
