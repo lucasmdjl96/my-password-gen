@@ -167,7 +167,7 @@ tasks.register<Copy>("copyJs") {
     val jsBrowserDistribution = tasks.named("jsBrowserDistribution")
     val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
     from(jsBrowserDistribution) {
-        include("*.js")
+        include("*.js",  "*.js.map")
     }
     into(jvmProcessResources.get().destinationDir.resolve("static/js"))
 }
