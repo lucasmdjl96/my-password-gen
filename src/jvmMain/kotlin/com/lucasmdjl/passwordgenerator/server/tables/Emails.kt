@@ -10,6 +10,7 @@ object Emails : UUIDTable() {
 
     init {
         uniqueIndex(emailAddress, userId)
+        index(isUnique = false, userId)
     }
 
 }
