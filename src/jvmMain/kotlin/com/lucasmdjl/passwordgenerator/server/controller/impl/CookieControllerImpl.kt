@@ -18,6 +18,7 @@ class CookieControllerImpl(private val sessionService: SessionService) :
             sessionService.delete(sessionDto)
             call.sessions.clear<SessionDto>()
         }
+        //call.response.header("Clear-Site-Data", "\"*\"")
         call.respondText(
             this::class.java.classLoader.getResource("html/opt-out.html")!!.readText(),
             ContentType.Text.Html

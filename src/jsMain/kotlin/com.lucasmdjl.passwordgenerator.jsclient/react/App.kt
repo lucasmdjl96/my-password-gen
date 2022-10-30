@@ -28,7 +28,7 @@ val App = { initialState: InitialState ->
     FC<Props> {
         var userClientDto by useState<UserClientDto>()
         var masterPassword by useState<String>()
-        var online by useState(initialState.online)
+        var online by useState(initialState.online && window.navigator.onLine)
         var background by useState(initialState.initialBackgroundColor)
         var cookiesAccepted by useState(initialState.cookiesAccepted)
         var showCookieBanner by useState(initialState.cookiesAccepted == null)
@@ -42,12 +42,10 @@ val App = { initialState: InitialState ->
         window.addEventListener("offline", {
             connectionOn = false
             online = false
-            console.log("offline")
         })
 
         window.addEventListener("online", {
             connectionOn = true
-            console.log("online")
         })
 
 

@@ -27,7 +27,7 @@ val OnlineToggle = FC<OnlineToggleProps> { props ->
         div {
             +"Offline"
             onClick = {
-                if (props.cookiesAccepted == true) {
+                if (props.cookiesAccepted == true && props.connectionOn) {
                     props.updateOnline(false)
                     localStorage.setItem("online", "false")
                 }

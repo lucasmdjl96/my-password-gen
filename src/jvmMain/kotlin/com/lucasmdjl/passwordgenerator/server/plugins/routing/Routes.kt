@@ -19,6 +19,7 @@ fun Application.installRoutes() {
         intercept(ApplicationCallPipeline.Monitoring) {
             logger.debug { call.request.path() }
         }
+        installHeaders()
         mainRoute()
         sessionRoutes()
         cookieRoutes()

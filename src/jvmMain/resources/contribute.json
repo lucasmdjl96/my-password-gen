@@ -1,0 +1,12 @@
+{
+  "name": "Password Generator",
+  "description": "A password generator",
+  "repository": {
+    "url": "https://github.com/lucasmdjl96/Password-Manager",
+    "license": "GPLv3"
+  },
+  "keywords": [
+    "Password",
+    "Generator"
+  ]
+}

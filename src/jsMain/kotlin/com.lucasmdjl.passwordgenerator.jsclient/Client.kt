@@ -12,6 +12,7 @@ import kotlinx.browser.document
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
+import org.w3c.workers.RegistrationOptions
 import react.create
 import react.dom.client.createRoot
 
@@ -28,6 +29,9 @@ fun main() {
     }
     val app = App(initialState).create()
     createRoot(container).render(app)
+    if (cookiesAccepted == true) {
+        registerServiceWorker()
+    }
 }
 
 val clipboard = window.navigator.clipboard
@@ -44,4 +48,8 @@ val resourcesFormat = jsonClient.plugin(Resources).resourcesFormat
 
 suspend fun updateSession() {
     jsonClient.put(SessionRoute())
+}
+
+fun registerServiceWorker() {
+    window.navigator.serviceWorker.register("/static/js/service-worker.js", RegistrationOptions(scope = "/"))
 }

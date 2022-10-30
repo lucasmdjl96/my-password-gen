@@ -1,6 +1,7 @@
 package com.lucasmdjl.passwordgenerator.server.test.controller
 
 import com.lucasmdjl.passwordgenerator.common.routes.AboutRoute
+import com.lucasmdjl.passwordgenerator.common.routes.ContributeRoute
 import com.lucasmdjl.passwordgenerator.server.controller.impl.AboutControllerImpl
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -32,10 +33,24 @@ class AboutControllerTest : ControllerTestParent() {
             mockkStatic("io.ktor.server.response.ApplicationResponseFunctionsKt")
             coEvery { callMock.respondText(any(), any()) } just Runs
 
-            val mainController = AboutControllerImpl()
+            val aboutController = AboutControllerImpl()
 
-            mainController.get(callMock, AboutRoute())
+            aboutController.get(callMock, AboutRoute())
             coVerify { callMock.respondText(any(), ContentType.Text.Html) }
+        }
+    }
+
+    @Nested
+    inner class Contribute {
+        @Test
+        fun `get contribute page`() = runBlocking {
+            mockkStatic("io.ktor.server.response.ApplicationResponseFunctionsKt")
+            coEvery { callMock.respondText(any(), any()) } just Runs
+
+            val aboutController = AboutControllerImpl()
+
+            aboutController.get(callMock, ContributeRoute())
+            coVerify { callMock.respondText(any(), ContentType.Text.Plain) }
         }
     }
 
