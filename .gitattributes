@@ -1,0 +1,31 @@
+* text=auto
+
+gradlew text eol=lf
+*gradlew text eol=lf
+*.kt text diff=kotlin
+*.js text
+*.html text diff=html
+*.css text diff=css
+*.yaml text
+*.yml text
+*.properties text
+*.svg text
+*.xml text
+*.json text
+*.lock
+.dockerignore text
+*.dockerignore text
+.gitignore text
+*.gitignore text
+.gitattributes text
+*.gitattributes text
+*.gradle.kts text diff=kotlin
+DockerFile text
+*DockerFile text
+*.md text diff=markdown
+gradlew.bat text eol=crlf
+*gradlew.bat text eol=crlf
+
+*.png binary
+*.ico binary
+*.jar binary
