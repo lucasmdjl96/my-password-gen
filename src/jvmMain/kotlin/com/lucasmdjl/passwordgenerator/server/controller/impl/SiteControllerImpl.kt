@@ -3,6 +3,7 @@ package com.lucasmdjl.passwordgenerator.server.controller.impl
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.SiteRoute
 import com.lucasmdjl.passwordgenerator.server.controller.SiteController
+import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
 import com.lucasmdjl.passwordgenerator.server.mapper.SiteMapper
 import com.lucasmdjl.passwordgenerator.server.plugins.NotAuthenticatedException
@@ -20,26 +21,22 @@ class SiteControllerImpl(
 
     override suspend fun post(call: ApplicationCall, siteRoute: SiteRoute.New) {
         val sessionId = call.sessions.get<SessionDto>()!!.sessionId
-        val siteServerDto = call.receive<SiteServerDto>()
-        val siteClientDto = with(siteMapper) {
-            siteService.create(siteServerDto, sessionId).toSiteClientDto()
-        }
-        call.respond(siteClientDto)
+        val siteServerDto = call.receive<SiteServerDto>().encode()
+        siteService.create(siteServerDto, sessionId)
+        call.respond(HttpStatusCode.OK)
     }
 
     override suspend fun get(call: ApplicationCall, siteRoute: SiteRoute.Find) {
         val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
-        val siteName = siteRoute.siteName
+        val siteName = siteRoute.siteName.encode()
         val siteServerDto = SiteServerDto(siteName)
-        val siteClientDto = with(siteMapper) {
-            siteService.find(siteServerDto, sessionId).toSiteClientDto()
-        }
-        call.respond(siteClientDto)
+        siteService.find(siteServerDto, sessionId)
+        call.respond(HttpStatusCode.OK)
     }
 
     override suspend fun delete(call: ApplicationCall, siteRoute: SiteRoute.Delete) {
         val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
-        val siteName = siteRoute.siteName
+        val siteName = siteRoute.siteName.encode()
         val siteServerDto = SiteServerDto(siteName)
         siteService.delete(siteServerDto, sessionId)
         call.respond(HttpStatusCode.OK)

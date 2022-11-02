@@ -22,19 +22,21 @@ class UserControllerImpl(
     override suspend fun post(call: ApplicationCall, userRoute: UserRoute.Login) {
         val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
         val userServerDto = call.receive<UserServerDto>().encode()
-        val userClientDto = with(userMapper) {
-            userService.find(userServerDto, sessionId).toUserClientDto()
+        with(userMapper) {
+            call.respond(
+                userService.find(userServerDto, sessionId).loadEmailIds()
+            )
         }
-        call.respond(userClientDto.emailList)
     }
 
     override suspend fun post(call: ApplicationCall, userRoute: UserRoute.Register) {
         val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
         val userServerDto = call.receive<UserServerDto>().encode()
-        val userClientDto = with(userMapper) {
-            userService.create(userServerDto, sessionId).toUserClientDto()
+        with(userMapper) {
+            call.respond(
+                userService.create(userServerDto, sessionId).loadEmailIds()
+            )
         }
-        call.respond(userClientDto.emailList)
     }
 
     override suspend fun patch(call: ApplicationCall, userRoute: UserRoute.Logout) {

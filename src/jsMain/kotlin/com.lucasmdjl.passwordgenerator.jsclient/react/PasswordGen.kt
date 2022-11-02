@@ -169,7 +169,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
 suspend fun checkEmail(emailAddress: String): EmailClientDto? {
     val response = jsonClient.get(EmailRoute.Find(emailAddress))
     return if (response.status != HttpStatusCode.OK) null
-    else response.body()
+    else EmailClientDto(emailAddress, response.body())
 }
 
 suspend fun addEmail(emailAddress: String): EmailClientDto? {
@@ -178,7 +178,7 @@ suspend fun addEmail(emailAddress: String): EmailClientDto? {
         setBody(EmailServerDto(emailAddress))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else response.body()
+    else EmailClientDto(emailAddress, response.body())
 }
 
 suspend fun removeEmail(emailAddress: String): Unit? {
@@ -190,7 +190,7 @@ suspend fun removeEmail(emailAddress: String): Unit? {
 suspend fun checkSite(siteName: String): SiteClientDto? {
     val response = jsonClient.get(SiteRoute.Find(siteName))
     return if (response.status != HttpStatusCode.OK) null
-    else response.body()
+    else SiteClientDto(siteName)
 }
 
 suspend fun addSite(siteName: String): SiteClientDto? {
@@ -199,7 +199,7 @@ suspend fun addSite(siteName: String): SiteClientDto? {
         setBody(SiteServerDto(siteName))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else response.body()
+    else SiteClientDto(siteName)
 }
 
 suspend fun removeSite(siteName: String): Unit? {

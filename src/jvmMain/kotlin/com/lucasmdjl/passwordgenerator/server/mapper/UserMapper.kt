@@ -9,4 +9,8 @@ interface UserMapper {
 
     fun User.toUserClientDto() = userToUserClientDto(this)
 
+    fun loadEmailIdsFrom(user: User): MutableList<String>
+
+    fun User.loadEmailIds() = loadEmailIdsFrom(this)
+
 }

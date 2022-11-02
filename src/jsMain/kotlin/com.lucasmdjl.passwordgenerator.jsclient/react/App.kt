@@ -17,12 +17,12 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.EventTarget
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.main
 import react.useState
+import com.lucasmdjl.passwordgenerator.jsclient.visualViewport
 
 val App = { initialState: InitialState ->
     FC<Props> {
@@ -35,8 +35,8 @@ val App = { initialState: InitialState ->
         var keyboardUp by useState(false)
         var connectionOn by useState(window.navigator.onLine)
 
-        Window.visualViewport.addEventListener("resize", {
-            keyboardUp = Window.visualViewport.height < 500 && Window.visualViewport.width < 500
+        window.visualViewport.addEventListener("resize", {
+            keyboardUp = window.visualViewport.height < 500 && window.visualViewport.width < 500
         })
 
         window.addEventListener("offline", {
@@ -165,16 +165,4 @@ suspend fun logoutUser(username: String) {
             setBody(UserServerDto(username))
         }
     }
-}
-
-abstract external class VisualViewport : EventTarget {
-    var height: Int
-    var width: Int
-}
-
-@JsName("window")
-external object Window {
-
-    val visualViewport: VisualViewport
-
 }

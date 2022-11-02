@@ -17,8 +17,13 @@ class UserMapperImpl : UserMapper {
         user.load(User::emails)
         UserClientDto(
             user.username,
-            user.emails.map(Email::emailAddress).toMutableList()
+            user.emails.map { email -> email.id.value.toString() }.toMutableList()
         )
+    }
+
+    override fun loadEmailIdsFrom(user: User): MutableList<String> = transaction {
+        user.load(User::emails)
+        user.emails.map { email -> email.id.value.toString() }.toMutableList()
     }
 
 }
