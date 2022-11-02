@@ -20,9 +20,10 @@ import kotlin.test.assertTrue
 class UserMapperTest : MapperTestParent() {
 
     private lateinit var userMock: User
-    private lateinit var dummyUsername: String
+    private lateinit var dummyUserId: String
     private lateinit var emailListMock: List<Email>
     private lateinit var dummyEmailAddressList: List<String>
+    private lateinit var dummyEmailIdsList: MutableList<String>
     private lateinit var dummyUserClientDto: UserClientDto
 
     @BeforeAll
@@ -33,9 +34,10 @@ class UserMapperTest : MapperTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummyUsername = "user123"
+        dummyUserId = "user123"
         dummyEmailAddressList = listOf("email1", "email2")
-        dummyUserClientDto = UserClientDto(dummyUsername)
+        dummyEmailIdsList = mutableListOf("id1", "id2")
+        dummyUserClientDto = UserClientDto(dummyUserId, listOf())
     }
 
     @Nested
@@ -46,12 +48,12 @@ class UserMapperTest : MapperTestParent() {
             mockTransaction()
             mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
             every { userMock.load(any()) } returns userMock
-            every { userMock.username } returns dummyUsername
+            every { userMock.id.value.toString() } returns dummyUserId
             every { userMock.emails } returns emptySized()
             val userMapper = UserMapperImpl()
             val userDto = userMapper.userToUserClientDto(userMock)
-            assertEquals(dummyUsername, userDto.username)
-            assertTrue(userDto.emailList.isEmpty())
+            assertEquals(dummyUserId, userDto.id)
+            assertTrue(userDto.emailIdList.isEmpty())
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 userMock.load(User::emails)
@@ -63,15 +65,15 @@ class UserMapperTest : MapperTestParent() {
             mockTransaction()
             mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
             every { userMock.load(any()) } returns userMock
-            every { userMock.username } returns dummyUsername
+            every { userMock.id.value.toString() } returns dummyUserId
             every { userMock.emails } returns SizedCollection(emailListMock)
-            emailListMock.forEachIndexed { index, emailMock ->
-                every { emailMock.emailAddress } returns dummyEmailAddressList[index]
+            emailListMock.forEachIndexed { index, userMock ->
+                every { userMock.id.value.toString() } returns dummyEmailAddressList[index]
             }
             val userMapper = UserMapperImpl()
             val userDto = userMapper.userToUserClientDto(userMock)
-            assertEquals(dummyUsername, userDto.username)
-            assertEquals(dummyEmailAddressList, userDto.emailList)
+            assertEquals(dummyUserId, userDto.id)
+            assertEquals(dummyEmailAddressList, userDto.emailIdList)
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 userMock.load(User::emails)
@@ -95,6 +97,5 @@ class UserMapperTest : MapperTestParent() {
         }
 
     }
-
 
 }

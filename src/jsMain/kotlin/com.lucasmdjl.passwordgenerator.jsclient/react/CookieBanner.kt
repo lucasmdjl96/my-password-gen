@@ -2,6 +2,7 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.common.routes.CookieRoute
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
+import com.lucasmdjl.passwordgenerator.jsclient.openIndexedDB
 import com.lucasmdjl.passwordgenerator.jsclient.registerServiceWorker
 import com.lucasmdjl.passwordgenerator.jsclient.resourcesFormat
 import io.ktor.resources.*
@@ -60,6 +61,7 @@ val CookieBanner = FC<CookieBannerProps> { props ->
                         localStorage.setItem("backgroundColor", props.background)
                         localStorage.setItem("online", "false")
                         registerServiceWorker()
+                        openIndexedDB()
                     }
                 }
                 button {

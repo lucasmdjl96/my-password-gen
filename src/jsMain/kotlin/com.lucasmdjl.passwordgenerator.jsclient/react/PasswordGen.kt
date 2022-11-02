@@ -2,26 +2,27 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.common.dto.client.EmailClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.client.SiteClientDto
-import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.EmailServerDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.EmailRoute
 import com.lucasmdjl.passwordgenerator.common.routes.SiteRoute
-import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
+import com.lucasmdjl.passwordgenerator.jsclient.*
+import com.lucasmdjl.passwordgenerator.jsclient.dto.EmailClient
+import com.lucasmdjl.passwordgenerator.jsclient.dto.SiteClient
+import com.lucasmdjl.passwordgenerator.jsclient.dto.UserClient
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.browser.document
 import kotlinx.coroutines.launch
-import org.w3c.dom.HTMLElement
+import kotlinx.serialization.Serializable
 import react.FC
 import react.Props
 import react.dom.html.InputType
 import react.useState
 
 external interface PasswordGenProps : Props {
-    var userClientDto: UserClientDto
+    var userClient: UserClient
     var masterPassword: String
     var addEmail: (String) -> Unit
     var removeEmail: (String) -> Unit
@@ -29,43 +30,43 @@ external interface PasswordGenProps : Props {
 }
 
 val PasswordGen = FC<PasswordGenProps> { props ->
-    var emailClientDto by useState<EmailClientDto>()
-    var siteClientDto by useState<SiteClientDto>()
+    var emailClient by useState<EmailClient>()
+    var siteClient by useState<SiteClient>()
     var password by useState<String>()
 
     DropList {
         this.name = "email"
         this.inputType = InputType.email
-        this.list = props.userClientDto.emailList
+        this.list = props.userClient.emailList
         this.autoFocus = true
         this.doOnChange = { emailAddress ->
             if (props.online) {
-                emailClientDto = null
-                siteClientDto = null
+                emailClient = null
+                siteClient = null
                 password = null
-                if (props.userClientDto.hasEmail(emailAddress)) {
-                    emailClientDto = EmailClientDto(emailAddress)
+                if (props.userClient.hasEmail(emailAddress)) {
+                    emailClient = EmailClient(emailAddress)
                     scope.launch {
-                        emailClientDto = checkEmail(emailAddress)
+                        emailClient = checkEmail(emailAddress)
                     }
                 }
             } else {
                 password = null
-                emailClientDto = if (emailClientDto != null) {
-                    EmailClientDto(emailAddress, emailClientDto!!.siteList)
+                emailClient = if (emailClient != null) {
+                    EmailClient(emailAddress, emailClient!!.siteList)
                 } else {
-                    EmailClientDto(emailAddress)
+                    EmailClient(emailAddress)
                 }
             }
         }
-        this.disableAdd = emailClientDto != null
+        this.disableAdd = emailClient != null
         this.doOnAdd = { emailAddress ->
-            if (emailAddress != "" && !props.userClientDto.hasEmail(emailAddress)) {
+            if (!props.userClient.hasEmail(emailAddress)) {
                 props.addEmail(emailAddress)
-                emailClientDto = EmailClientDto(emailAddress)
+                emailClient = EmailClient(emailAddress)
                 if (props.online) scope.launch {
                     val emailDtoTemp = addEmail(emailAddress)
-                    emailClientDto = emailDtoTemp
+                    emailClient = emailDtoTemp
                     if (emailDtoTemp == null) {
                         props.removeEmail(emailAddress)
                     }
@@ -73,10 +74,10 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
         }
         this.doOnRemove = { emailAddress ->
-            emailClientDto = null
-            siteClientDto = null
+            emailClient = null
+            siteClient = null
             password = null
-            if (emailAddress != "" && props.userClientDto.hasEmail(emailAddress)) {
+            if (props.userClient.hasEmail(emailAddress)) {
                 props.removeEmail(emailAddress)
                 if (props.online) scope.launch {
                     val result = removeEmail(emailAddress)
@@ -86,79 +87,79 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 }
             }
         }
-        this.doOnEnter = { event ->
-            if (event.key == "Enter" && emailClientDto == null) {
-                (document.getElementById("emailAdd")!! as HTMLElement).click()
-            } else if (event.key == "Enter" && emailClientDto != null) {
-                (document.getElementById("site")!! as HTMLElement).focus()
-            } else if (event.ctrlKey && event.key == "Delete") {
-                (document.getElementById("emailRemove")!! as HTMLElement).click()
-            } else if (event.ctrlKey && event.key == "ArrowDown") {
-                (document.getElementById("site")!! as HTMLElement).focus()
+        this.doOnEnter = withReceiver {
+            if (key == "Enter" && emailClient == null) {
+                getHtmlElementById("emailAdd")!!.click()
+            } else if (key == "Enter" && emailClient != null) {
+                getHtmlElementById("site")!!.focus()
+            } else if (ctrlKey && key == "Delete") {
+                getHtmlElementById("emailRemove")!!.click()
+            } else if (ctrlKey && key == "ArrowDown") {
+                getHtmlElementById("site")!!.focus()
             }
         }
     }
-    if (emailClientDto != null) {
+    if (emailClient != null) {
         DropList {
             this.name = "site"
             this.inputType = InputType.text
-            this.list = emailClientDto!!.siteList
+            this.list = emailClient!!.siteList
             this.autoFocus = false
             this.doOnChange = { siteName ->
-                siteClientDto = null
+                siteClient = null
                 password = null
-                if (emailClientDto!!.hasSite(siteName)) {
-                    siteClientDto = SiteClientDto(siteName)
+                if (emailClient!!.hasSite(siteName)) {
+                    siteClient = SiteClient(siteName)
                     if (props.online) scope.launch {
-                        siteClientDto = checkSite(siteName)
+                        siteClient = checkSite(siteName)
                     }
                 }
             }
-            this.disableAdd = siteClientDto != null
+            this.disableAdd = siteClient != null
             this.doOnAdd = { siteName ->
-                if (siteName != "" && !emailClientDto!!.hasSite(siteName)) {
-                    emailClientDto!!.addSite(siteName)
-                    siteClientDto = SiteClientDto(siteName)
+                if (!emailClient!!.hasSite(siteName)) {
+                    emailClient!!.addSite(siteName)
+                    siteClient = SiteClient(siteName)
                     if (props.online) scope.launch {
                         val siteDtoTemp = addSite(siteName)
-                        siteClientDto = siteDtoTemp
-                        if (siteDtoTemp == null) emailClientDto!!.removeSite(siteName)
+                        siteClient = siteDtoTemp
+                        if (siteDtoTemp == null) emailClient!!.removeSite(siteName)
                     }
                 }
             }
             this.doOnRemove = { siteName ->
-                siteClientDto = null
+                siteClient = null
                 password = null
-                if (siteName != "" && emailClientDto!!.hasSite(siteName)) {
-                    emailClientDto!!.removeSite(siteName)
+                if (emailClient!!.hasSite(siteName)) {
+                    emailClient!!.removeSite(siteName)
                     if (props.online) scope.launch {
                         val result = removeSite(siteName)
                         if (result == null) {
-                            emailClientDto!!.addSite(siteName)
+                            emailClient!!.addSite(siteName)
                         }
                     }
                 }
             }
-            this.doOnEnter = { event ->
-                if (event.key == "Enter" && siteClientDto == null) {
-                    (document.getElementById("siteAdd")!! as HTMLElement).click()
-                } else if (event.key == "Enter" && siteClientDto != null) {
-                    (document.getElementById("passwordGenerator")!! as HTMLElement).click()
-                } else if (event.ctrlKey && event.key == "c") {
-                    (document.getElementById("copyButton")!! as HTMLElement).click()
-                } else if (event.ctrlKey && event.key == "ArrowUp") {
-                    (document.getElementById("email")!! as HTMLElement).focus()
-                } else if (event.ctrlKey && event.key == "Delete") {
-                    (document.getElementById("siteRemove")!! as HTMLElement).click()
+            this.doOnEnter = withReceiver {
+                if (key == "Enter" && siteClient == null) {
+                    getHtmlElementById("siteAdd")!!.click()
+                } else if (key == "Enter" && siteClient != null) {
+                    getHtmlElementById("passwordGenerator")!!.click()
+                } else if (ctrlKey && key == "c") {
+                    getHtmlElementById("copyButton")!!.click()
+                } else if (ctrlKey && key == "ArrowUp") {
+                    getHtmlElementById("email")!!.focus()
+                } else if (ctrlKey && key == "Delete") {
+                    getHtmlElementById("siteRemove")!!.click()
                 }
             }
         }
     }
     Generator {
-        this.username = props.userClientDto.username
+        this.username = props.userClient.username
         this.masterPassword = props.masterPassword
-        this.emailAddress = emailClientDto?.emailAddress
-        this.siteName = siteClientDto?.siteName
+        this.emailAddress = emailClient?.emailAddress
+        this.siteName = siteClient?.siteName
         this.password = password
         this.updatePassword = {
             password = it
@@ -166,44 +167,90 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     }
 }
 
-suspend fun checkEmail(emailAddress: String): EmailClientDto? {
+suspend fun checkEmail(emailAddress: String): EmailClient? {
     val response = jsonClient.get(EmailRoute.Find(emailAddress))
     return if (response.status != HttpStatusCode.OK) null
-    else EmailClientDto(emailAddress, response.body())
+    else {
+        val emailClientDto = response.body<EmailClientDto>()
+        val siteList = mutableListOf<String>()
+        database.readTransaction<Site>() {
+            for (siteId in emailClientDto.siteIdList) {
+                get<Site>(siteId) { site ->
+                    if (site != null) siteList.add(site.siteName)
+                }
+            }
+        }.awaitCompletion()
+        EmailClient(emailAddress, siteList)
+    }
 }
 
-suspend fun addEmail(emailAddress: String): EmailClientDto? {
+suspend fun addEmail(emailAddress: String): EmailClient? {
     val response = jsonClient.post(EmailRoute.New()) {
         contentType(ContentType.Application.Json)
         setBody(EmailServerDto(emailAddress))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else EmailClientDto(emailAddress, response.body())
+    else {
+        val emailClientDto = response.body<EmailClientDto>()
+        database.readWriteTransaction<Email>() {
+            add(Email(emailClientDto.id, emailAddress))
+        }.awaitCompletion()
+        EmailClient(emailAddress, response.body())
+    }
 }
 
 suspend fun removeEmail(emailAddress: String): Unit? {
     val response = jsonClient.delete(EmailRoute.Delete(emailAddress))
     return if (response.status != HttpStatusCode.OK) null
-    else Unit
+    else {
+        val emailClientDto = response.body<EmailClientDto>()
+        database.biReadWriteTransaction<Email, Site>() {
+            delete<Email>(emailClientDto.id)
+            for (siteId in emailClientDto.siteIdList) {
+                delete<Site>(siteId)
+            }
+        }.awaitCompletion()
+    }
 }
 
-suspend fun checkSite(siteName: String): SiteClientDto? {
+suspend fun checkSite(siteName: String): SiteClient? {
     val response = jsonClient.get(SiteRoute.Find(siteName))
     return if (response.status != HttpStatusCode.OK) null
-    else SiteClientDto(siteName)
+    else SiteClient(siteName)
 }
 
-suspend fun addSite(siteName: String): SiteClientDto? {
+suspend fun addSite(siteName: String): SiteClient? {
     val response = jsonClient.post(SiteRoute.New()) {
         contentType(ContentType.Application.Json)
         setBody(SiteServerDto(siteName))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else SiteClientDto(siteName)
+    else {
+        val siteClientDto = response.body<SiteClientDto>()
+        database.readWriteTransaction<Site>() {
+            add(Site(siteClientDto.id, siteName))
+        }.awaitCompletion()
+        SiteClient(siteName)
+    }
 }
 
 suspend fun removeSite(siteName: String): Unit? {
     val response = jsonClient.delete(SiteRoute.Delete(siteName))
     return if (response.status != HttpStatusCode.OK) null
-    else Unit
+    else {
+        val siteClientDto = response.body<SiteClientDto>()
+        database.readWriteTransaction<Site>() {
+            delete<Site>(siteClientDto.id)
+        }.awaitCompletion()
+    }
+}
+
+@Serializable
+class Email(val id: String, val emailAddress: String)
+
+@Serializable
+class Site(val id: String?, val siteName: String)
+
+inline fun <T, S> withReceiver(crossinline block: T.() -> S): (T) -> S = {
+    it.block()
 }

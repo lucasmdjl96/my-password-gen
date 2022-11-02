@@ -4,14 +4,11 @@ import com.lucasmdjl.passwordgenerator.common.dto.client.SiteClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.SiteRoute
 import com.lucasmdjl.passwordgenerator.server.controller.impl.SiteControllerImpl
+import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.dto.SessionDto
-import com.lucasmdjl.passwordgenerator.server.mapper.SiteMapper
-import com.lucasmdjl.passwordgenerator.server.model.Site
 import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
 import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
 import com.lucasmdjl.passwordgenerator.server.service.SiteService
-import com.lucasmdjl.passwordgenerator.server.tables.Sites
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -19,36 +16,33 @@ import io.ktor.server.sessions.*
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.dao.id.EntityID
 import org.junit.jupiter.api.*
 import java.util.*
 
 class SiteControllerTest : ControllerTestParent() {
 
     private lateinit var siteServiceMock: SiteService
-    private lateinit var siteMapperMock: SiteMapper
     private lateinit var callMock: ApplicationCall
 
     private lateinit var dummySessionDto: SessionDto
-    private lateinit var dummySite: Site
-    private lateinit var dummySiteServerDto: SiteServerDto
     private lateinit var dummySiteClientDto: SiteClientDto
+    private lateinit var dummySiteServerDto: SiteServerDto
+    private lateinit var dummySiteServerDtoEncoded: SiteServerDto
 
     @BeforeAll
     override fun initMocks() {
         siteServiceMock = mockk()
-        siteMapperMock = mockk()
         callMock = mockk()
     }
 
     @BeforeEach
     override fun initDummies() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-        dummySite = Site(EntityID(UUID.fromString("3db7d073-c96b-4a2f-b959-1cdd4eef7e99"), Sites))
+        dummySiteClientDto = SiteClientDto("3db7d073-c96b-4a2f-b959-1cdd4eef7e99")
         dummySiteServerDto = SiteServerDto("siteAbc")
-        dummySiteClientDto = SiteClientDto("Site123")
+        dummySiteServerDtoEncoded = SiteServerDto("siteCba")
     }
 
     @Nested
@@ -56,58 +50,58 @@ class SiteControllerTest : ControllerTestParent() {
 
         @Test
         fun `create new site when it doesn't exist`() = runBlocking {
-            every { siteServiceMock.create(dummySiteServerDto, dummySessionDto.sessionId) } returns dummySite
-            with(siteMapperMock) {
-                every { dummySite.toSiteClientDto() } returns dummySiteClientDto
-            }
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummySiteServerDto.encode() } returns dummySiteServerDtoEncoded
+            every {
+                siteServiceMock.create(
+                    dummySiteServerDtoEncoded,
+                    dummySessionDto.sessionId
+                )
+            } returns dummySiteClientDto
             mockCall(callMock, dummySessionDto, dummySiteServerDto)
 
-            val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
+            val siteController = SiteControllerImpl(siteServiceMock)
 
             siteController.post(callMock, SiteRoute.New())
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                siteServiceMock.create(dummySiteServerDto, dummySessionDto.sessionId)
+                siteServiceMock.create(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<SiteServerDto>()
-                siteServiceMock.create(dummySiteServerDto, dummySessionDto.sessionId)
-                with(siteMapperMock) {
-                    dummySite.toSiteClientDto()
-                }
+                dummySiteServerDto.encode()
+                siteServiceMock.create(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
                 callMock.respond(dummySiteClientDto)
             }
         }
 
         @Test
         fun `create new site when it already exists`() = runBlocking {
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummySiteServerDto.encode() } returns dummySiteServerDtoEncoded
             every {
                 siteServiceMock.create(
-                    dummySiteServerDto,
+                    dummySiteServerDtoEncoded,
                     dummySessionDto.sessionId
                 )
             } throws DataConflictException()
             mockCall(callMock, dummySessionDto, dummySiteServerDto)
 
-            val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
+            val siteController = SiteControllerImpl(siteServiceMock)
 
             assertThrows<DataConflictException> {
                 siteController.post(callMock, SiteRoute.New())
             }
 
-            verify(exactly = 0) {
-                with(siteMapperMock) {
-                    any<Site>().toSiteClientDto()
-                }
-            }
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                siteServiceMock.create(dummySiteServerDto, dummySessionDto.sessionId)
+                siteServiceMock.create(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<SiteServerDto>()
-                siteServiceMock.create(dummySiteServerDto, dummySessionDto.sessionId)
+                dummySiteServerDto.encode()
+                siteServiceMock.create(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
             }
         }
 
@@ -118,45 +112,50 @@ class SiteControllerTest : ControllerTestParent() {
 
         @Test
         fun `find site when it already exists`() = runBlocking {
-            every { siteServiceMock.find(dummySiteServerDto, dummySessionDto.sessionId) } returns dummySite
-            with(siteMapperMock) {
-                every { dummySite.toSiteClientDto() } returns dummySiteClientDto
-            }
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummySiteServerDto.encode() } returns dummySiteServerDtoEncoded
+            every {
+                siteServiceMock.find(
+                    dummySiteServerDtoEncoded,
+                    dummySessionDto.sessionId
+                )
+            } returns dummySiteClientDto
             mockCall(callMock, dummySessionDto)
 
-            val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
+            val siteController = SiteControllerImpl(siteServiceMock)
 
             siteController.get(callMock, SiteRoute.Find(dummySiteServerDto.siteName))
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                siteServiceMock.find(dummySiteServerDto, dummySessionDto.sessionId)
-                with(siteMapperMock) {
-                    dummySite.toSiteClientDto()
-                }
+                dummySiteServerDto.encode()
+                siteServiceMock.find(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
                 callMock.respond(dummySiteClientDto)
             }
         }
 
         @Test
         fun `find site when it doesn't exist`() = runBlocking {
-            every { siteServiceMock.find(dummySiteServerDto, dummySessionDto.sessionId) } throws DataNotFoundException()
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummySiteServerDto.encode() } returns dummySiteServerDtoEncoded
+            every {
+                siteServiceMock.find(
+                    dummySiteServerDtoEncoded,
+                    dummySessionDto.sessionId
+                )
+            } throws DataNotFoundException()
             mockCall(callMock, dummySessionDto)
 
-            val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
+            val siteController = SiteControllerImpl(siteServiceMock)
 
             assertThrows<DataNotFoundException> {
                 siteController.get(callMock, SiteRoute.Find(dummySiteServerDto.siteName))
             }
 
-            verify(exactly = 0) {
-                with(siteMapperMock) {
-                    any<Site>().toSiteClientDto()
-                }
-            }
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                siteServiceMock.find(dummySiteServerDto, dummySessionDto.sessionId)
+                dummySiteServerDto.encode()
+                siteServiceMock.find(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
             }
         }
 
@@ -166,49 +165,50 @@ class SiteControllerTest : ControllerTestParent() {
     inner class Delete {
         @Test
         fun `delete site when it already exists`() = runBlocking {
-            every { siteServiceMock.delete(dummySiteServerDto, dummySessionDto.sessionId) } returns Unit
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummySiteServerDto.encode() } returns dummySiteServerDtoEncoded
+            every {
+                siteServiceMock.delete(
+                    dummySiteServerDtoEncoded,
+                    dummySessionDto.sessionId
+                )
+            } returns dummySiteClientDto
             mockCall(callMock, dummySessionDto)
 
-            val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
+            val siteController = SiteControllerImpl(siteServiceMock)
 
             siteController.delete(callMock, SiteRoute.Delete(dummySiteServerDto.siteName))
 
-            verify(exactly = 0) {
-                with(siteMapperMock) {
-                    any<Site>().toSiteClientDto()
-                }
-            }
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                siteServiceMock.delete(dummySiteServerDto, dummySessionDto.sessionId)
-                callMock.respond(HttpStatusCode.OK)
+                dummySiteServerDto.encode()
+                siteServiceMock.delete(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
+                callMock.respond(dummySiteClientDto)
             }
         }
 
         @Test
         fun `delete site when it doesn't exist`() = runBlocking {
+            mockkStatic("com.lucasmdjl.passwordgenerator.server.crypto.Sha256Kt")
+            every { dummySiteServerDto.encode() } returns dummySiteServerDtoEncoded
             every {
                 siteServiceMock.delete(
-                    dummySiteServerDto,
+                    dummySiteServerDtoEncoded,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
             mockCall(callMock, dummySessionDto)
 
-            val siteController = SiteControllerImpl(siteServiceMock, siteMapperMock)
+            val siteController = SiteControllerImpl(siteServiceMock)
 
             assertThrows<DataNotFoundException> {
                 siteController.delete(callMock, SiteRoute.Delete(dummySiteServerDto.siteName))
             }
 
-            verify(exactly = 0) {
-                with(siteMapperMock) {
-                    any<Site>().toSiteClientDto()
-                }
-            }
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                siteServiceMock.delete(dummySiteServerDto, dummySessionDto.sessionId)
+                dummySiteServerDto.encode()
+                siteServiceMock.delete(dummySiteServerDtoEncoded, dummySessionDto.sessionId)
             }
         }
 

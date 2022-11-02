@@ -1,6 +1,8 @@
 package com.lucasmdjl.passwordgenerator.server.test.service
 
+import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
+import com.lucasmdjl.passwordgenerator.server.mapper.UserMapper
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
 import com.lucasmdjl.passwordgenerator.server.plugins.DataNotFoundException
@@ -20,21 +22,28 @@ class UserServiceTest : ServiceTestParent() {
 
     private lateinit var userRepositoryMock: UserRepository
     private lateinit var sessionServiceMock: SessionService
+    private lateinit var userMapperMock: UserMapper
 
     private lateinit var dummyUserServerDto: UserServerDto
     private lateinit var dummyUser: User
     private lateinit var dummyUserId: UUID
     private lateinit var dummySessionId: UUID
+    private lateinit var dummyUserClientDto: UserClientDto
 
     @BeforeAll
     override fun initMocks() {
         userRepositoryMock = mockk()
         sessionServiceMock = mockk()
+        userMapperMock = mockk()
     }
 
     @BeforeEach
     override fun initDummies() {
         dummyUserServerDto = UserServerDto("user123")
+        dummyUserClientDto = UserClientDto(
+            "0544fc3d-f169-431e-83b9-3a240404e8cd",
+            listOf("81d35212-d8aa-4d51-b556-92ba0b0b7b36", "1278a8d9-c5e8-4abd-bbfa-68f29e04094c")
+        )
         dummyUser = User(EntityID(UUID.fromString("ea83b232-af3d-4f5c-a7fe-8d10da8db6ba"), Users))
         dummyUserId = UUID.fromString("712c2153-80e4-4c29-b08e-71ac72facaa0")
         dummySessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
@@ -49,9 +58,12 @@ class UserServiceTest : ServiceTestParent() {
             every { userRepositoryMock.createAndGetId(dummyUserServerDto.username, dummySessionId) } returns dummyUserId
             every { userRepositoryMock.getById(dummyUserId) } returns dummyUser
             every { sessionServiceMock.setLastUser(dummySessionId, dummyUser) } just Runs
+            with(userMapperMock) {
+                every { dummyUser.toUserClientDto() } returns dummyUserClientDto
+            }
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             val userResult = userService.create(dummyUserServerDto, dummySessionId)
 
@@ -61,8 +73,11 @@ class UserServiceTest : ServiceTestParent() {
                 userRepositoryMock.createAndGetId(dummyUserServerDto.username, dummySessionId)
                 userRepositoryMock.getById(dummyUserId)
                 sessionServiceMock.setLastUser(dummySessionId, dummyUser)
+                with(userMapperMock) {
+                    dummyUser.toUserClientDto()
+                }
             }
-            assertEquals(dummyUser, userResult)
+            assertEquals(dummyUserClientDto, userResult)
         }
 
         @Test
@@ -75,7 +90,7 @@ class UserServiceTest : ServiceTestParent() {
             } returns dummyUser
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             assertThrows<DataConflictException> {
                 userService.create(dummyUserServerDto, dummySessionId)
@@ -108,9 +123,12 @@ class UserServiceTest : ServiceTestParent() {
                 )
             } returns dummyUser
             every { sessionServiceMock.setLastUser(dummySessionId, dummyUser) } just Runs
+            with(userMapperMock) {
+                every { dummyUser.toUserClientDto() } returns dummyUserClientDto
+            }
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             val userResult = userService.find(dummyUserServerDto, dummySessionId)
 
@@ -118,8 +136,11 @@ class UserServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
                 sessionServiceMock.setLastUser(dummySessionId, dummyUser)
+                with(userMapperMock) {
+                    dummyUser.toUserClientDto()
+                }
             }
-            assertEquals(dummyUser, userResult)
+            assertEquals(dummyUserClientDto, userResult)
         }
 
         @Test
@@ -127,7 +148,7 @@ class UserServiceTest : ServiceTestParent() {
             every { userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId) } returns null
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             assertThrows<DataNotFoundException> {
                 userService.find(dummyUserServerDto, dummySessionId)
@@ -156,7 +177,7 @@ class UserServiceTest : ServiceTestParent() {
             every { sessionServiceMock.setLastUser(dummySessionId, null) } just Runs
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             userService.logout(dummyUserServerDto, dummySessionId)
 
@@ -178,7 +199,7 @@ class UserServiceTest : ServiceTestParent() {
             every { userMock.username } returns otherUsername
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             assertThrows<DataNotFoundException> {
                 userService.logout(dummyUserServerDto, dummySessionId)
@@ -201,7 +222,7 @@ class UserServiceTest : ServiceTestParent() {
             every { sessionServiceMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
-            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock)
+            val userService = UserServiceImpl(userRepositoryMock, sessionServiceMock, userMapperMock)
 
             assertThrows<DataNotFoundException> {
                 userService.logout(dummyUserServerDto, dummySessionId)

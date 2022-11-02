@@ -11,7 +11,7 @@ class SiteMapperImpl : SiteMapper {
 
     override fun siteToSiteClientDto(site: Site): SiteClientDto {
         logger.debug { "siteToSiteClientDto" }
-        return SiteClientDto(site.name)
+        return SiteClientDto(site.id.value.toString())
     }
 
 }

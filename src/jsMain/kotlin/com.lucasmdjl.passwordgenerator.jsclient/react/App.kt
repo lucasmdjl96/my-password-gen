@@ -3,10 +3,10 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 import com.lucasmdjl.passwordgenerator.common.dto.client.UserClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.UserRoute
-import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
+import com.lucasmdjl.passwordgenerator.jsclient.*
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
-import com.lucasmdjl.passwordgenerator.jsclient.jsonClient
+import com.lucasmdjl.passwordgenerator.jsclient.dto.UserClient
 import csstype.Color
 import emotion.react.css
 import io.ktor.client.call.*
@@ -22,11 +22,10 @@ import react.Props
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.main
 import react.useState
-import com.lucasmdjl.passwordgenerator.jsclient.visualViewport
 
 val App = { initialState: InitialState ->
     FC<Props> {
-        var userClientDto by useState<UserClientDto>()
+        var userClient by useState<UserClient>()
         var masterPassword by useState<String>()
         var online by useState(initialState.online && window.navigator.onLine)
         var background by useState(initialState.initialBackgroundColor)
@@ -61,13 +60,13 @@ val App = { initialState: InitialState ->
             main {
                 className = CssClasses.container
                 TitleContainer {
-                    this.loggedIn = userClientDto != null
+                    this.loggedIn = userClient != null
                     this.online = online
                 }
-                if (userClientDto == null) {
-                    onKeyDown = { event ->
-                        if (event.ctrlKey && event.key == "Enter") {
-                            (document.getElementById("onlineToggle")!! as HTMLElement).click()
+                if (userClient == null) {
+                    onKeyDown = withReceiver {
+                        if (ctrlKey && key == "Enter") {
+                            getHtmlElementById("onlineToggle")!!.click()
                         }
                     }
                     OnlineToggle {
@@ -79,46 +78,46 @@ val App = { initialState: InitialState ->
                     Login {
                         this.onLogin = { loginData: LoginDto ->
                             if (online) scope.launch {
-                                userClientDto = loginUser(loginData.username)
+                                userClient = loginUser(loginData.username)
                                 masterPassword = loginData.password
                             } else {
-                                userClientDto = UserClientDto(loginData.username)
+                                userClient = UserClient(loginData.username)
                                 masterPassword = loginData.password
                             }
                         }
                         this.onRegister = { loginData: LoginDto ->
                             if (online) scope.launch {
-                                userClientDto = registerUser(loginData.username)
+                                userClient = registerUser(loginData.username)
                                 masterPassword = loginData.password
                             } else {
-                                userClientDto = UserClientDto(loginData.username)
+                                userClient = UserClient(loginData.username)
                                 masterPassword = loginData.password
                             }
                         }
                     }
                 } else {
-                    onKeyDown = { event ->
-                        if (event.ctrlKey && event.key == "Backspace") {
-                            (document.getElementById("logout")!! as HTMLElement).click()
+                    onKeyDown = withReceiver {
+                        if (ctrlKey && key == "Backspace") {
+                            getHtmlElementById("logout")!!.click()
                         }
                     }
                     LogoutButton {
                         this.reset = {
                             if (online) scope.launch {
-                                logoutUser(userClientDto!!.username)
+                                logoutUser(userClient!!.username)
                             }
-                            userClientDto = null
+                            userClient = null
                             masterPassword = null
                         }
                     }
                     PasswordGen {
-                        this.userClientDto = userClientDto!!
+                        this.userClient = userClient!!
                         this.masterPassword = masterPassword!!
                         this.addEmail = { emailAddress ->
-                            userClientDto!!.addEmail(emailAddress)
+                            userClient!!.addEmail(emailAddress)
                         }
                         this.removeEmail = { emailAddress ->
-                            userClientDto!!.removeEmail(emailAddress)
+                            userClient!!.removeEmail(emailAddress)
                         }
                         this.online = online
                     }
@@ -137,32 +136,41 @@ val App = { initialState: InitialState ->
     }
 }
 
-suspend fun loginUser(username: String): UserClientDto? {
-    if (username == "") return null
+suspend fun loginUser(username: String): UserClient? {
     val response = jsonClient.post(UserRoute.Login()) {
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else UserClientDto(username, response.body<MutableList<String>>())
+    else {
+        val userClientDto = response.body<UserClientDto>()
+        val emailList = mutableListOf<String>()
+        database.readTransaction<Email>() {
+            for (emailId in userClientDto.emailIdList) {
+                get<Email>(emailId) { email ->
+                    if (email != null) emailList.add(email.emailAddress)
+                }
+            }
+        }.awaitCompletion()
+        UserClient(username, emailList)
+    }
 }
 
 
-suspend fun registerUser(username: String): UserClientDto? {
-    if (username == "") return null
+suspend fun registerUser(username: String): UserClient? {
     val response = jsonClient.post(UserRoute.Register()) {
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else UserClientDto(username, response.body<MutableList<String>>())
+    else UserClient(username)
 }
 
 suspend fun logoutUser(username: String) {
-    if (username != "") {
-        jsonClient.patch(UserRoute.Logout()) {
-            contentType(ContentType.Application.Json)
-            setBody(UserServerDto(username))
-        }
+    jsonClient.patch(UserRoute.Logout()) {
+        contentType(ContentType.Application.Json)
+        setBody(UserServerDto(username))
     }
 }
+
+fun getHtmlElementById(id: String) = document.getElementById(id) as? HTMLElement

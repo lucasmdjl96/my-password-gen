@@ -14,6 +14,7 @@
 <body>
 <script>
     localStorage.clear()
+    window.indexedDB.deleteDatabase("database")
     navigator.serviceWorker.getRegistrations().then(registrations => {
         for (let registration of registrations) {
             registration.unregister();

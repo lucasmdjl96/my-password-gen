@@ -16,7 +16,7 @@ import kotlin.test.assertEquals
 class SiteMapperTest : MapperTestParent() {
 
     private lateinit var siteMock: Site
-    private lateinit var dummySiteName: String
+    private lateinit var dummySiteId: String
     private lateinit var dummySiteClientDto: SiteClientDto
 
     @BeforeAll
@@ -26,8 +26,8 @@ class SiteMapperTest : MapperTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummySiteName = "site123"
-        dummySiteClientDto = SiteClientDto(dummySiteName)
+        dummySiteId = "site123"
+        dummySiteClientDto = SiteClientDto(dummySiteId)
     }
 
     @Nested
@@ -35,10 +35,10 @@ class SiteMapperTest : MapperTestParent() {
 
         @Test
         fun `with argument`() {
-            every { siteMock.name } returns dummySiteName
+            every { siteMock.id.value.toString() } returns dummySiteId
             val siteMapper = SiteMapperImpl()
             val siteDto = siteMapper.siteToSiteClientDto(siteMock)
-            assertEquals(dummySiteName, siteDto.siteName)
+            assertEquals(dummySiteId, siteDto.id)
         }
 
         @Test

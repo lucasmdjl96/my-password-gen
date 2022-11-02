@@ -4,6 +4,8 @@ import com.lucasmdjl.passwordgenerator.common.routes.SessionRoute
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
 import com.lucasmdjl.passwordgenerator.jsclient.plugins.*
 import com.lucasmdjl.passwordgenerator.jsclient.react.App
+import com.lucasmdjl.passwordgenerator.jsclient.react.Email
+import com.lucasmdjl.passwordgenerator.jsclient.react.Site
 import com.lucasmdjl.passwordgenerator.jsclient.react.scope
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -18,6 +20,8 @@ import react.dom.client.createRoot
 
 private const val defaultBackgroundColor = "#00008A"
 
+lateinit var database: IDBDatabase
+
 fun main() {
     val container = document.getElementById("root")!!
     val backgroundColor = localStorage.getItem("backgroundColor") ?: defaultBackgroundColor
@@ -31,6 +35,7 @@ fun main() {
     createRoot(container).render(app)
     if (cookiesAccepted == true) {
         registerServiceWorker()
+        openIndexedDB()
     }
 }
 
@@ -52,4 +57,31 @@ suspend fun updateSession() {
 
 fun registerServiceWorker() {
     window.navigator.serviceWorker.register("/static/js/service-worker.js", RegistrationOptions(scope = "/"))
+}
+
+fun openIndexedDB() {
+    scope.launch {
+        database = openDatabase("database", 1) {
+            versionChangeLog {
+                version(1) {
+                    createObjectStore<Email>(keyPath = "id")
+                    createObjectStore<Site>(keyPath = "id")
+                }
+            }
+            onBlocked {
+                window.alert(
+                    "Another tab is blocking a database update. Please, close all other tabs and reload this page."
+                )
+            }
+            onError {
+                window.alert(
+                    "Something went wrong while opening database. Please, refresh this page to try again."
+                )
+            }
+        } ifBlocking {
+            window.alert(
+                "This tab is blocking a database update. Please, close this tab."
+            )
+        }
+    }
 }

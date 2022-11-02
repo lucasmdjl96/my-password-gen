@@ -1,8 +1,8 @@
 package com.lucasmdjl.passwordgenerator.server.crypto
 
-import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.EmailServerDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
+import com.lucasmdjl.passwordgenerator.common.dto.server.UserServerDto
 import java.security.MessageDigest
 import java.util.*
 

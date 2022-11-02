@@ -1,6 +1,8 @@
 package com.lucasmdjl.passwordgenerator.server.test.service
 
+import com.lucasmdjl.passwordgenerator.common.dto.client.EmailClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.EmailServerDto
+import com.lucasmdjl.passwordgenerator.server.mapper.EmailMapper
 import com.lucasmdjl.passwordgenerator.server.model.Email
 import com.lucasmdjl.passwordgenerator.server.model.User
 import com.lucasmdjl.passwordgenerator.server.plugins.DataConflictException
@@ -24,18 +26,21 @@ class EmailServiceTest : ServiceTestParent() {
     private lateinit var emailRepositoryMock: EmailRepository
     private lateinit var userRepositoryMock: UserRepository
     private lateinit var sessionServiceMock: SessionService
+    private lateinit var emailMapperMock: EmailMapper
 
     private lateinit var dummySessionId: UUID
     private lateinit var dummyEmailServerDto: EmailServerDto
     private lateinit var dummyUser: User
     private lateinit var dummyEmailId: UUID
     private lateinit var dummyEmail: Email
+    private lateinit var dummyEmailClientDto: EmailClientDto
 
     @BeforeAll
     override fun initMocks() {
         emailRepositoryMock = mockk()
         userRepositoryMock = mockk()
         sessionServiceMock = mockk()
+        emailMapperMock = mockk()
     }
 
     @BeforeEach
@@ -45,6 +50,10 @@ class EmailServiceTest : ServiceTestParent() {
         dummyUser = User(EntityID(UUID.fromString("c26ffe47-d0dd-402c-a692-16552cb039ec"), Users))
         dummyEmailId = UUID.fromString("b4145017-ce98-439b-91c8-4a6c05ecbcc9")
         dummyEmail = Email(EntityID(UUID.fromString("7e91ff67-3de2-47bb-970d-9b76ea4c7883"), Emails))
+        dummyEmailClientDto = EmailClientDto(
+            "1c749bba-b9c5-43c7-8a2b-d6656b9e54b6",
+            listOf("61a403d1-dead-4404-8597-093e3ea94ebf", "525c3b27-efc1-4d1a-a3bf-27c6f6d2f1ea")
+        )
     }
 
     @Nested
@@ -62,9 +71,13 @@ class EmailServiceTest : ServiceTestParent() {
             } returns dummyEmailId
             every { emailRepositoryMock.getById(dummyEmailId) } returns dummyEmail
             every { userRepositoryMock.setLastEmail(dummyUser, dummyEmail) } just Runs
+            with(emailMapperMock) {
+                every { dummyEmail.toEmailClientDto() } returns dummyEmailClientDto
+            }
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             val emailResult = emailService.create(dummyEmailServerDto, dummySessionId)
 
@@ -75,9 +88,12 @@ class EmailServiceTest : ServiceTestParent() {
                 emailRepositoryMock.createAndGetId(dummyEmailServerDto.emailAddress, dummyUser)
                 emailRepositoryMock.getById(dummyEmailId)
                 userRepositoryMock.setLastEmail(dummyUser, dummyEmail)
+                with(emailMapperMock) {
+                    dummyEmail.toEmailClientDto()
+                }
             }
 
-            assertEquals(dummyEmail, emailResult)
+            assertEquals(dummyEmailClientDto, emailResult)
         }
 
         @Test
@@ -91,7 +107,8 @@ class EmailServiceTest : ServiceTestParent() {
             } returns dummyEmail
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             assertThrows<DataConflictException> {
                 emailService.create(dummyEmailServerDto, dummySessionId)
@@ -116,7 +133,8 @@ class EmailServiceTest : ServiceTestParent() {
             every { sessionServiceMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             assertThrows<Exception> { emailService.create(dummyEmailServerDto, dummySessionId) }
             verify {
@@ -144,9 +162,13 @@ class EmailServiceTest : ServiceTestParent() {
                 )
             } returns dummyEmail
             every { userRepositoryMock.setLastEmail(dummyUser, dummyEmail) } just Runs
+            with(emailMapperMock) {
+                every { dummyEmail.toEmailClientDto() } returns dummyEmailClientDto
+            }
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             val emailResult = emailService.find(dummyEmailServerDto, dummySessionId)
 
@@ -155,8 +177,11 @@ class EmailServiceTest : ServiceTestParent() {
                 sessionServiceMock.getLastUser(dummySessionId)
                 emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
                 userRepositoryMock.setLastEmail(dummyUser, dummyEmail)
+                with(emailMapperMock) {
+                    dummyEmail.toEmailClientDto()
+                }
             }
-            assertEquals(dummyEmail, emailResult)
+            assertEquals(dummyEmailClientDto, emailResult)
         }
 
         @Test
@@ -165,7 +190,8 @@ class EmailServiceTest : ServiceTestParent() {
             every { emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             assertThrows<DataNotFoundException> {
                 emailService.find(dummyEmailServerDto, dummySessionId)
@@ -186,7 +212,8 @@ class EmailServiceTest : ServiceTestParent() {
             every { sessionServiceMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             assertThrows<Exception> { emailService.find(dummyEmailServerDto, dummySessionId) }
             verify {
@@ -215,9 +242,13 @@ class EmailServiceTest : ServiceTestParent() {
             } returns dummyEmail
             every { emailRepositoryMock.delete(dummyEmail) } just Runs
             every { userRepositoryMock.setLastEmail(dummyUser, dummyEmail) } just Runs
+            with(emailMapperMock) {
+                every { dummyEmail.toEmailClientDto() } returns dummyEmailClientDto
+            }
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             val result = emailService.delete(dummyEmailServerDto, dummySessionId)
 
@@ -225,9 +256,12 @@ class EmailServiceTest : ServiceTestParent() {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionServiceMock.getLastUser(dummySessionId)
                 emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser)
+                with(emailMapperMock) {
+                    dummyEmail.toEmailClientDto()
+                }
                 emailRepositoryMock.delete(dummyEmail)
             }
-            assertEquals(Unit, result)
+            assertEquals(dummyEmailClientDto, result)
         }
 
         @Test
@@ -236,7 +270,8 @@ class EmailServiceTest : ServiceTestParent() {
             every { emailRepositoryMock.getByAddressAndUser(dummyEmailServerDto.emailAddress, dummyUser) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             assertThrows<DataNotFoundException> {
                 emailService.delete(dummyEmailServerDto, dummySessionId)
@@ -260,7 +295,8 @@ class EmailServiceTest : ServiceTestParent() {
             every { sessionServiceMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
-            val emailService = EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock)
+            val emailService =
+                EmailServiceImpl(emailRepositoryMock, userRepositoryMock, sessionServiceMock, emailMapperMock)
 
             assertThrows<Exception> { emailService.delete(dummyEmailServerDto, dummySessionId) }
             verify {

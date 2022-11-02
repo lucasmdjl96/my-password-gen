@@ -1,12 +1,10 @@
 package com.lucasmdjl.passwordgenerator.server.integrationtest
 
-import com.lucasmdjl.passwordgenerator.common.dto.client.SiteClientDto
 import com.lucasmdjl.passwordgenerator.common.dto.server.SiteServerDto
 import com.lucasmdjl.passwordgenerator.common.routes.SiteRoute
 import com.lucasmdjl.passwordgenerator.server.crypto.encode
 import com.lucasmdjl.passwordgenerator.server.model.Site
 import com.lucasmdjl.passwordgenerator.server.tables.Sites
-import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -80,9 +78,12 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 val initSiteName2 = "SiteXYZ"
+                val initSiteName2Encoded = initSiteName2.encode()
                 testTransaction {
                     exec(
                         """
@@ -91,9 +92,9 @@ class SiteTest : TestParent() {
                         INSERT INTO USERS (ID, USERNAME, SESSION_ID)
                             VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -108,7 +109,7 @@ class SiteTest : TestParent() {
                 assertEquals(HttpStatusCode.PreconditionFailed, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Sites.selectAll().count())
-                    assertEmpty(Site.find { Sites.siteName eq initSiteName2 })
+                    assertEmpty(Site.find { Sites.siteName eq initSiteName2Encoded })
                 }
             }
 
@@ -120,9 +121,12 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 val initSiteName2 = "Site002"
+                val initSiteName2Encoded = initSiteName2.encode()
                 testTransaction {
                     exec(
                         """
@@ -134,9 +138,9 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -151,7 +155,7 @@ class SiteTest : TestParent() {
                 assertEquals(HttpStatusCode.PreconditionFailed, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Sites.selectAll().count())
-                    assertEmpty(Site.find { Sites.siteName eq initSiteName2 })
+                    assertEmpty(Site.find { Sites.siteName eq initSiteName2Encoded })
                 }
             }
 
@@ -163,9 +167,12 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 val initSiteName2 = "Site002"
+                val initSiteName2Encoded = initSiteName2.encode()
                 testTransaction {
                     exec(
                         """
@@ -177,12 +184,12 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -195,11 +202,8 @@ class SiteTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto>()
-                assertNotNull(responseBody)
-                assertEquals(initSiteName2, responseBody.siteName)
                 testTransaction {
-                    assertNotEmpty(Site.find { Sites.siteName eq initSiteName2 and (Sites.emailId eq initEmailId) })
+                    assertNotEmpty(Site.find { Sites.siteName eq initSiteName2Encoded and (Sites.emailId eq initEmailId) })
                     assertEquals(sitesBefore + 1, Site.find { Sites.emailId eq initEmailId }.count())
                 }
             }
@@ -213,9 +217,12 @@ class SiteTest : TestParent() {
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailId2 = UUID.fromString("75fd4200-6d1e-45fe-8a82-5628e438bc7d")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initEmailAddress2 = "Email002"
+                val initEmailAddress2Encoded = initEmailAddress2.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -227,14 +234,14 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId2', '$initEmailAddress2', '$initUserId');
+                            VALUES ('$initEmailId2', '$initEmailAddress2Encoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId2');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId2');
                     """.trimIndent()
                     )
                 }
@@ -247,11 +254,8 @@ class SiteTest : TestParent() {
                     contentType(ContentType.Application.Json)
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto>()
-                assertNotNull(responseBody)
-                assertEquals(initSiteName, responseBody.siteName)
                 testTransaction {
-                    assertNotEmpty(Site.find { Sites.siteName eq initSiteName and (Sites.emailId eq initEmailId) })
+                    assertNotEmpty(Site.find { Sites.siteName eq initSiteNameEncoded and (Sites.emailId eq initEmailId) })
                     assertEquals(sitesBefore + 1, Site.find { Sites.emailId eq initEmailId }.count())
                 }
             }
@@ -264,8 +268,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -277,12 +283,12 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -355,8 +361,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -365,9 +373,9 @@ class SiteTest : TestParent() {
                         INSERT INTO USERS (ID, USERNAME, SESSION_ID)
                             VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -384,8 +392,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -397,9 +407,9 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -416,9 +426,12 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 val initSiteName2 = "Site002"
+                val initSiteName2Encoded = initSiteName2.encode()
                 testTransaction {
                     exec(
                         """
@@ -430,12 +443,12 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -453,9 +466,12 @@ class SiteTest : TestParent() {
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailId2 = UUID.fromString("75fd4200-6d1e-45fe-8a82-5628e438bc7d")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initEmailAddress2 = "Email002"
+                val initEmailAddress2Encoded = initEmailAddress2.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -467,14 +483,14 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId2', '$initEmailAddress2', '$initUserId');
+                            VALUES ('$initEmailId2', '$initEmailAddress2Encoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId2');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId2');
                     """.trimIndent()
                     )
                 }
@@ -491,8 +507,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -504,21 +522,18 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
                 val client = createAndConfigureClientWithCookie(initSessionId)
                 val response = client.get(SiteRoute.Find(initSiteName))
                 assertEquals(HttpStatusCode.OK, response.status)
-                val responseBody = response.body<SiteClientDto>()
-                assertNotNull(responseBody)
-                assertEquals(initSiteName, responseBody.siteName)
             }
         }
 
@@ -576,8 +591,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -586,9 +603,9 @@ class SiteTest : TestParent() {
                         INSERT INTO USERS (ID, USERNAME, SESSION_ID)
                             VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -600,7 +617,7 @@ class SiteTest : TestParent() {
                 assertEquals(HttpStatusCode.PreconditionFailed, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Sites.selectAll().count())
-                    assertNotEmpty(Site.find { Sites.siteName eq initSiteName })
+                    assertNotEmpty(Site.find { Sites.siteName eq initSiteNameEncoded })
                 }
             }
 
@@ -612,8 +629,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -625,9 +644,9 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -639,7 +658,7 @@ class SiteTest : TestParent() {
                 assertEquals(HttpStatusCode.PreconditionFailed, response.status)
                 testTransaction {
                     assertEquals(sitesBefore, Sites.selectAll().count())
-                    assertNotEmpty(Site.find { Sites.siteName eq initSiteName })
+                    assertNotEmpty(Site.find { Sites.siteName eq initSiteNameEncoded })
                 }
             }
 
@@ -651,9 +670,12 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 val initSiteName2 = "Site002"
+                val initSiteName2Encoded = initSiteName2.encode()
                 testTransaction {
                     exec(
                         """
@@ -665,12 +687,12 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
@@ -694,9 +716,12 @@ class SiteTest : TestParent() {
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailId2 = UUID.fromString("75fd4200-6d1e-45fe-8a82-5628e438bc7d")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initEmailAddress2 = "Email002"
+                val initEmailAddress2Encoded = initEmailAddress2.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -708,14 +733,14 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId2', '$initEmailAddress2', '$initUserId');
+                            VALUES ('$initEmailId2', '$initEmailAddress2Encoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId2');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId2');
                     """.trimIndent()
                     )
                 }
@@ -739,8 +764,10 @@ class SiteTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
                 val initSiteName = "Site001"
+                val initSiteNameEncoded = initSiteName.encode()
                 testTransaction {
                     exec(
                         """
@@ -752,12 +779,12 @@ class SiteTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';
                         INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
-                            VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                     """.trimIndent()
                     )
                 }
