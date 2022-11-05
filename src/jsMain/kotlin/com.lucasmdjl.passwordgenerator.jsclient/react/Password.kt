@@ -1,8 +1,6 @@
 package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
-import kotlinx.browser.document
-import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.aria.ariaLabel
@@ -27,15 +25,15 @@ val Password = FC<PasswordProps> { props ->
         onChange = {
             props.onChange(it.target.value)
         }
-        onKeyDown = { event ->
-            if (!event.ctrlKey && event.key == "Enter") {
-                val buttonId = if (event.altKey) "register" else "login"
-                (document.getElementById(buttonId)!! as HTMLElement).click()
-            } else if (event.ctrlKey && event.key == "s") {
-                event.preventDefault()
-                (document.getElementById("showPassword")!! as HTMLElement).click()
-            } else if (event.ctrlKey && event.key == "ArrowUp") {
-                (document.getElementById("username")!! as HTMLElement).focus()
+        onKeyDown = withReceiver {
+            if (!ctrlKey && key == "Enter") {
+                val buttonId = if (altKey) "register" else "login"
+                ::click on getHtmlElementById(buttonId)!!
+            } else if (ctrlKey && key == "s") {
+                preventDefault()
+                ::click on getHtmlElementById("showPassword")!!
+            } else if (ctrlKey && key == "ArrowUp") {
+                ::focus on getHtmlElementById("username")!!
             }
         }
     }

@@ -17,6 +17,7 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.Window
 import org.w3c.dom.events.EventTarget
 import react.FC
 import react.Props
@@ -35,8 +36,8 @@ val App = { initialState: InitialState ->
         var keyboardUp by useState(false)
         var connectionOn by useState(window.navigator.onLine)
 
-        Window.visualViewport.addEventListener("resize", {
-            keyboardUp = Window.visualViewport.height < 500 && Window.visualViewport.width < 500
+        window.visualViewport.addEventListener("resize", {
+            keyboardUp = window.visualViewport.height < 500 && window.visualViewport.width < 500
         })
 
         window.addEventListener("offline", {
@@ -65,9 +66,9 @@ val App = { initialState: InitialState ->
                     this.online = online
                 }
                 if (userClientDto == null) {
-                    onKeyDown = { event ->
-                        if (event.ctrlKey && event.key == "Enter") {
-                            (document.getElementById("onlineToggle")!! as HTMLElement).click()
+                    onKeyDown = withReceiver {
+                        if (ctrlKey && key == "Enter") {
+                            ::click on getHtmlElementById("onlineToggle")!!
                         }
                     }
                     OnlineToggle {
@@ -97,9 +98,9 @@ val App = { initialState: InitialState ->
                         }
                     }
                 } else {
-                    onKeyDown = { event ->
-                        if (event.ctrlKey && event.key == "Backspace") {
-                            (document.getElementById("logout")!! as HTMLElement).click()
+                    onKeyDown = withReceiver {
+                        if (ctrlKey && key == "Backspace") {
+                            ::click on getHtmlElementById("logout")!!
                         }
                     }
                     LogoutButton {
@@ -138,7 +139,6 @@ val App = { initialState: InitialState ->
 }
 
 suspend fun loginUser(username: String): UserClientDto? {
-    if (username == "") return null
     val response = jsonClient.post(UserRoute.Login()) {
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
@@ -149,7 +149,6 @@ suspend fun loginUser(username: String): UserClientDto? {
 
 
 suspend fun registerUser(username: String): UserClientDto? {
-    if (username == "") return null
     val response = jsonClient.post(UserRoute.Register()) {
         contentType(ContentType.Application.Json)
         setBody(UserServerDto(username))
@@ -172,9 +171,7 @@ abstract external class VisualViewport : EventTarget {
     var width: Int
 }
 
-@JsName("window")
-external object Window {
+inline val Window.visualViewport: VisualViewport
+    get() = asDynamic().visualViewport as VisualViewport
 
-    val visualViewport: VisualViewport
-
-}
+fun getHtmlElementById(id: String) = document.getElementById(id) as? HTMLElement

@@ -2,8 +2,6 @@ package com.lucasmdjl.passwordgenerator.jsclient.react
 
 import com.lucasmdjl.passwordgenerator.jsclient.CssClasses
 import com.lucasmdjl.passwordgenerator.jsclient.dto.LoginDto
-import kotlinx.browser.document
-import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.aria.ariaLabel
@@ -37,11 +35,11 @@ val Login = FC<LoginProps> { props ->
             onChange = {
                 username = it.target.value
             }
-            onKeyDown = { event ->
-                if (!event.ctrlKey && event.key == "Enter") {
-                    (document.getElementById("password")!! as HTMLElement).focus()
-                } else if (event.ctrlKey && event.key == "ArrowDown") {
-                    (document.getElementById("password")!! as HTMLElement).focus()
+            onKeyDown = withReceiver {
+                if (!ctrlKey && key == "Enter") {
+                    ::focus on getHtmlElementById("password")!!
+                } else if (ctrlKey && key == "ArrowDown") {
+                    ::focus on getHtmlElementById("password")!!
                 }
             }
         }
@@ -61,14 +59,14 @@ val Login = FC<LoginProps> { props ->
             +"Log in"
             id = "login"
             onClick = {
-                props.onLogin(LoginDto(username, password))
+                if (username != "" && password != "") props.onLogin(LoginDto(username, password))
             }
         }
         button {
             +"Register"
             id = "register"
             onClick = {
-                props.onRegister(LoginDto(username, password))
+                if (username != "" && password != "") props.onRegister(LoginDto(username, password))
             }
         }
     }

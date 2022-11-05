@@ -45,7 +45,7 @@ val DropList = FC<DropListProps> { props ->
                 +"delete"
             }
             onClick = {
-                props.doOnRemove(inputValue)
+                if (inputValue != "") props.doOnRemove(inputValue)
                 inputValue = ""
             }
         }
@@ -85,7 +85,7 @@ val DropList = FC<DropListProps> { props ->
             disabled = props.disableAdd || inputValue == ""
             +"Add"
             onClick = {
-                props.doOnAdd(inputValue)
+                if (inputValue != "") props.doOnAdd(inputValue)
             }
         }
     }

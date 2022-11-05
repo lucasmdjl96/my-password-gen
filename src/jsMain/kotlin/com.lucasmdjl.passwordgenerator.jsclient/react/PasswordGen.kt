@@ -12,7 +12,6 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.browser.document
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import react.FC
@@ -60,7 +59,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         }
         this.disableAdd = emailClientDto != null
         this.doOnAdd = { emailAddress ->
-            if (emailAddress != "" && !props.userClientDto.hasEmail(emailAddress)) {
+            if (!props.userClientDto.hasEmail(emailAddress)) {
                 props.addEmail(emailAddress)
                 emailClientDto = EmailClientDto(emailAddress)
                 if (props.online) scope.launch {
@@ -76,7 +75,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             emailClientDto = null
             siteClientDto = null
             password = null
-            if (emailAddress != "" && props.userClientDto.hasEmail(emailAddress)) {
+            if (props.userClientDto.hasEmail(emailAddress)) {
                 props.removeEmail(emailAddress)
                 if (props.online) scope.launch {
                     val result = removeEmail(emailAddress)
@@ -86,15 +85,15 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                 }
             }
         }
-        this.doOnEnter = { event ->
-            if (event.key == "Enter" && emailClientDto == null) {
-                (document.getElementById("emailAdd")!! as HTMLElement).click()
-            } else if (event.key == "Enter" && emailClientDto != null) {
-                (document.getElementById("site")!! as HTMLElement).focus()
-            } else if (event.ctrlKey && event.key == "Delete") {
-                (document.getElementById("emailRemove")!! as HTMLElement).click()
-            } else if (event.ctrlKey && event.key == "ArrowDown") {
-                (document.getElementById("site")!! as HTMLElement).focus()
+        this.doOnEnter = withReceiver {
+            if (key == "Enter" && emailClientDto == null) {
+                ::click on getHtmlElementById("emailAdd")!!
+            } else if (key == "Enter" && emailClientDto != null) {
+                ::focus on getHtmlElementById("site")!!
+            } else if (ctrlKey && key == "Delete") {
+                ::click on getHtmlElementById("emailRemove")!!
+            } else if (ctrlKey && key == "ArrowDown") {
+                ::focus on getHtmlElementById("site")!!
             }
         }
     }
@@ -116,7 +115,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
             this.disableAdd = siteClientDto != null
             this.doOnAdd = { siteName ->
-                if (siteName != "" && !emailClientDto!!.hasSite(siteName)) {
+                if (!emailClientDto!!.hasSite(siteName)) {
                     emailClientDto!!.addSite(siteName)
                     siteClientDto = SiteClientDto(siteName)
                     if (props.online) scope.launch {
@@ -129,7 +128,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             this.doOnRemove = { siteName ->
                 siteClientDto = null
                 password = null
-                if (siteName != "" && emailClientDto!!.hasSite(siteName)) {
+                if (emailClientDto!!.hasSite(siteName)) {
                     emailClientDto!!.removeSite(siteName)
                     if (props.online) scope.launch {
                         val result = removeSite(siteName)
@@ -139,17 +138,17 @@ val PasswordGen = FC<PasswordGenProps> { props ->
                     }
                 }
             }
-            this.doOnEnter = { event ->
-                if (event.key == "Enter" && siteClientDto == null) {
-                    (document.getElementById("siteAdd")!! as HTMLElement).click()
-                } else if (event.key == "Enter" && siteClientDto != null) {
-                    (document.getElementById("passwordGenerator")!! as HTMLElement).click()
-                } else if (event.ctrlKey && event.key == "c") {
-                    (document.getElementById("copyButton")!! as HTMLElement).click()
-                } else if (event.ctrlKey && event.key == "ArrowUp") {
-                    (document.getElementById("email")!! as HTMLElement).focus()
-                } else if (event.ctrlKey && event.key == "Delete") {
-                    (document.getElementById("siteRemove")!! as HTMLElement).click()
+            this.doOnEnter = withReceiver {
+                if (key == "Enter" && siteClientDto == null) {
+                    ::click on getHtmlElementById("siteAdd")!!
+                } else if (key == "Enter" && siteClientDto != null) {
+                    ::click on getHtmlElementById("passwordGenerator")!!
+                } else if (ctrlKey && key == "c") {
+                    ::click on getHtmlElementById("copyButton")!!
+                } else if (ctrlKey && key == "ArrowUp") {
+                    ::focus on getHtmlElementById("email")!!
+                } else if (ctrlKey && key == "Delete") {
+                    ::click on getHtmlElementById("siteRemove")!!
                 }
             }
         }
@@ -207,3 +206,12 @@ suspend fun removeSite(siteName: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else Unit
 }
+
+inline fun <T, S> withReceiver(crossinline block: T.() -> S): (T) -> S = {
+    it.block()
+}
+
+infix fun ((HTMLElement) -> Unit).on(element: HTMLElement): Unit = this(element)
+
+fun click(element: HTMLElement) = element.click()
+fun focus(element: HTMLElement) = element.focus()
