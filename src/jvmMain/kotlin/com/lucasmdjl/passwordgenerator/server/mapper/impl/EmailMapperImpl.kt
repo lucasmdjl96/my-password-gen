@@ -20,9 +20,4 @@ class EmailMapperImpl : EmailMapper {
         )
     }
 
-    override fun loadSiteIdsFrom(email: Email): MutableList<String> = transaction {
-        email.load(Email::sites)
-        email.sites.map { site -> site.id.value.toString() }.toMutableList()
-    }
-
 }

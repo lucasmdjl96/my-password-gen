@@ -9,8 +9,4 @@ interface EmailMapper {
 
     fun Email.toEmailClientDto() = emailToEmailClientDto(this)
 
-    fun loadSiteIdsFrom(email: Email): MutableList<String>
-
-    fun Email.loadSiteIds() = loadSiteIdsFrom(this)
-
 }

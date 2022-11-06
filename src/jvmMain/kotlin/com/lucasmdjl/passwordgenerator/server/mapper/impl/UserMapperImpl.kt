@@ -20,9 +20,4 @@ class UserMapperImpl : UserMapper {
         )
     }
 
-    override fun loadEmailIdsFrom(user: User): MutableList<String> = transaction {
-        user.load(User::emails)
-        user.emails.map { email -> email.id.value.toString() }.toMutableList()
-    }
-
 }

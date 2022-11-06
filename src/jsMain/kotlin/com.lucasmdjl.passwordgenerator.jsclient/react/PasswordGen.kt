@@ -16,6 +16,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.html.InputType
@@ -195,7 +196,7 @@ suspend fun addEmail(emailAddress: String): EmailClient? {
         database.readWriteTransaction<Email>() {
             add(Email(emailClientDto.id, emailAddress))
         }.awaitCompletion()
-        EmailClient(emailAddress, response.body())
+        EmailClient(emailAddress, mutableListOf())
     }
 }
 
