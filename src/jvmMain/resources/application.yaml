@@ -8,14 +8,14 @@ ktor:
       - com.lucasmdjl.passwordgenerator.server.ServerKt.module
   security:
     ssl:
-      keyStore: keystore/localhost.jks
-      keyAlias: localhost
-      keyStorePassword: localhosttest
-      privateKeyPassword: localhosttest
+      keyStore: $KEY_STORE
+      keyAlias: $KEY_ALIAS
+      keyStorePassword: $KEY_STORE_PASSWORD
+      privateKeyPassword: $PRIVATE_KEY_PASSWORD
 
 postgres:
-  username: postgres
-  password: postgres
+  username: $POSTGRES_USER
+  password: $POSTGRES_PASSWORD
   driver: org.postgresql.Driver
   jdbcUrlBase: "jdbc:postgresql"
   host: $POSTGRES_HOST

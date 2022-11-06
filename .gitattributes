@@ -22,6 +22,8 @@ gradlew text eol=lf
 *.gradle.kts text diff=kotlin
 DockerFile text
 *DockerFile text
+*.env text
+.env text
 *.md text diff=markdown
 gradlew.bat text eol=crlf
 *gradlew.bat text eol=crlf

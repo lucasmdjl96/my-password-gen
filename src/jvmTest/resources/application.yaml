@@ -9,7 +9,7 @@ ktor:
       - com.lucasmdjl.passwordgenerator.server.test.ServerTestKt.module
   security:
     ssl:
-      keyStore: keystore/localhost.jks
-      keyAlias: localhost
-      keyStorePassword: localhosttest
-      privateKeyPassword: localhosttest
+      keyStore: $KEY_STORE
+      keyAlias: $KEY_ALIAS
+      keyStorePassword: $KEY_STORE_PASSWORD
+      privateKeyPassword: $PRIVATE_KEY_PASSWORD

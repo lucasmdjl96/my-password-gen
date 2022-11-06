@@ -3,3 +3,4 @@ build
 .idea
 postgres_data
 keystore
+.env

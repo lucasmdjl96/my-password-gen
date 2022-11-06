@@ -6,6 +6,12 @@ services:
       context: .
     environment:
         POSTGRES_HOST: database
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        KEY_STORE: ${KEY_STORE}
+        KEY_ALIAS: ${KEY_ALIAS}
+        KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+        PRIVATE_KEY_PASSWORD: ${PRIVATE_KEY_PASSWORD}
     ports:
       - 8443:8443
     depends_on:
@@ -15,8 +21,8 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_DB: default_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
