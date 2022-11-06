@@ -37,9 +37,9 @@ val Login = FC<LoginProps> { props ->
             }
             onKeyDown = withReceiver {
                 if (!ctrlKey && key == "Enter") {
-                    getHtmlElementById("password")!!.focus()
+                    ::focus on getHtmlElementById("password")!!
                 } else if (ctrlKey && key == "ArrowDown") {
-                    getHtmlElementById("password")!!.focus()
+                    ::focus on getHtmlElementById("password")!!
                 }
             }
         }

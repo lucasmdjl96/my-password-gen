@@ -28,12 +28,12 @@ val Password = FC<PasswordProps> { props ->
         onKeyDown = withReceiver {
             if (!ctrlKey && key == "Enter") {
                 val buttonId = if (altKey) "register" else "login"
-                getHtmlElementById(buttonId)!!.click()
+                ::click on getHtmlElementById(buttonId)!!
             } else if (ctrlKey && key == "s") {
                 preventDefault()
-                getHtmlElementById("showPassword")!!.click()
+                ::click on getHtmlElementById("showPassword")!!
             } else if (ctrlKey && key == "ArrowUp") {
-                getHtmlElementById("username")!!.focus()
+                ::focus on getHtmlElementById("username")!!
             }
         }
     }

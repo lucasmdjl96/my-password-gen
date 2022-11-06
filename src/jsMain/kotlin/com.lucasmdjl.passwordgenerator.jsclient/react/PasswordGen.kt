@@ -89,13 +89,13 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         }
         this.doOnEnter = withReceiver {
             if (key == "Enter" && emailClient == null) {
-                getHtmlElementById("emailAdd")!!.click()
+                ::click on getHtmlElementById("emailAdd")!!
             } else if (key == "Enter" && emailClient != null) {
-                getHtmlElementById("site")!!.focus()
+                ::focus on getHtmlElementById("site")!!
             } else if (ctrlKey && key == "Delete") {
-                getHtmlElementById("emailRemove")!!.click()
+                ::click on getHtmlElementById("emailRemove")!!
             } else if (ctrlKey && key == "ArrowDown") {
-                getHtmlElementById("site")!!.focus()
+                ::focus on getHtmlElementById("site")!!
             }
         }
     }
@@ -142,15 +142,15 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
             this.doOnEnter = withReceiver {
                 if (key == "Enter" && siteClient == null) {
-                    getHtmlElementById("siteAdd")!!.click()
+                    ::click on getHtmlElementById("siteAdd")!!
                 } else if (key == "Enter" && siteClient != null) {
-                    getHtmlElementById("passwordGenerator")!!.click()
+                    ::click on getHtmlElementById("passwordGenerator")!!
                 } else if (ctrlKey && key == "c") {
-                    getHtmlElementById("copyButton")!!.click()
+                    ::click on getHtmlElementById("copyButton")!!
                 } else if (ctrlKey && key == "ArrowUp") {
-                    getHtmlElementById("email")!!.focus()
+                    ::focus on getHtmlElementById("email")!!
                 } else if (ctrlKey && key == "Delete") {
-                    getHtmlElementById("siteRemove")!!.click()
+                    ::click on getHtmlElementById("siteRemove")!!
                 }
             }
         }
@@ -254,3 +254,8 @@ class Site(val id: String?, val siteName: String)
 inline fun <T, S> withReceiver(crossinline block: T.() -> S): (T) -> S = {
     it.block()
 }
+
+infix fun ((HTMLElement) -> Unit).on(element: HTMLElement): Unit = this(element)
+
+fun click(element: HTMLElement) = element.click()
+fun focus(element: HTMLElement) = element.focus()

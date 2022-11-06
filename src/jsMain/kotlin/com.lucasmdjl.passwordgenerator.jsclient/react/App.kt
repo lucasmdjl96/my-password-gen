@@ -66,7 +66,7 @@ val App = { initialState: InitialState ->
                 if (userClient == null) {
                     onKeyDown = withReceiver {
                         if (ctrlKey && key == "Enter") {
-                            getHtmlElementById("onlineToggle")!!.click()
+                            ::click on getHtmlElementById("onlineToggle")!!
                         }
                     }
                     OnlineToggle {
@@ -98,7 +98,7 @@ val App = { initialState: InitialState ->
                 } else {
                     onKeyDown = withReceiver {
                         if (ctrlKey && key == "Backspace") {
-                            getHtmlElementById("logout")!!.click()
+                            ::click on getHtmlElementById("logout")!!
                         }
                     }
                     LogoutButton {
