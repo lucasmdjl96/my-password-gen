@@ -2,7 +2,10 @@ package com.lucasmdjl.passwordgenerator.jsclient
 
 import com.lucasmdjl.passwordgenerator.common.routes.SessionRoute
 import com.lucasmdjl.passwordgenerator.jsclient.dto.InitialState
-import com.lucasmdjl.passwordgenerator.jsclient.plugins.*
+import com.lucasmdjl.passwordgenerator.jsclient.plugins.installContentNegotiation
+import com.lucasmdjl.passwordgenerator.jsclient.plugins.installDefaultRequest
+import com.lucasmdjl.passwordgenerator.jsclient.plugins.installHttpResponseValidator
+import com.lucasmdjl.passwordgenerator.jsclient.plugins.installResources
 import com.lucasmdjl.passwordgenerator.jsclient.react.App
 import com.lucasmdjl.passwordgenerator.jsclient.react.Email
 import com.lucasmdjl.passwordgenerator.jsclient.react.Site
@@ -44,7 +47,7 @@ val clipboard = window.navigator.clipboard
 val jsonClient = HttpClient {
     installContentNegotiation()
     installResources()
-    installLogging()
+    //installLogging()
     installDefaultRequest()
     installHttpResponseValidator()
 }
@@ -78,10 +81,10 @@ fun openIndexedDB() {
                     "Something went wrong while opening database. Please, refresh this page to try again."
                 )
             }
-        } ifBlocking {
+        } /*ifBlocking {
             window.alert(
                 "This tab is blocking a database update. Please, close this tab."
             )
-        }
+        }*/
     }
 }
