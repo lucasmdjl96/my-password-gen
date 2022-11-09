@@ -100,7 +100,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             }
         }
     }
-    if (emailClient != null) {
+    if (emailClient != null && emailClient?.emailAddress != "") {
         DropList {
             this.name = "site"
             this.inputType = InputType.text
