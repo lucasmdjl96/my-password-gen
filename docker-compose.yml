@@ -4,22 +4,30 @@ services:
   web:
     build:
       context: .
+      args:
+        SSL_PORT: ${SSL_PORT}
     environment:
-        POSTGRES_HOST: database
-        POSTGRES_USER: ${POSTGRES_USER}
-        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-        KEY_STORE: ${KEY_STORE}
-        KEY_ALIAS: ${KEY_ALIAS}
-        KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
-        PRIVATE_KEY_PASSWORD: ${PRIVATE_KEY_PASSWORD}
+      DEV: ${DEV}
+      HOST: ${HOST}
+      SSL_PORT: ${SSL_PORT}
+      POSTGRES_HOST: database
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      KEY_STORE: ${KEY_STORE}
+      KEY_ALIAS: ${KEY_ALIAS}
+      KEY_STORE_PASSWORD: ${KEY_STORE_PASSWORD}
+      PRIVATE_KEY_PASSWORD: ${PRIVATE_KEY_PASSWORD}
     ports:
-      - 8443:8443
+      - 8443:${SSL_PORT}
     depends_on:
       - database
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   database:
-    image: 'postgres:14.5-alpine'
+    image: 'postgres:14.1-alpine'
     ports:
-      - 5432:5432
+      - 5432:${POSTGRES_PORT}
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}

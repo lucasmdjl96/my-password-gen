@@ -1,15 +1,4 @@
 ktor:
-  development: true
-  deployment:
-    environment:
-      host: localhost
-      sslPort: 8443
   application:
     modules:
       - com.lucasmdjl.passwordgenerator.server.test.ServerTestKt.module
-  security:
-    ssl:
-      keyStore: $KEY_STORE
-      keyAlias: $KEY_ALIAS
-      keyStorePassword: $KEY_STORE_PASSWORD
-      privateKeyPassword: $PRIVATE_KEY_PASSWORD

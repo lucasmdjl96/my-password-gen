@@ -1,8 +1,8 @@
 ktor:
-  development: true
+  development: $DEV
   deployment:
-    host: 0.0.0.0
-    sslPort: 8443
+    host: $HOST
+    sslPort: $SSL_PORT
   application:
     modules:
       - com.lucasmdjl.passwordgenerator.server.ServerKt.module
@@ -19,4 +19,4 @@ postgres:
   driver: org.postgresql.Driver
   jdbcUrlBase: "jdbc:postgresql"
   host: $POSTGRES_HOST
-  port: 5432
+  port: $POSTGRES_PORT
