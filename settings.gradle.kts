@@ -1,3 +1,2 @@
 
-rootProject.name = "password-manager"
-
+rootProject.name = "my-password-gen"

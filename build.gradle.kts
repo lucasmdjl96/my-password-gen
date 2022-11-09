@@ -156,7 +156,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("com.lucasmdjl.passwordgenerator.server.ServerKt")
+    mainClass.set("com.mypasswordgen.server.ServerKt")
 }
 
 tasks.named<Copy>("jvmProcessResources") {

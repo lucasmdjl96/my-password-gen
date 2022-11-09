@@ -1,4 +1,4 @@
 ktor:
   application:
     modules:
-      - com.lucasmdjl.passwordgenerator.server.test.ServerTestKt.module
+      - com.mypasswordgen.server.test.ServerTestKt.module

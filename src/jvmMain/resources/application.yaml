@@ -5,7 +5,7 @@ ktor:
     sslPort: $SSL_PORT
   application:
     modules:
-      - com.lucasmdjl.passwordgenerator.server.ServerKt.module
+      - com.mypasswordgen.server.ServerKt.module
   security:
     ssl:
       keyStore: $KEY_STORE

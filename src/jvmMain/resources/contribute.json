@@ -2,7 +2,7 @@
   "name": "Password Generator",
   "description": "A password generator",
   "repository": {
-    "url": "https://github.com/lucasmdjl96/Password-Manager",
+    "url": "https://github.com/lucasmdjl96/my-password-gen",
     "license": "GPLv3"
   },
   "keywords": [

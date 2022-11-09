@@ -3,7 +3,7 @@ const runtime = "runtime";
 const cachesUsed = [precache, runtime];
 
 const precacheFiles = [
-    "/static/js/password-manager.js",
+    "/static/js/my-password-gen.js",
     "/",
     "/static/css/style.css",
 ];
