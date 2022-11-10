@@ -4,3 +4,4 @@ build
 postgres_data
 keystore
 *.env
+logs

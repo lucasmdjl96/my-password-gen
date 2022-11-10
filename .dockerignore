@@ -5,3 +5,4 @@ postgres_data
 .dockerignore
 .git
 *.env
+logs

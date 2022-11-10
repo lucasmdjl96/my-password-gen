@@ -1,12 +1,23 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %-5level %-25logger{0} MDC= %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{0}%n              MDC= %msg%n</pattern>
+        </encoder>
+        <file>logs/logFile.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>log/%d{MM-yyyy}/logFile.gz</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
 
-    <root level="debug">
-        <appender-ref ref="STDOUT"/>
+    <root level="${LOG_LEVEL:-debug}">
+        <appender-ref ref="${LOG_APPENDER:-console}"/>
     </root>
 
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="WARN"/>
