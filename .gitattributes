@@ -24,6 +24,7 @@ DockerFile text
 *DockerFile text
 *.env text
 .env text
+*.sh text eol=lf
 *.md text diff=markdown
 gradlew.bat text eol=crlf
 *gradlew.bat text eol=crlf

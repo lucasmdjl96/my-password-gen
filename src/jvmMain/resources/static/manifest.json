@@ -1,7 +1,7 @@
 {
   "lang": "en-US",
-  "short_name": "PasswordGen",
-  "name": "Password Generator",
+  "short_name": "MyPasswordGen",
+  "name": "My Password Generator",
   "icons": [
     {
       "src": "/static/icons/android-chrome-192x192.png",
