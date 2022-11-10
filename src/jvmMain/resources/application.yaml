@@ -20,3 +20,4 @@ postgres:
   jdbcUrlBase: "jdbc:postgresql"
   host: $POSTGRES_HOST
   port: $POSTGRES_PORT
+  database: $POSTGRES_DB

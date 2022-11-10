@@ -19,9 +19,10 @@ fun Application.initDatabase() {
     val jdbcUrlBase = environment.config.property("postgres.jdbcUrlBase").getString()
     val jdbcUrlHost = environment.config.property("postgres.host").getString()
     val jdbcUrlPort = environment.config.property("postgres.port").getString()
+    val jdbcUrlDatabase = environment.config.property("postgres.database").getString()
     val hikariConfig = HikariConfig().apply {
         driverClassName = environment.config.property("postgres.driver").getString()
-        jdbcUrl = "$jdbcUrlBase://$jdbcUrlHost:$jdbcUrlPort/"
+        jdbcUrl = "$jdbcUrlBase://$jdbcUrlHost:$jdbcUrlPort/$jdbcUrlDatabase"
         username = environment.config.property("postgres.username").getString()
         password = environment.config.property("postgres.password").getString()
     }
