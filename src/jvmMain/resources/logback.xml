@@ -6,6 +6,7 @@
     </appender>
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <encoder>
+            <charset>UTF-8</charset>
             <pattern>%d{HH:mm:ss.SSS} %-5level %logger{0}%n              MDC= %msg%n</pattern>
         </encoder>
         <file>logs/logFile.log</file>
