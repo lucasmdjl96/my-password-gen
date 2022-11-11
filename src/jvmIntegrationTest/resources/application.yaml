@@ -1,4 +1,0 @@
-ktor:
-  application:
-    modules:
-      - com.mypasswordgen.server.integrationtest.TestParentKt.module

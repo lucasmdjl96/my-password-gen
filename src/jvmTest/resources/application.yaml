@@ -1,4 +1,0 @@
-ktor:
-  application:
-    modules:
-      - com.mypasswordgen.server.test.ServerTestKt.module
