@@ -30,15 +30,19 @@ fun Application.initDatabase() {
     transaction(database) {
         addLogger(StdOutSqlLogger)
         SchemaUtils.createMissingTablesAndColumns(Sessions, Users, Emails, Sites)
+        val today = Clock.System.todayAt(TimeZone.UTC)
         Sessions.deleteWhere {
             Sessions.dateCreated less dateLiteral(
-                Clock.System.todayAt(TimeZone.UTC) - DatePeriod(days = 31)
+                today - DatePeriod(days = 31)
             )
         }
         val scriptPath = environment.config.propertyOrNull("postgres.script")?.getString()
         if (scriptPath != null) {
             val script = File(scriptPath)
-            if (script.exists() && script.isFile && script.canRead()) exec(script.readText())
+            if (script.exists() && script.isFile && script.canRead()) {
+                exec(script.readText())
+                script.renameTo(File("$scriptPath.executed.$today"))
+            }
         }
     }
 }
