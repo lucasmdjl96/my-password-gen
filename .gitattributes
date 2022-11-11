@@ -8,6 +8,7 @@ gradlew text eol=lf
 *.css text diff=css
 *.yaml text
 *.yml text
+*.conf text
 *.properties text
 *.svg text
 *.xml text
