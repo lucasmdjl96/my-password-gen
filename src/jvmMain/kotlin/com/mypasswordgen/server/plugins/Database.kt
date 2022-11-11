@@ -32,7 +32,7 @@ fun Application.initDatabase() {
         SchemaUtils.createMissingTablesAndColumns(Sessions, Users, Emails, Sites)
         Sessions.deleteWhere {
             Sessions.dateCreated less dateLiteral(
-                Clock.System.todayAt(TimeZone.UTC) - DatePeriod(days = 31)
+                Clock.System.todayAt(TimeZone.UTC) - DatePeriod(days = 92)
             )
         }
         val scriptPath = environment.config.propertyOrNull("postgres.script")?.getString()

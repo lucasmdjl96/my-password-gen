@@ -10,7 +10,7 @@ fun Application.installSessions() {
     pluginLogger.debug { "Installing Sessions" }
     install(Sessions) {
         cookie<SessionDto>("session") {
-            cookie.maxAgeInSeconds = 30 * 24 * 60 * 60
+            cookie.maxAgeInSeconds = 91 * 24 * 60 * 60
             cookie.secure = true
             cookie.path = "/"
             cookie.httpOnly = true
