@@ -7,12 +7,11 @@ import com.mypasswordgen.server.tables.Users
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
-
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
+import kotlinx.datetime.*
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.kotlin.datetime.dateLiteral
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.File
 
 fun Application.initDatabase() {
     pluginLogger.debug { "Installing Database" }
@@ -30,6 +29,16 @@ fun Application.initDatabase() {
     val database = Database.connect(dataSource)
     transaction(database) {
         addLogger(StdOutSqlLogger)
-        SchemaUtils.create(Sessions, Users, Emails, Sites)
+        SchemaUtils.createMissingTablesAndColumns(Sessions, Users, Emails, Sites)
+        Sessions.deleteWhere {
+            Sessions.dateCreated less dateLiteral(
+                Clock.System.todayAt(TimeZone.UTC) - DatePeriod(days = 31)
+            )
+        }
+        val scriptPath = environment.config.propertyOrNull("postgres.script")?.getString()
+        if (scriptPath != null) {
+            val script = File(scriptPath)
+            if (script.exists() && script.isFile && script.canRead()) exec(script.readText())
+        }
     }
 }

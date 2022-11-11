@@ -16,6 +16,7 @@ fun Routing.installHeaders() {
                     "font-src https://fonts.gstatic.com;" +
                     "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;" +
                     "object-src 'none';" +
+                    "img-src 'self' https://www.paypalobjects.com;" +
                     "base-uri 'none';" +
                     "frame-ancestors 'none';"
         )
