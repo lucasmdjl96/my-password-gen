@@ -321,6 +321,16 @@ input + .material-icons {
     justify-content: end;
     position: fixed;
     bottom: 0;
+    left: 0;
+}
+
+.donate {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+    position: fixed;
+    bottom: 0;
     right: 0;
 }
 
@@ -328,6 +338,10 @@ input + .material-icons {
     color: hsl(0, 100%, 100%);
     margin: 2rem;
     font-size: 1.6rem;
+}
+
+.donate input {
+    margin: 2rem;
 }
 
 @media (hover: none) {
