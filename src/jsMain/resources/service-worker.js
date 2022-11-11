@@ -1,4 +1,4 @@
-const precache = "precache-v1";
+const precache = "precache-$VERSION";
 const runtime = "runtime";
 const cachesUsed = [precache, runtime];
 

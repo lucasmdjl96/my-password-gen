@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
+
 val serializationVersion: String by project
 val ktorVersion: String by project
 val logbackVersion: String by project
@@ -161,6 +163,7 @@ application {
 
 tasks.named<Copy>("jvmProcessResources") {
     dependsOn(tasks.named<Copy>("copyJs"))
+    finalizedBy(tasks.named<Exec>("addCacheVersion"))
 }
 
 tasks.register<Copy>("copyJs") {
@@ -175,4 +178,13 @@ tasks.register<Copy>("copyJs") {
 tasks.named<JavaExec>("run") {
     dependsOn(tasks.named<Jar>("jvmJar"))
     classpath(tasks.named<Jar>("jvmJar"))
+}
+
+tasks.register<Exec>("addCacheVersion") {
+    workingDir(projectDir)
+    if (!System.getProperty("os.name").toLowerCaseAsciiOnly().contains("windows"))
+        commandLine("bash", "version.sh")
+    else
+        commandLine("cmd", "/c", "Powershell", "-File", "version.ps1")
+    dependsOn(tasks.named<Copy>("jvmProcessResources"))
 }
