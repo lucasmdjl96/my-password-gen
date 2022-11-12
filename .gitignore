@@ -6,3 +6,4 @@ keystore
 *.env
 logs
 launch.sh
+deploy.sh
