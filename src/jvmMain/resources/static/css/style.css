@@ -341,7 +341,7 @@ input + .material-icons {
 }
 
 .donate input {
-    margin: 2rem;
+    margin: 1.7rem;
 }
 
 @media (hover: none) {
