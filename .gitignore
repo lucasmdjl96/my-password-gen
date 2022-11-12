@@ -5,3 +5,4 @@ postgres_data
 keystore
 *.env
 logs
+launch.sh
