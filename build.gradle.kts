@@ -1,24 +1,14 @@
+@file:Suppress("DSL_SCOPE_VIOLATION")
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
-val serializationVersion: String by project
-val ktorVersion: String by project
-val logbackVersion: String by project
-val kotlinLoggingVersion: String by project
-val kotlinWrappersVersion: String by project
-val kotlinxHtmlVersion: String by project
-val koinVersion: String by project
-
-val exposedVersion: String by project
-val postgresVersion: String by project
-
 plugins {
-    kotlin("multiplatform") version "1.7.10"
     application
-    kotlin("plugin.serialization") version "1.7.10"
-    id("io.ktor.plugin") version "2.1.2"
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.pluginSerialization)
+    alias(libs.plugins.ktor)
 }
 
-group = "com.lucasmdjl"
+group = "com.mypasswordgen"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -69,9 +59,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-                implementation("io.ktor:ktor-resources:$ktorVersion")
+                implementation(libs.bundles.ktor.common)
+                implementation(libs.libraries.serialization)
             }
         }
         val commonTest by getting {
@@ -83,75 +72,43 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-                implementation("io.ktor:ktor-server-sessions:$ktorVersion")
-                implementation("io.ktor:ktor-server-auth:$ktorVersion")
-                implementation("io.ktor:ktor-server-compression:$ktorVersion")
-                implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
-                implementation("io.ktor:ktor-server-netty:$ktorVersion")
-                implementation("io.ktor:ktor-server-resources:$ktorVersion")
-                implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-                implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
-
-                implementation("ch.qos.logback:logback-classic:$logbackVersion")
-                implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
-
-                implementation("com.zaxxer:HikariCP:5.0.1")
-                implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-                implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
-                implementation("org.postgresql:postgresql:$postgresVersion")
-
-                implementation("io.insert-koin:koin-ktor:$koinVersion")
+                implementation(libs.bundles.ktor.server)
+                implementation(libs.libraries.logback)
+                implementation(libs.libraries.kotlinLogging)
+                implementation(libs.libraries.hikari)
+                implementation(libs.bundles.exposed)
+                implementation(libs.libraries.postgres)
+                implementation(libs.libraries.koin)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test-junit5:1.7.10")
-                implementation("io.ktor:ktor-server-test-host:$ktorVersion")
-                implementation("io.mockk:mockk:1.9.3")
-                implementation("io.ktor:ktor-client-resources:$ktorVersion")
-                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-
-                implementation("org.testcontainers:testcontainers:1.17.5")
-                implementation("org.testcontainers:junit-jupiter:1.17.5")
-                implementation("org.testcontainers:postgresql:1.17.5")
+                implementation(libs.bundles.ktor.server.test)
+                implementation(libs.bundles.testcontainers)
+                implementation(libs.libraries.kotlin.junit)
+                implementation(libs.libraries.mockk)
             }
         }
         val jvmIntegrationTest by getting {
             dependsOn(commonMain)
             dependencies {
-                // Compile against the main compilation's compile classpath and outputs:
-                implementation("org.jetbrains.kotlin:kotlin-test-junit5:1.7.10")
-                implementation("io.ktor:ktor-server-test-host:$ktorVersion")
-                implementation("io.ktor:ktor-client-resources:$ktorVersion")
-                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-
-                implementation("org.testcontainers:testcontainers:1.17.5")
-                implementation("org.testcontainers:junit-jupiter:1.17.5")
-                implementation("org.testcontainers:postgresql:1.17.5")
-                /* ... */
+                implementation(libs.bundles.ktor.server.test)
+                implementation(libs.bundles.testcontainers)
+                implementation(libs.libraries.kotlin.junit)
             }
         }
         val jsMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-js:$ktorVersion")
-                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-                implementation("io.ktor:ktor-client-resources:$ktorVersion")
-                implementation("io.ktor:ktor-client-logging:$ktorVersion")
-                implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom:$kotlinWrappersVersion"))
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinWrappersVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinWrappersVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinWrappersVersion")
+                implementation(libs.bundles.ktor.client)
+                implementation(project.dependencies.enforcedPlatform(libs.libraries.wrappers))
+                implementation(libs.bundles.wrappers)
             }
         }
         val jsTest by getting {
             dependencies {
-                implementation("io.mockk:mockk:1.9.3")
+                /*implementation("io.mockk:mockk:$mockkVersion")
                 implementation(npm("react-test-renderer","18.2.0"))
-                implementation(npm("@testing-library/react", "13.4.0"))
+                implementation(npm("@testing-library/react", "13.4.0"))*/
             }
         }
     }
