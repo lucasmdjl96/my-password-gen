@@ -1,4 +1,6 @@
 #!/bin/bash
+set -Eueo pipefail
+
 cd build/processedResources/jvm/main
 hash=$(cat \
 html/index.html \

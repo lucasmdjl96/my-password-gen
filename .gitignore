@@ -3,7 +3,10 @@ build
 .idea
 postgres_data
 keystore
-*.env
 logs
-launch.sh
-deploy.sh
+.gitsecret/keys/random_seed
+!*.secret
+secrets/aws.env
+secrets/deploy.env
+secrets/keystore.jks
+secrets/my-password-gen-key-pair.pem

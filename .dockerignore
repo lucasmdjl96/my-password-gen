@@ -4,5 +4,6 @@ postgres_data
 .gradle
 .dockerignore
 .git
-*.env
 logs
+.gitsecret
+secrets

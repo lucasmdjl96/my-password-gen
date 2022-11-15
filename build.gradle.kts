@@ -18,8 +18,8 @@ repositories {
 
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "11"
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(11))
         }
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
@@ -33,17 +33,13 @@ kotlin {
                         implementation(main.compileDependencyFiles + main.output.classesDirs)
                     }
                 }
-
-                // Create a test task to run the tests produced by this compilation:
-                tasks.register<Test>("integrationTest") {
-                    // Run the tests with the classpath containing the compile dependencies (including 'main'),
-                    // runtime dependencies, and the outputs of this compilation:
-                    classpath = compileDependencyFiles + runtimeDependencyFiles + output.allOutputs
-
-                    // Run only the tests from this compilation's outputs:
-                    testClassesDirs = output.classesDirs
-                }
             }
+        }
+        testRuns.create("integrationTest") {
+            executionTask.configure {
+                useJUnitPlatform()
+            }
+            setExecutionSourceFrom(compilations.getByName("integrationTest"))
         }
         withJava()
     }
@@ -118,6 +114,19 @@ application {
     mainClass.set("com.mypasswordgen.server.ServerKt")
 }
 
+tasks.named<Copy>("jvmIntegrationTestProcessResources") {
+    val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
+    dependsOn(jvmProcessResources)
+    finalizedBy(tasks.named("jvmIntegrationTestCopyResources"))
+}
+
+tasks.register<Copy>("jvmIntegrationTestCopyResources") {
+    from(tasks.named<Copy>("jvmProcessResources")) {
+        exclude("application.conf")
+    }
+    into(tasks.named<Copy>("jvmIntegrationTestProcessResources").get().destinationDir)
+}
+
 tasks.named<Copy>("jvmProcessResources") {
     dependsOn(tasks.named<Copy>("copyJs"))
     finalizedBy(tasks.named<Exec>("addCacheVersion"))
@@ -140,8 +149,19 @@ tasks.named<JavaExec>("run") {
 tasks.register<Exec>("addCacheVersion") {
     workingDir(projectDir)
     if (!System.getProperty("os.name").toLowerCaseAsciiOnly().contains("windows"))
-        commandLine("bash", "version.sh")
+        commandLine("bash", "scripts/addCacheVersion.sh")
     else
-        commandLine("cmd", "/c", "Powershell", "-File", "version.ps1")
+        commandLine("cmd", "/c", "Powershell", "-File", "scripts\\addCacheVersion.ps1")
     dependsOn(tasks.named<Copy>("jvmProcessResources"))
+}
+
+tasks.register<Exec>("deploy") {
+    dependsOn(tasks.named("buildFatJar"))
+    workingDir(projectDir)
+    environment("DEPLOY_VERSION", version)
+    commandLine("bash", "scripts/deploy.sh")
+}
+
+tasks.named("buildFatJar") {
+    dependsOn(tasks.named("check"))
 }

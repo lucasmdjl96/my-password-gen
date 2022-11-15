@@ -30,6 +30,7 @@ DockerFile text
 *.md text diff=markdown
 gradlew.bat text eol=crlf
 *gradlew.bat text eol=crlf
+.githooks/* text
 
 *.png binary
 *.ico binary
