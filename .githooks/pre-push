@@ -21,10 +21,12 @@
 
 zero=0000000000000000000000000000000000000000
 
-current_branch=$(git rev-parse --abbrev-ref HEAD)
+previous_branch=$(git rev-parse --abbrev-ref '@{-1}')
+current_branch=$(git rev-parse --abbrev-ref '@')
 
 function restore {
-  git checkout "$current_branch"
+  if [ -n "$previous_branch" ]; then git switch "$previous_branch"; fi
+  git switch "$current_branch"
   STASH_NUM=$(git stash list | grep "$STASH_NAME" | sed -re 's/stash@\{(.*)\}.*/\1/')
   if [ -n "$STASH_NUM" ]; then
     # shellcheck disable=SC1083
