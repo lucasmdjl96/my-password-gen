@@ -26,4 +26,4 @@ scp -i "$DEPLOY_KEY_PATH" "$KEY_STORE_SRC" "$DEPLOY_USER@$DEPLOY_HOST:$KEY_STORE
 rm "$LAUNCH_ENV_SRC.copy"
 rm "$LAUNCH_SCRIPT_SRC.copy"
 
-ssh -i "$DEPLOY_KEY_PATH" "$DEPLOY_USER@$DEPLOY_HOST" "sudo systemctl my-password-gen.system restart"
+ssh -i "$DEPLOY_KEY_PATH" "$DEPLOY_USER@$DEPLOY_HOST" "sudo systemctl restart my-password-gen"
