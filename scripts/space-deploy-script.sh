@@ -7,8 +7,8 @@ echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main'
 wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
 apt-get -qq update
 apt-get install -qq -y --no-install-recommends git-secret
-cd ${'$'}JB_SPACE_WORK_DIR_PATH
-echo "${'$'}GPG_PRIVATE_KEY" > ./private_key.gpg
+cd "$JB_SPACE_WORK_DIR_PATH"
+echo "$GPG_PRIVATE_KEY" > private_key.gpg
 gpg --batch --yes --pinentry-mode loopback --import private_key.gpg
-git secret reveal -p "${'$'}GPG_PASSPHRASE"
-./gradlew deploy
+git secret reveal -p "$GPG_PASSPHRASE"
+./gradlew deploy -x check
