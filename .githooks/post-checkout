@@ -1,0 +1,4 @@
+#!/bin/bash
+if [ "$(git rev-parse --abbrev-ref @)" = "main" ]; then
+  git fetch --all
+fi
