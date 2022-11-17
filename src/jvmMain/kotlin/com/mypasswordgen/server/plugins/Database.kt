@@ -33,7 +33,7 @@ fun Application.initDatabase() {
         val today = Clock.System.todayAt(TimeZone.UTC)
         Sessions.deleteWhere {
             Sessions.dateCreated less dateLiteral(
-                today - DatePeriod(days = 92)
+                today - DatePeriod(days = 367)
             )
         }
         val scriptPath = environment.config.propertyOrNull("postgres.script")?.getString()
