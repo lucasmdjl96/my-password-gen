@@ -1,20 +1,26 @@
 package com.mypasswordgen.server.service.impl
 
+import com.mypasswordgen.common.dto.FullSessionClientDto
+import com.mypasswordgen.common.dto.FullSessionServerDto
+import com.mypasswordgen.common.dto.SessionIDBDto
 import com.mypasswordgen.server.dto.SessionDto
+import com.mypasswordgen.server.mapper.SessionMapper
 import com.mypasswordgen.server.model.Session
-import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.plugins.DataNotFoundException
 import com.mypasswordgen.server.repository.SessionRepository
 import com.mypasswordgen.server.repository.UserRepository
 import com.mypasswordgen.server.service.SessionService
+import com.mypasswordgen.server.service.UserService
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
 
 private val logger = KotlinLogging.logger("SessionServiceImpl")
 
 class SessionServiceImpl(
+    private val userService: UserService,
     private val sessionRepository: SessionRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val sessionMapper: SessionMapper
 ) : SessionService {
 
     override fun assignNew(oldSessionDto: SessionDto?) = transaction {
@@ -29,7 +35,9 @@ class SessionServiceImpl(
                 sessionRepository.delete(oldSession)
             }
         }
-        newSession
+        with(sessionMapper) {
+            newSession.toSessionDto()
+        }
     }
 
     override fun find(sessionDto: SessionDto) = transaction {
@@ -43,22 +51,34 @@ class SessionServiceImpl(
         if (session != null) sessionRepository.delete(session) else null
     }
 
-    override fun setLastUser(sessionId: UUID, user: User?): Unit = transaction {
-        logger.debug { "setLastUser" }
-        val session = sessionRepository.getById(sessionId)!!
-        sessionRepository.setLastUser(session, user)
-    }
-
-    override fun getLastUser(sessionId: UUID): User? = transaction {
-        logger.debug { "getLastUser" }
-        val session = sessionRepository.getById(sessionId)!!
-        sessionRepository.getLastUser(session)
-    }
-
     override fun moveAllUsers(fromSession: Session, toSession: Session) = transaction {
         logger.debug { "moveAllUsers" }
         userRepository.moveAll(fromSession.id.value, toSession.id.value)
     }
+
+    override fun getFullSession(sessionDto: SessionDto): FullSessionClientDto = transaction {
+        val session = find(sessionDto) ?: throw DataNotFoundException()
+        with(sessionMapper) {
+            session.toFullSessionClientDto()
+        }
+    }
+
+    override fun createFullSession(sessionDto: SessionDto, fullSession: FullSessionServerDto): Pair<SessionDto, SessionIDBDto> =
+        transaction {
+            val newSession = sessionRepository.create()
+            delete(sessionDto)
+            val sessionIDBDto = SessionIDBDto().apply {
+                for (fullUser in fullSession.users) {
+                    users.add(
+                        userService.createFullUser(fullUser, newSession.id.value)
+                    )
+                }
+            }
+            val newSessionDto = with(sessionMapper) {
+                newSession.toSessionDto()
+            }
+            Pair(newSessionDto, sessionIDBDto)
+        }
 
 
 }

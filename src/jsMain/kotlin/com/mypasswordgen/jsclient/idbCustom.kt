@@ -35,72 +35,86 @@ inline infix fun <T> ((T) -> Unit)?.combinedWith(crossinline block: (T) -> Unit)
     block(it)
 }
 
-inline fun IDBOpenIDBRequest.onBlocked(crossinline action: (IDBVersionChangeEvent) -> Unit) {
+inline fun IDBOpenIDBRequest.onBlocked(crossinline action: (IDBVersionChangeEvent) -> Unit) = apply {
     onBlocked = onBlocked combinedWith {
         action(it)
     }
 }
 
-inline fun IDBOpenIDBRequest.onUpgradeNeeded(crossinline action: (IDBVersionChangeEvent) -> Unit) {
+inline fun IDBOpenIDBRequest.onUpgradeNeeded(crossinline action: (IDBVersionChangeEvent) -> Unit) = apply {
     onUpgradeNeeded = onUpgradeNeeded combinedWith {
         action(it)
     }
 }
 
-inline fun IDBRequest.onError(crossinline action: (Event) -> Unit) {
+inline fun IDBRequest.onError(crossinline action: (Event) -> Unit) = apply {
     onError = onError combinedWith {
         action(it)
     }
 }
 
-inline fun IDBRequest.onSuccess(crossinline action: (Event) -> Unit) {
+inline fun IDBRequest.onSuccess(crossinline action: (Event) -> Unit) = apply {
     onSuccess = onSuccess combinedWith {
         action(it)
     }
 }
 
-inline fun IDBTransaction.onComplete(crossinline action: (Event) -> Unit) {
+suspend inline fun IDBTransaction.onSuccessOf(vararg idbRequest: IDBRequest, crossinline block: IDBTransaction.() -> Unit) {
+    Promise.all(idbRequest.map { request ->
+        Promise { resolve, reject ->
+            request.onSuccess = request.onSuccess combinedWith {
+                resolve(Unit)
+            }
+            request.onError = request.onError combinedWith {
+                reject(DOMException())
+            }
+        }
+    }.toTypedArray()).then {
+        block()
+    }
+}
+
+inline fun IDBTransaction.onComplete(crossinline action: (Event) -> Unit) = apply {
     onComplete = onComplete combinedWith {
         action(it)
     }
 }
 
-inline fun IDBTransaction.onError(crossinline action: (Event) -> Unit) {
+inline fun IDBTransaction.onError(crossinline action: (Event) -> Unit) = apply {
     onError = onError combinedWith {
         action(it)
     }
 }
 
-inline fun IDBTransaction.onAbort(crossinline action: (Event) -> Unit) {
+inline fun IDBTransaction.onAbort(crossinline action: (Event) -> Unit) = apply {
     onAbort = onAbort combinedWith {
         action(it)
     }
 }
 
-inline fun IDBDatabase.onError(crossinline action: (Event) -> Unit) {
+inline fun IDBDatabase.onError(crossinline action: (Event) -> Unit) = apply {
     onError = onError combinedWith {
         action(it)
     }
 }
 
-inline fun IDBDatabase.onAbort(crossinline action: (Event) -> Unit) {
+inline fun IDBDatabase.onAbort(crossinline action: (Event) -> Unit) = apply {
     onAbort = onAbort combinedWith {
         action(it)
     }
 }
 
-inline fun IDBDatabase.onVersionChange(crossinline action: (Event) -> Unit) {
+inline fun IDBDatabase.onVersionChange(crossinline action: (Event) -> Unit) = apply {
     onVersionChange = onVersionChange combinedWith {
         action(it)
     }
 }
 
-inline fun IDBDatabase.onClose(crossinline action: (Event) -> Unit) {
+inline fun IDBDatabase.onClose(crossinline action: (Event) -> Unit) = apply {
     onClose = onClose combinedWith {
         action(it)
     }
 }
-
 
 
 interface NamedObjectStore {
@@ -164,7 +178,12 @@ infix fun IDBDatabase.ifBlocking(action: (Event) -> Unit) = apply {
 
 inline fun IDBDatabase.transaction(storeName: String, mode: TransactionMode, block: IDBTransaction.() -> Unit = {}) =
     transaction(storeName, mode.jsName).apply(block)
-inline fun IDBDatabase.transaction(storeNames: Array<String>, mode: TransactionMode, block: IDBTransaction.() -> Unit = {}) =
+
+inline fun IDBDatabase.transaction(
+    storeNames: Array<String>,
+    mode: TransactionMode,
+    block: IDBTransaction.() -> Unit = {}
+) =
     transaction(storeNames, mode.jsName).apply(block)
 
 inline fun IDBDatabase.readWriteTransaction(storeName: String, block: IDBTransaction.() -> Unit = {}) =
@@ -176,7 +195,11 @@ inline fun IDBDatabase.readWriteTransaction(storeNames: Array<String>, block: ID
 inline fun IDBDatabase.readWriteTransaction(storeNames: List<String>, block: IDBTransaction.() -> Unit = {}) =
     readWriteTransaction(storeNames.toTypedArray(), block)
 
-inline fun IDBDatabase.readWriteTransaction(storeName: String, vararg storeNames: String, block: IDBTransaction.() -> Unit = {}) =
+inline fun IDBDatabase.readWriteTransaction(
+    storeName: String,
+    vararg storeNames: String,
+    block: IDBTransaction.() -> Unit = {}
+) =
     readWriteTransaction(arrayOf(storeName, *storeNames), block)
 
 inline fun IDBDatabase.readWriteTransaction(store: NamedObjectStore, block: IDBTransaction.() -> Unit = {}) =
@@ -188,7 +211,11 @@ inline fun IDBDatabase.readWriteTransaction(stores: Array<NamedObjectStore>, blo
 inline fun IDBDatabase.readWriteTransaction(stores: List<NamedObjectStore>, block: IDBTransaction.() -> Unit = {}) =
     readWriteTransaction(stores.toTypedArray(), block)
 
-inline fun IDBDatabase.readWriteTransaction(store: NamedObjectStore, vararg stores: NamedObjectStore, block: IDBTransaction.() -> Unit = {}) =
+inline fun IDBDatabase.readWriteTransaction(
+    store: NamedObjectStore,
+    vararg stores: NamedObjectStore,
+    block: IDBTransaction.() -> Unit = {}
+) =
     readWriteTransaction(arrayOf(store, *stores), block)
 
 inline fun IDBDatabase.readTransaction(storeName: String, block: IDBTransaction.() -> Unit = {}) =
@@ -200,7 +227,11 @@ inline fun IDBDatabase.readTransaction(storeNames: Array<String>, block: IDBTran
 inline fun IDBDatabase.readTransaction(storeNames: List<String>, block: IDBTransaction.() -> Unit = {}) =
     readTransaction(storeNames.toTypedArray(), block)
 
-inline fun IDBDatabase.readTransaction(storeName: String, vararg storeNames: String, block: IDBTransaction.() -> Unit = {}) =
+inline fun IDBDatabase.readTransaction(
+    storeName: String,
+    vararg storeNames: String,
+    block: IDBTransaction.() -> Unit = {}
+) =
     readTransaction(arrayOf(storeName, *storeNames), block)
 
 inline fun IDBDatabase.readTransaction(store: NamedObjectStore, block: IDBTransaction.() -> Unit = {}) =
@@ -212,7 +243,11 @@ inline fun IDBDatabase.readTransaction(stores: Array<NamedObjectStore>, block: I
 inline fun IDBDatabase.readTransaction(stores: List<NamedObjectStore>, block: IDBTransaction.() -> Unit = {}) =
     readTransaction(stores.toTypedArray(), block)
 
-inline fun IDBDatabase.readTransaction(store: NamedObjectStore, vararg stores: NamedObjectStore, block: IDBTransaction.() -> Unit = {}) =
+inline fun IDBDatabase.readTransaction(
+    store: NamedObjectStore,
+    vararg stores: NamedObjectStore,
+    block: IDBTransaction.() -> Unit = {}
+) =
     readTransaction(arrayOf(store, *stores), block)
 
 inline fun <reified T/* : StoreType<T>*/> IDBDatabase.readWriteTransaction(block: IDBTransaction.() -> Unit = {}) =
@@ -291,6 +326,8 @@ inline fun <reified T> IDBTransaction.get(
 inline fun <reified T> IDBTransaction.add(t: T) = objectStore<T>().add<T>(t)
 inline fun <reified T> IDBTransaction.put(t: T) = objectStore<T>().put<T>(t)
 inline fun <reified T> IDBTransaction.delete(key: Any) = objectStore<T>().delete(key)
+
+inline fun <reified T> IDBTransaction.clear() = objectStore<T>().clear()
 
 inline val IDBVersionChangeEvent.database: IDBDatabase
     get() = (this.currentTarget as IDBRequest).result as IDBDatabase

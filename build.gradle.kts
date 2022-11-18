@@ -115,13 +115,13 @@ application {
 }
 
 tasks.named<Copy>("jvmIntegrationTestProcessResources") {
-    val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
-    dependsOn(jvmProcessResources)
-    finalizedBy(tasks.named("jvmIntegrationTestCopyResources"))
+    dependsOn(tasks.named("jvmIntegrationTestCopyResources"))
 }
 
 tasks.register<Copy>("jvmIntegrationTestCopyResources") {
-    from(tasks.named<Copy>("jvmProcessResources")) {
+    val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
+    dependsOn(jvmProcessResources)
+    from(jvmProcessResources) {
         exclude("application.conf")
     }
     into(tasks.named<Copy>("jvmIntegrationTestProcessResources").get().destinationDir)
@@ -135,6 +135,7 @@ tasks.named<Copy>("jvmProcessResources") {
 tasks.register<Copy>("copyJs") {
     val jsBrowserDistribution = tasks.named("jsBrowserDistribution")
     val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
+    dependsOn(jsBrowserDistribution)
     from(jsBrowserDistribution) {
         include("**/*.js",  "**/*.js.map")
     }

@@ -1,5 +1,6 @@
 package com.mypasswordgen.jsclient.react
 
+import com.mypasswordgen.common.dto.EmailIDBDto
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
@@ -69,6 +70,9 @@ val App = { initialState: InitialState ->
                             ::click on getHtmlElementById("onlineToggle")!!
                         }
                     }
+                    if (!keyboardUp && connectionOn) FileManager {
+                        this.loggedIn = false
+                    }
                     OnlineToggle {
                         this.cookiesAccepted = cookiesAccepted
                         this.online = online
@@ -100,6 +104,9 @@ val App = { initialState: InitialState ->
                         if (ctrlKey && key == "Backspace") {
                             ::click on getHtmlElementById("logout")!!
                         }
+                    }
+                    if (!keyboardUp && connectionOn) FileManager {
+                        this.loggedIn = true
                     }
                     LogoutButton {
                         this.reset = {
@@ -145,9 +152,9 @@ suspend fun loginUser(username: String): UserClient? {
     else {
         val userClientDto = response.body<UserClientDto>()
         val emailList = mutableListOf<String>()
-        database.readTransaction<Email>() {
+        database.readTransaction<EmailIDBDto>() {
             for (emailId in userClientDto.emailIdList) {
-                get<Email>(emailId) { email ->
+                get<EmailIDBDto>(emailId) { email ->
                     if (email != null) emailList.add(email.emailAddress)
                 }
             }

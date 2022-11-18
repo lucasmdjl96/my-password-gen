@@ -1,5 +1,7 @@
 package com.mypasswordgen.jsclient
 
+import com.mypasswordgen.common.dto.EmailIDBDto
+import com.mypasswordgen.common.dto.SiteIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.jsclient.dto.InitialState
 import com.mypasswordgen.jsclient.plugins.installContentNegotiation
@@ -7,8 +9,6 @@ import com.mypasswordgen.jsclient.plugins.installDefaultRequest
 import com.mypasswordgen.jsclient.plugins.installHttpResponseValidator
 import com.mypasswordgen.jsclient.plugins.installResources
 import com.mypasswordgen.jsclient.react.App
-import com.mypasswordgen.jsclient.react.Email
-import com.mypasswordgen.jsclient.react.Site
 import com.mypasswordgen.jsclient.react.scope
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -55,7 +55,7 @@ val jsonClient = HttpClient {
 val resourcesFormat = jsonClient.plugin(Resources).resourcesFormat
 
 suspend fun updateSession() {
-    jsonClient.put(SessionRoute())
+    jsonClient.put(SessionRoute.Update())
 }
 
 fun registerServiceWorker() {
@@ -67,8 +67,8 @@ fun openIndexedDB() {
         database = openDatabase("database", 1) {
             versionChangeLog {
                 version(1) {
-                    createObjectStore<Email>(keyPath = "id")
-                    createObjectStore<Site>(keyPath = "id")
+                    createObjectStore<EmailIDBDto>(keyPath = "id")
+                    createObjectStore<SiteIDBDto>(keyPath = "id")
                 }
             }
             onBlocked {

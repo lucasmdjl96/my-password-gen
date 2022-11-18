@@ -1,6 +1,7 @@
 package com.mypasswordgen.server.test.service
 
 import com.mypasswordgen.server.dto.SessionDto
+import com.mypasswordgen.server.mapper.SessionMapper
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.repository.SessionRepository
@@ -21,8 +22,10 @@ class SessionServiceTest : ServiceTestParent() {
 
     private lateinit var sessionRepositoryMock: SessionRepository
     private lateinit var userRepositoryMock: UserRepository
+    private lateinit var sessionMapperMock: SessionMapper
 
     private lateinit var dummySessionDto: SessionDto
+    private lateinit var dummySessionDtoNew: SessionDto
     private lateinit var dummySessionId: UUID
     private lateinit var dummySessionId1: UUID
     private lateinit var dummySession: Session
@@ -39,12 +42,14 @@ class SessionServiceTest : ServiceTestParent() {
     override fun initMocks() {
         sessionRepositoryMock = mockk()
         userRepositoryMock = mockk()
+        sessionMapperMock = mockk()
     }
 
     @BeforeEach
     override fun initDummies() {
         dummySessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
         dummySessionDto = SessionDto(dummySessionId)
+        dummySessionDtoNew = SessionDto(UUID.fromString("8a6c9cfb-c7e2-41e1-946a-244eea37dc85"))
         dummySessionId1 = UUID.fromString("123e4583-e89b-12d3-a456-426614174000")
         dummySession = Session(EntityID(dummySessionId1, Sessions))
         dummySessionIdNew = UUID.fromString("3c084a2e-b46e-45dd-a08e-cbba4ce17d49")
@@ -67,9 +72,12 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getLastUser(dummySession) } returns dummyUser
             every { userRepositoryMock.setLastEmail(dummyUser, null) } just Runs
             every { sessionRepositoryMock.delete(dummySession) } just Runs
+            with(sessionMapperMock) {
+                every { dummySessionNew.toSessionDto() } returns dummySessionDtoNew
+            }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
             val sessionServiceSpy = spyk(sessionService)
             every { sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew) } just Runs
 
@@ -86,6 +94,9 @@ class SessionServiceTest : ServiceTestParent() {
                 sessionRepositoryMock.getById(dummySessionId)
                 sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew)
                 sessionRepositoryMock.delete(dummySession)
+                with(sessionMapperMock) {
+                    dummySessionNew.toSessionDto()
+                }
             }
             verifyOrder {
                 sessionRepositoryMock.getById(dummySessionId)
@@ -100,9 +111,12 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
             every { sessionRepositoryMock.getLastUser(dummySession) } returns null
             every { sessionRepositoryMock.delete(dummySession) } just Runs
+            with(sessionMapperMock) {
+                every { dummySessionNew.toSessionDto() } returns dummySessionDtoNew
+            }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
             val sessionServiceSpy = spyk(sessionService)
             every { sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew) } just Runs
 
@@ -119,6 +133,9 @@ class SessionServiceTest : ServiceTestParent() {
                 sessionRepositoryMock.getById(dummySessionId)
                 sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew)
                 sessionRepositoryMock.delete(dummySession)
+                with(sessionMapperMock) {
+                    dummySessionNew.toSessionDto()
+                }
             }
             verifyOrder {
                 sessionRepositoryMock.getById(dummySessionId)
@@ -133,15 +150,21 @@ class SessionServiceTest : ServiceTestParent() {
         fun `assign new session from non-existing session`() {
             every { sessionRepositoryMock.create() } returns dummySessionNew
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
+            with(sessionMapperMock) {
+                every { dummySessionNew.toSessionDto() } returns dummySessionDtoNew
+            }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.assignNew(dummySessionDto)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionRepositoryMock.create()
+                with(sessionMapperMock) {
+                    dummySessionNew.toSessionDto()
+                }
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
@@ -158,15 +181,21 @@ class SessionServiceTest : ServiceTestParent() {
         @Test
         fun `assign new session from no session`() {
             every { sessionRepositoryMock.create() } returns dummySessionNew
+            with(sessionMapperMock) {
+                every { dummySessionNew.toSessionDto() } returns dummySessionDtoNew
+            }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.assignNew(null)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
                 sessionRepositoryMock.create()
+                with(sessionMapperMock) {
+                    dummySessionNew.toSessionDto()
+                }
             }
             verify(exactly = 0) {
                 sessionRepositoryMock.delete(any())
@@ -185,7 +214,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val sessionResult = sessionService.find(dummySessionDto)
 
@@ -204,7 +233,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val sessionResult = sessionService.find(dummySessionDto)
 
@@ -229,7 +258,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.delete(dummySession) } just Runs
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val result = sessionService.delete(dummySessionDto)
 
@@ -249,7 +278,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val result = sessionService.delete(dummySessionDto)
 
@@ -277,7 +306,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.setLastUser(dummySession, dummyUser) } just Runs
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.setLastUser(dummySessionId, dummyUser)
 
@@ -294,7 +323,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.setLastUser(dummySession, null) } just Runs
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.setLastUser(dummySessionId, null)
 
@@ -310,7 +339,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             assertThrows<Exception> { sessionService.setLastUser(dummySessionId, dummyUser) }
             verifyOrder {
@@ -327,7 +356,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             assertThrows<Exception> { sessionService.setLastUser(dummySessionId, null) }
             verifyOrder {
@@ -350,7 +379,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getLastUser(dummySession) } returns dummyUser
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val userResult = sessionService.getLastUser(dummySessionId)
 
@@ -368,7 +397,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getLastUser(dummySession) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val userResult = sessionService.getLastUser(dummySessionId)
 
@@ -385,7 +414,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             assertThrows<Exception> { sessionService.getLastUser(dummySessionId) }
             verifyOrder {
@@ -407,7 +436,7 @@ class SessionServiceTest : ServiceTestParent() {
             mockTransaction()
             every { userRepositoryMock.moveAll(dummySessionFromId, dummySessionToId) } just Runs
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock)
+            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.moveAllUsers(dummySessionFrom, dummySessionTo)
 

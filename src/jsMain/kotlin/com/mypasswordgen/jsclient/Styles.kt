@@ -42,6 +42,8 @@ object CssClasses {
 
     val colorPicker = ClassName("colorPicker")
 
+    val fileManagerContainer = ClassName("fileManagerContainer")
+
     val cookieBanner = ClassName("cookieBanner")
 
     val cookieContainer = ClassName("cookieContainer")

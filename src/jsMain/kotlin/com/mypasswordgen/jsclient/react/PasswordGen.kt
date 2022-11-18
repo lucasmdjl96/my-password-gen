@@ -1,5 +1,7 @@
 package com.mypasswordgen.jsclient.react
 
+import com.mypasswordgen.common.dto.EmailIDBDto
+import com.mypasswordgen.common.dto.SiteIDBDto
 import com.mypasswordgen.common.dto.client.EmailClientDto
 import com.mypasswordgen.common.dto.client.SiteClientDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
@@ -15,7 +17,6 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
@@ -174,9 +175,9 @@ suspend fun checkEmail(emailAddress: String): EmailClient? {
     else {
         val emailClientDto = response.body<EmailClientDto>()
         val siteList = mutableListOf<String>()
-        database.readTransaction<Site>() {
+        database.readTransaction<SiteIDBDto>() {
             for (siteId in emailClientDto.siteIdList) {
-                get<Site>(siteId) { site ->
+                get<SiteIDBDto>(siteId) { site ->
                     if (site != null) siteList.add(site.siteName)
                 }
             }
@@ -193,8 +194,8 @@ suspend fun addEmail(emailAddress: String): EmailClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        database.readWriteTransaction<Email>() {
-            add(Email(emailClientDto.id, emailAddress))
+        database.readWriteTransaction<EmailIDBDto>() {
+            add(EmailIDBDto(emailClientDto.id, emailAddress))
         }.awaitCompletion()
         EmailClient(emailAddress, mutableListOf())
     }
@@ -205,10 +206,10 @@ suspend fun removeEmail(emailAddress: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        database.biReadWriteTransaction<Email, Site>() {
-            delete<Email>(emailClientDto.id)
+        database.biReadWriteTransaction<EmailIDBDto, SiteIDBDto>() {
+            delete<EmailIDBDto>(emailClientDto.id)
             for (siteId in emailClientDto.siteIdList) {
-                delete<Site>(siteId)
+                delete<SiteIDBDto>(siteId)
             }
         }.awaitCompletion()
     }
@@ -228,8 +229,8 @@ suspend fun addSite(siteName: String): SiteClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val siteClientDto = response.body<SiteClientDto>()
-        database.readWriteTransaction<Site>() {
-            add(Site(siteClientDto.id, siteName))
+        database.readWriteTransaction<SiteIDBDto>() {
+            add(SiteIDBDto(siteClientDto.id, siteName))
         }.awaitCompletion()
         SiteClient(siteName)
     }
@@ -240,17 +241,11 @@ suspend fun removeSite(siteName: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val siteClientDto = response.body<SiteClientDto>()
-        database.readWriteTransaction<Site>() {
-            delete<Site>(siteClientDto.id)
+        database.readWriteTransaction<SiteIDBDto>() {
+            delete<SiteIDBDto>(siteClientDto.id)
         }.awaitCompletion()
     }
 }
-
-@Serializable
-class Email(val id: String, val emailAddress: String)
-
-@Serializable
-class Site(val id: String?, val siteName: String)
 
 inline fun <T, S> withReceiver(crossinline block: T.() -> S): (T) -> S = {
     it.block()

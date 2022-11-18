@@ -33,4 +33,12 @@ class SessionRepositoryImpl : SessionRepository {
         return session.lastUser
     }
 
+    override fun getLastUser(sessionId: UUID): User? {
+        return getById(sessionId)?.lastUser
+    }
+
+    override fun setLastUser(sessionId: UUID, user: User?) {
+        getById(sessionId)?.lastUser = user
+    }
+
 }

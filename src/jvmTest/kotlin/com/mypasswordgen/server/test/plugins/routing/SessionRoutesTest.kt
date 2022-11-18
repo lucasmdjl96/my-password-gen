@@ -24,10 +24,10 @@ class SessionRoutesTest : RoutesTestParent() {
 
         @Test
         fun `put session use route`() = testApplication {
-            coEvery { anyConstructed<SessionControllerImpl>().put(any(), any<SessionRoute>()) } just Runs
-            createAndConfigureClient().put(SessionRoute())
+            coEvery { anyConstructed<SessionControllerImpl>().put(any(), any<SessionRoute.Update>()) } just Runs
+            createAndConfigureClient().put(SessionRoute.Update())
             coVerify {
-                anyConstructed<SessionControllerImpl>().put(any(), any<SessionRoute>())
+                anyConstructed<SessionControllerImpl>().put(any(), any<SessionRoute.Update>())
             }
         }
 

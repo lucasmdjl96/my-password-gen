@@ -13,11 +13,11 @@ private val logger = KotlinLogging.logger("EmailRepositoryImpl")
 
 class EmailRepositoryImpl : EmailRepository {
 
-    override fun createAndGetId(emailAddress: String, user: User): UUID {
+    override fun createAndGetId(emailAddress: String, userId: UUID): UUID {
         logger.debug { "createAndGetId" }
         return Emails.insertAndGetId {
             it[this.emailAddress] = emailAddress
-            it[this.userId] = user.id
+            it[this.userId] = userId
         }.value
     }
 

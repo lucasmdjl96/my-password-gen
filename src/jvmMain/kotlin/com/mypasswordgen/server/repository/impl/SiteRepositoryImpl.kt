@@ -13,11 +13,11 @@ private val logger = KotlinLogging.logger("SiteRepositoryImpl")
 
 class SiteRepositoryImpl : SiteRepository {
 
-    override fun createAndGetId(siteName: String, email: Email): UUID {
+    override fun createAndGetId(siteName: String, emailId: UUID): UUID {
         logger.debug { "createAndGetId" }
         return Sites.insertAndGetId {
             it[this.siteName] = siteName
-            it[this.emailId] = email.id
+            it[this.emailId] = emailId
         }.value
     }
 

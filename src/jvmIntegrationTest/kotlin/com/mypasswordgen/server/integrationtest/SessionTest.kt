@@ -38,7 +38,7 @@ class SessionTest : TestParent() {
             val sessionNumber = testTransaction {
                 Sessions.selectAll().count()
             }
-            val response = client.put(SessionRoute())
+            val response = client.put(SessionRoute.Update())
             val sessionId = response.getSessionIdFromCookie()
             assertEquals(HttpStatusCode.OK, response.status)
             assertNotNull(sessionId)
@@ -67,7 +67,7 @@ class SessionTest : TestParent() {
             val sessionNumber = testTransaction {
                 Sessions.selectAll().count()
             }
-            val response = client.put(SessionRoute())
+            val response = client.put(SessionRoute.Update())
             val sessionId = response.getSessionIdFromCookie()
             assertEquals(HttpStatusCode.OK, response.status)
             assertNotNull(sessionId)
@@ -98,7 +98,7 @@ class SessionTest : TestParent() {
                 sessionNumber = Sessions.selectAll().count()
                 oldUsers = User.find { Users.sessionId eq initSessionId }.map { it.id.value }
             }
-            val response = client.put(SessionRoute())
+            val response = client.put(SessionRoute.Update())
             val sessionId = response.getSessionIdFromCookie()
             assertEquals(HttpStatusCode.OK, response.status)
             assertNotNull(sessionId)

@@ -9,6 +9,8 @@ fun Route.sessionRoutes() {
 
     val sessionController by inject<SessionController>()
 
-    put<SessionRoute>(sessionController::put)
+    put<SessionRoute.Update>(sessionController::put)
+    get<SessionRoute.Export>(sessionController::get)
+    post<SessionRoute.Import>(sessionController::post)
 
 }

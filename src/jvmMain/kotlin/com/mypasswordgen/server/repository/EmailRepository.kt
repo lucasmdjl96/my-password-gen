@@ -6,7 +6,8 @@ import java.util.*
 
 interface EmailRepository {
 
-    fun createAndGetId(emailAddress: String, user: User): UUID
+    fun createAndGetId(emailAddress: String, userId: UUID): UUID
+    fun createAndGetId(emailAddress: String, user: User) = createAndGetId(emailAddress, user.id.value)
 
     fun getById(id: UUID): Email?
 

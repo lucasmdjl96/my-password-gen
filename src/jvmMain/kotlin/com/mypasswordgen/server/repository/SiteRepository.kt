@@ -6,7 +6,8 @@ import java.util.*
 
 interface SiteRepository {
 
-    fun createAndGetId(siteName: String, email: Email): UUID
+    fun createAndGetId(siteName: String, emailId: UUID): UUID
+    fun createAndGetId(siteName: String, email: Email) = createAndGetId(siteName, email.id.value)
 
     fun getById(id: UUID): Site?
 
