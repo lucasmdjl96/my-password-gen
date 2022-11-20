@@ -67,11 +67,9 @@ class SessionServiceImpl(
         transaction {
             val newSession = sessionRepository.create()
             delete(sessionDto)
-            val sessionIDBDto = SessionIDBDto().apply {
+            val sessionIDBDto = SessionIDBDto {
                 for (fullUser in fullSession.users) {
-                    users.add(
-                        userService.createFullUser(fullUser, newSession.id.value)
-                    )
+                    +userService.createFullUser(fullUser, newSession.id.value)
                 }
             }
             val newSessionDto = with(sessionMapper) {

@@ -20,12 +20,12 @@ class UserMapperImpl(private val emailMapper: EmailMapper) : UserMapper {
     }
 
     override fun userToFullUserClientDto(user: User): FullUserClientDto {
-        return FullUserClientDto().apply {
-            emails.addAll(user.emails.map { email ->
+        return FullUserClientDto {
+            user.emails.forEach { email ->
                 with(emailMapper) {
-                    email.toFullEmailClientDto()
+                    +email.toFullEmailClientDto()
                 }
-            })
+            }
         }
     }
 

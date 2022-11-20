@@ -68,11 +68,9 @@ class EmailServiceImpl(
         if (emailRepository.getByAddressAndUser(emailAddress, userId) != null) throw DataConflictException()
         val id = emailRepository.createAndGetId(emailAddress, userId)
 
-        EmailIDBDto(emailAddress = fullEmail.emailAddress, id = id.toString()).apply {
+        EmailIDBDto(emailAddress = fullEmail.emailAddress, id = id.toString()) {
             for (fullSite in fullEmail.sites) {
-                sites.add(
-                    siteService.createFullSite(fullSite, id)
-                )
+                +siteService.createFullSite(fullSite, id)
             }
         }
     }

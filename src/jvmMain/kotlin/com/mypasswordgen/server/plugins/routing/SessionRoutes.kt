@@ -10,7 +10,13 @@ fun Route.sessionRoutes() {
     val sessionController by inject<SessionController>()
 
     put<SessionRoute.Update>(sessionController::put)
+
+}
+
+fun Route.authenticatedSessionRoutes() {
+
+    val sessionController by inject<SessionController>()
+
     get<SessionRoute.Export>(sessionController::get)
     post<SessionRoute.Import>(sessionController::post)
-
 }

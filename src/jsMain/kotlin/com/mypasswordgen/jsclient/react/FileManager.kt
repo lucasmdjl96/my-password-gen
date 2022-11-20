@@ -138,28 +138,30 @@ suspend fun downloadSessionData(): FullSessionServerDto? {
     val response = jsonClient.get(SessionRoute.Export())
     if (response.status != HttpStatusCode.OK) return null
     val fullSessionClient = response.body<FullSessionClientDto>()
-    val fullSessionServer = FullSessionServerDto()
+    var fullSessionServer: FullSessionServerDto? = null
     database.biReadTransaction<EmailIDBDto, SiteIDBDto> {
-        for (fullUserClient in fullSessionClient.users) {
-            val fullUserServer = FullUserServerDto("FILL_THIS_IN")
-            fullSessionServer.addUser(fullUserServer)
-            loadUserData(fullUserClient, fullUserServer)
+        fullSessionServer = FullSessionServerDto {
+            for (fullUserClient in fullSessionClient.users) {
+                +FullUserServerDto("FILL_THIS_IN") {
+                    loadUserData(fullUserClient, this)
+                }
+            }
         }
     }.awaitCompletion()
     return fullSessionServer
 }
 
-private inline fun IDBTransaction.loadUserData(fromFullUserClient: FullUserClientDto, intoFullUserServer: FullUserServerDto) {
-    for (fullEmailClient in fromFullUserClient.emails) {
-        get<EmailIDBDto>(fullEmailClient.id) { email ->
-            if (email != null) {
-                val fullEmailServer = FullEmailServerDto(email.emailAddress)
-                intoFullUserServer.addEmail(fullEmailServer)
-                for (fullSiteClient in fullEmailClient.sites) {
-                    get<SiteIDBDto>(fullSiteClient.id) { site ->
-                        if (site != null) {
-                            val fullSiteServer = FullSiteServerDto(site.siteName)
-                            fullEmailServer.addSite(fullSiteServer)
+private inline fun IDBTransaction.loadUserData(
+    fromFullUserClient: FullUserClientDto,
+    fullUserServerBuilder: FullUserServerDto.Builder
+) {
+    with(fullUserServerBuilder) {
+        for (fullEmailClient in fromFullUserClient.emails) {
+            get<EmailIDBDto>(fullEmailClient.id) { email ->
+                if (email != null) +FullEmailServerDto(email.emailAddress) {
+                    for (fullSiteClient in fullEmailClient.sites) {
+                        get<SiteIDBDto>(fullSiteClient.id) { site ->
+                            if (site != null) +FullSiteServerDto(site.siteName)
                         }
                     }
                 }
@@ -172,9 +174,11 @@ suspend fun downloadUserData(username: String): FullUserServerDto? {
     val response = jsonClient.get(UserRoute.Export(username))
     if (response.status != HttpStatusCode.OK) return null
     val fullUserClient = response.body<FullUserClientDto>()
-    val fullUserServer = FullUserServerDto(username)
+    var fullUserServer: FullUserServerDto? = null
     database.biReadTransaction<EmailIDBDto, SiteIDBDto> {
-        loadUserData(fullUserClient, fullUserServer)
+        fullUserServer = FullUserServerDto(username) {
+            loadUserData(fullUserClient, this)
+        }
     }.awaitCompletion()
     return fullUserServer
 }

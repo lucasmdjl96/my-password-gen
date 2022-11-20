@@ -59,11 +59,9 @@ class UserServiceImpl(
         val username = fullUser.username.encode()
         if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException()
         val id = userRepository.createAndGetId(username, sessionId)
-        UserIDBDto().apply {
+        UserIDBDto {
             for (fullEmail in fullUser.emails) {
-                emails.add(
-                    emailService.createFullEmail(fullEmail, id)
-                )
+                +emailService.createFullEmail(fullEmail, id)
             }
         }
 

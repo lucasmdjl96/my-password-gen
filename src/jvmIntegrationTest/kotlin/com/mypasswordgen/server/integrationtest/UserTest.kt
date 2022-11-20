@@ -1,18 +1,23 @@
 package com.mypasswordgen.server.integrationtest
 
+import com.mypasswordgen.common.dto.*
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
 import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.tables.Emails
+import com.mypasswordgen.server.tables.Sites
 import com.mypasswordgen.server.tables.Users
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -173,7 +178,10 @@ class UserTest : TestParent() {
                 val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
                 assertEquals(initUserId.toString(), responseBody.id)
-                assertEquals(listOf(initEmailId.toString(), initEmailId2.toString()), responseBody.emailIdList)
+                assertEquals(
+                    listOf(initEmailId.toString(), initEmailId2.toString()),
+                    responseBody.emailIdList
+                )
                 testTransaction {
                     val session = Session.findById(initSessionId)
                     assertNotNull(session)
@@ -586,6 +594,386 @@ class UserTest : TestParent() {
                     assertEquals(usersBefore, Users.selectAll().count())
                     assertNotNull(Session.findById(initSessionId)!!.lastUser)
                 }
+            }
+        }
+
+    }
+
+    @Nested
+    inner class Export {
+
+        @Test
+        fun `export user with emails`() = testApplication {
+            val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+            val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+            val initUsername = "User123"
+            val initUsernameEncoded = initUsername.encode()
+            val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
+            val initEmailAddress = "Email001"
+            val initEmailAddressEncoded = initEmailAddress.encode()
+            val initEmailId2 = UUID.fromString("85581b81-96ee-4086-b0b1-81da47e10422")
+            val initEmailAddress2 = "Email002"
+            val initEmailAddressEncoded2 = initEmailAddress2.encode()
+            val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
+            val initSiteName = "Site001"
+            val initSiteNameEncoded = initSiteName.encode()
+            val initSiteId2 = UUID.fromString("a42836d0-a6ca-4973-a6f1-c90fc9c6a352")
+            val initSiteName2 = "SiteXYZ"
+            val initSiteNameEncoded2 = initSiteName2.encode()
+            val fullUserClientDto = FullUserClientDto {
+                +FullEmailClientDto(initEmailId.toString()) {
+                    +FullSiteClientDto(initSiteId.toString())
+                    +FullSiteClientDto(initSiteId2.toString())
+                }
+                +FullEmailClientDto(initEmailId2.toString())
+            }
+
+            testTransaction {
+                exec(
+                    """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
+                        INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                            VALUES ('$initEmailId2', '$initEmailAddressEncoded2', '$initUserId');
+                        INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
+                            VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
+                        INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
+                            VALUES ('$initSiteId2', '$initSiteNameEncoded2', '$initEmailId');
+                    """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.get(UserRoute.Export(initUsername))
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertNotNull(response.body())
+            val responseBody = response.body<FullUserClientDto>()
+            assertEquals(fullUserClientDto, responseBody)
+        }
+
+        @Test
+        fun `export user without emails`() = testApplication {
+            val initSessionId = UUID.fromString("e306f416-0e6a-46b7-bec3-bb6c01ae9b1d")
+            val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+            val initUsername = "User123"
+            val initUsernameEncoded = initUsername.encode()
+            val fullUserClientDto = FullUserClientDto()
+            testTransaction {
+                exec(
+                    """
+                        INSERT INTO SESSIONS (ID)
+                            VALUES ('$initSessionId');
+                        INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                            VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                    """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.get(UserRoute.Export(initUsername))
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertNotNull(response.body())
+            val responseBody = response.body<FullUserClientDto>()
+            assertEquals(fullUserClientDto, responseBody)
+        }
+
+        @Test
+        fun `export session with bad cookie`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val initSessionId2 = UUID.fromString("f7e628f1-9afe-475a-9c57-9426bd45596d")
+            val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+            val initUsername = "User123"
+            val initUsernameEncoded = initUsername.encode()
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                    INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                        VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId2)
+            val response = client.get(UserRoute.Export(initUsername))
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+        @Test
+        fun `export session with no cookie`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+            val initUsername = "User123"
+            val initUsernameEncoded = initUsername.encode()
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                    INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                        VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithoutCookie()
+            val response = client.get(UserRoute.Export(initUsername))
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+    }
+
+    @Nested
+    inner class Import {
+
+        @Test
+        fun `import user with no cookie`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val username = "User123"
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithoutCookie()
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(FullUserServerDto(username))
+            }
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+        @Test
+        fun `import user with bad cookie`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val initSessionId2 = UUID.fromString("2d77d5f2-a15f-47dc-beda-4a3151688c7e")
+            val username = "User123"
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId2)
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(FullUserServerDto(username))
+            }
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+        @Test
+        fun `import user with conflicting sites`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val username = "User123"
+            val emailAddress = "email1"
+            val siteName = "site1"
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val fullUserServerDto = FullUserServerDto(username) {
+                +FullEmailServerDto(emailAddress) {
+                    +FullSiteServerDto(siteName)
+                    +FullSiteServerDto(siteName)
+                }
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(fullUserServerDto)
+            }
+            assertEquals(HttpStatusCode.Conflict, response.status)
+            testTransaction {
+                assertNotNull(Session.findById(initSessionId))
+                assertEmpty(Users.select(Users.sessionId eq initSessionId))
+            }
+        }
+
+        @Test
+        fun `import user with conflicting emails`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val username = "User123"
+            val emailAddress = "email1"
+            val siteName = "site1"
+            val siteName2 = "site2"
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val fullUserServerDto = FullUserServerDto(username) {
+                +FullEmailServerDto(emailAddress) {
+                    +FullSiteServerDto(siteName)
+                }
+                +FullEmailServerDto(emailAddress) {
+                    +FullSiteServerDto(siteName2)
+                }
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(fullUserServerDto)
+            }
+            assertEquals(HttpStatusCode.Conflict, response.status)
+            testTransaction {
+                assertNotNull(Session.findById(initSessionId))
+                assertEmpty(Users.select(Users.sessionId eq initSessionId))
+            }
+        }
+
+        @Test
+        fun `import user with conflicting users`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val initUserId = UUID.fromString("d2a25f84-0564-4fc3-b6cd-d1380b37b4fb")
+            val initUsername = "User123"
+            val initUsernameEncoded = initUsername.encode()
+            val emailAddress = "email1"
+            val emailAddress2 = "email2"
+            val siteName = "site1"
+            val siteName2 = "site2"
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                    INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                        VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val fullUserServerDto = FullUserServerDto(initUsername) {
+                +FullEmailServerDto(emailAddress) {
+                    +FullSiteServerDto(siteName)
+                }
+                +FullEmailServerDto(emailAddress2) {
+                    +FullSiteServerDto(siteName)
+                }
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(fullUserServerDto)
+            }
+            assertEquals(HttpStatusCode.Conflict, response.status)
+            testTransaction {
+                assertNotNull(Session.findById(initSessionId))
+                assertEquals(1, Users.select { Users.sessionId eq initSessionId }.count())
+                assertNotNull(User.findById(initUserId))
+            }
+        }
+
+        @Test
+        fun `import session with blank existing session`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val username = "User123"
+            val emailAddress = "email1"
+            val emailAddress2 = "email2"
+            val siteName = "site1"
+            val siteName2 = "site2"
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                """.trimIndent()
+                )
+            }
+            val fullUserServerDto = FullUserServerDto(username) {
+                +FullEmailServerDto(emailAddress) {
+                    +FullSiteServerDto(siteName)
+                    +FullSiteServerDto(siteName2)
+                }
+                +FullEmailServerDto(emailAddress2)
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(fullUserServerDto)
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            testTransaction {
+                assertNotNull(Session.findById(initSessionId))
+                assertEquals(1, Users.select { Users.sessionId eq initSessionId }.count())
+                assertEquals(2, Emails.selectAll().count())
+                assertEquals(2, Sites.selectAll().count())
+            }
+        }
+
+        @Test
+        fun `import session with non-blank existing session`() = testApplication {
+            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
+            val username = "User123"
+            val emailAddress = "Email001"
+            val siteName = "Site001"
+
+            val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
+            val initUsername = "UserABC"
+            val initUsernameEncoded = initUsername.encode()
+            val initUserId2 = UUID.fromString("7f73c61e-0b3a-4a01-9099-6978ba73b72c")
+            val initUsername2 = "User234"
+            val initUsernameEncoded2 = initUsername2.encode()
+            val initEmailId = UUID.fromString("092ff7ae-88b5-4dd9-8ad9-c273d6ad2647")
+            val initEmailAddress = "Email001"
+            val initEmailAddressEncoded = initEmailAddress.encode()
+            val initEmailId2 = UUID.fromString("85581b81-96ee-4086-b0b1-81da47e10422")
+            val initEmailAddress2 = "Email002"
+            val initEmailAddressEncoded2 = initEmailAddress2.encode()
+            val initSiteId = UUID.fromString("44c3c74c-b0bb-402d-83cf-4ca448e98e71")
+            val initSiteName = "Site001"
+            val initSiteNameEncoded = initSiteName.encode()
+            val initSiteId2 = UUID.fromString("a42836d0-a6ca-4973-a6f1-c90fc9c6a352")
+            val initSiteName2 = "SiteXYZ"
+            val initSiteNameEncoded2 = initSiteName2.encode()
+            testTransaction {
+                exec(
+                    """
+                    INSERT INTO SESSIONS (ID)
+                        VALUES ('$initSessionId');
+                    INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                        VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
+                    INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                        VALUES ('$initUserId2', '$initUsernameEncoded2', '$initSessionId');
+                    INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                        VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
+                    INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
+                        VALUES ('$initEmailId2', '$initEmailAddressEncoded2', '$initUserId');
+                    INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
+                        VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
+                    INSERT INTO SITES (ID,SITE_NAME, EMAIL_ID)
+                        VALUES ('$initSiteId2', '$initSiteNameEncoded2', '$initEmailId');
+                """.trimIndent()
+                )
+            }
+            val fullUserServerDto = FullUserServerDto(username) {
+                +FullEmailServerDto(emailAddress) {
+                    +FullSiteServerDto(siteName)
+                }
+            }
+            val client = createAndConfigureClientWithCookie(initSessionId)
+            val response = client.post(UserRoute.Import()) {
+                contentType(ContentType.Application.Json)
+                setBody(fullUserServerDto)
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            testTransaction {
+                assertNotNull(Session.findById(initSessionId))
+                assertEquals(3, Users.select { Users.sessionId eq initSessionId }.count())
+                assertEquals(3, Emails.selectAll().count())
+                assertEquals(3, Sites.selectAll().count())
             }
         }
 

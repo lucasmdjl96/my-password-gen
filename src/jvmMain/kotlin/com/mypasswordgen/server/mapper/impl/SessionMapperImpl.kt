@@ -18,12 +18,12 @@ class SessionMapperImpl(private val userMapper: UserMapper) : SessionMapper {
     }
 
     override fun sessionToFullSessionClientDto(session: Session): FullSessionClientDto {
-        return FullSessionClientDto().apply {
-            users.addAll(session.users.map { user ->
+        return FullSessionClientDto {
+            session.users.forEach { user ->
                 with(userMapper) {
-                    user.toFullUserClientDto()
+                    +user.toFullUserClientDto()
                 }
-            })
+            }
         }
     }
 

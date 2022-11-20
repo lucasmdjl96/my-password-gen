@@ -23,12 +23,12 @@ class EmailMapperImpl(private val siteMapper: SiteMapper) : EmailMapper {
     }
 
     override fun emailToFullEmailClientDto(email: Email): FullEmailClientDto {
-        return FullEmailClientDto(email.id.value.toString()).apply {
-            sites.addAll(email.sites.map { site ->
+        return FullEmailClientDto(email.id.value.toString()) {
+            email.sites.forEach { site ->
                 with(siteMapper) {
-                    site.toFullSiteClientDto()
+                    +site.toFullSiteClientDto()
                 }
-            })
+            }
         }
     }
 
