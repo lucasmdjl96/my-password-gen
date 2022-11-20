@@ -1,6 +1,5 @@
 package com.mypasswordgen.server.repository.impl
 
-import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.Site
 import com.mypasswordgen.server.repository.SiteRepository
 import com.mypasswordgen.server.tables.Sites
@@ -27,10 +26,10 @@ class SiteRepositoryImpl : SiteRepository {
     }
 
 
-    override fun getByNameAndEmail(siteName: String, email: Email): Site? {
+    override fun getByNameAndEmail(siteName: String, emailId: UUID): Site? {
         logger.debug { "getByNameAndEmail" }
         return Site.find {
-            Sites.siteName eq siteName and (Sites.emailId eq email.id)
+            Sites.siteName eq siteName and (Sites.emailId eq emailId)
         }.firstOrNull()
     }
 

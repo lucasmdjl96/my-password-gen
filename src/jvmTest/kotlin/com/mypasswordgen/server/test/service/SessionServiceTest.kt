@@ -1,11 +1,18 @@
 package com.mypasswordgen.server.test.service
 
+import com.mypasswordgen.common.dto.FullSessionClientDto
+import com.mypasswordgen.common.dto.FullSessionServerDto
+import com.mypasswordgen.common.dto.FullUserServerDto
+import com.mypasswordgen.common.dto.UserIDBDto
 import com.mypasswordgen.server.dto.SessionDto
 import com.mypasswordgen.server.mapper.SessionMapper
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.plugins.DataConflictException
+import com.mypasswordgen.server.plugins.DataNotFoundException
 import com.mypasswordgen.server.repository.SessionRepository
 import com.mypasswordgen.server.repository.UserRepository
+import com.mypasswordgen.server.service.UserService
 import com.mypasswordgen.server.service.impl.SessionServiceImpl
 import com.mypasswordgen.server.tables.Sessions
 import com.mypasswordgen.server.tables.Users
@@ -20,6 +27,7 @@ import kotlin.test.assertNull
 
 class SessionServiceTest : ServiceTestParent() {
 
+    private lateinit var userServiceMock: UserService
     private lateinit var sessionRepositoryMock: SessionRepository
     private lateinit var userRepositoryMock: UserRepository
     private lateinit var sessionMapperMock: SessionMapper
@@ -38,8 +46,13 @@ class SessionServiceTest : ServiceTestParent() {
     private lateinit var dummySessionFrom: Session
     private lateinit var dummySessionTo: Session
 
+    private lateinit var dummyFullSessionServerDto: FullSessionServerDto
+    private lateinit var dummyFullSessionClientDto: FullSessionClientDto
+    private lateinit var dummyUserIDBDtoList: List<UserIDBDto>
+
     @BeforeAll
     override fun initMocks() {
+        userServiceMock = mockk()
         sessionRepositoryMock = mockk()
         userRepositoryMock = mockk()
         sessionMapperMock = mockk()
@@ -60,6 +73,16 @@ class SessionServiceTest : ServiceTestParent() {
         dummySessionToId = UUID.fromString("123e4567-eb98-12d3-a456-426614174000")
         dummySessionFrom = Session(EntityID(dummySessionFromId, Sessions))
         dummySessionTo = Session(EntityID(dummySessionToId, Sessions))
+
+        dummyFullSessionServerDto = FullSessionServerDto(mutableListOf(
+            FullUserServerDto("user123"),
+            FullUserServerDto("userAbc")
+        ))
+        dummyUserIDBDtoList = listOf(
+            UserIDBDto(),
+            UserIDBDto()
+        )
+        dummyFullSessionClientDto = FullSessionClientDto()
     }
 
     @Nested
@@ -77,7 +100,7 @@ class SessionServiceTest : ServiceTestParent() {
             }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
             val sessionServiceSpy = spyk(sessionService)
             every { sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew) } just Runs
 
@@ -116,7 +139,7 @@ class SessionServiceTest : ServiceTestParent() {
             }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
             val sessionServiceSpy = spyk(sessionService)
             every { sessionServiceSpy.moveAllUsers(dummySession, dummySessionNew) } just Runs
 
@@ -155,7 +178,7 @@ class SessionServiceTest : ServiceTestParent() {
             }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.assignNew(dummySessionDto)
 
@@ -186,7 +209,7 @@ class SessionServiceTest : ServiceTestParent() {
             }
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.assignNew(null)
 
@@ -214,7 +237,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val sessionResult = sessionService.find(dummySessionDto)
 
@@ -233,7 +256,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val sessionResult = sessionService.find(dummySessionDto)
 
@@ -258,7 +281,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.delete(dummySession) } just Runs
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val result = sessionService.delete(dummySessionDto)
 
@@ -278,7 +301,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.getById(dummySessionId) } returns null
             mockTransaction()
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             val result = sessionService.delete(dummySessionDto)
 
@@ -298,137 +321,6 @@ class SessionServiceTest : ServiceTestParent() {
     }
 
     @Nested
-    inner class SetLastUser {
-
-        @Test
-        fun `set last user when session found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
-            every { sessionRepositoryMock.setLastUser(dummySession, dummyUser) } just Runs
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            sessionService.setLastUser(dummySessionId, dummyUser)
-
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-                sessionRepositoryMock.setLastUser(dummySession, dummyUser)
-            }
-        }
-
-        @Test
-        fun `set last user null when session found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
-            every { sessionRepositoryMock.setLastUser(dummySession, null) } just Runs
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            sessionService.setLastUser(dummySessionId, null)
-
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-                sessionRepositoryMock.setLastUser(dummySession, null)
-            }
-        }
-
-        @Test
-        fun `set last user when session not found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns null
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            assertThrows<Exception> { sessionService.setLastUser(dummySessionId, dummyUser) }
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-            }
-            verify(exactly = 0) {
-                sessionRepositoryMock.setLastUser(dummySession, dummyUser)
-            }
-        }
-
-        @Test
-        fun `set last user null when session not found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns null
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            assertThrows<Exception> { sessionService.setLastUser(dummySessionId, null) }
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-            }
-            verify(exactly = 0) {
-                sessionRepositoryMock.setLastUser(dummySession, null)
-            }
-        }
-
-    }
-
-    @Nested
-    inner class GetLastUser {
-
-        @Test
-        fun `get existing last user when session found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
-            every { sessionRepositoryMock.getLastUser(dummySession) } returns dummyUser
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            val userResult = sessionService.getLastUser(dummySessionId)
-
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-                sessionRepositoryMock.getLastUser(dummySession)
-            }
-            assertEquals(dummyUser, userResult)
-        }
-
-        @Test
-        fun `get non-existing last user when session found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns dummySession
-            every { sessionRepositoryMock.getLastUser(dummySession) } returns null
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            val userResult = sessionService.getLastUser(dummySessionId)
-
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-                sessionRepositoryMock.getLastUser(dummySession)
-            }
-            assertEquals(null, userResult)
-        }
-
-        @Test
-        fun `get last user when session not found`() {
-            every { sessionRepositoryMock.getById(dummySessionId) } returns null
-            mockTransaction()
-
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
-
-            assertThrows<Exception> { sessionService.getLastUser(dummySessionId) }
-            verifyOrder {
-                transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getById(dummySessionId)
-            }
-            verify(exactly = 0) {
-                sessionRepositoryMock.getLastUser(dummySession)
-            }
-        }
-
-    }
-
-    @Nested
     inner class Move {
 
         @Test
@@ -436,7 +328,7 @@ class SessionServiceTest : ServiceTestParent() {
             mockTransaction()
             every { userRepositoryMock.moveAll(dummySessionFromId, dummySessionToId) } just Runs
 
-            val sessionService = SessionServiceImpl(sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
 
             sessionService.moveAllUsers(dummySessionFrom, dummySessionTo)
 
@@ -445,6 +337,109 @@ class SessionServiceTest : ServiceTestParent() {
                 userRepositoryMock.moveAll(dummySessionFromId, dummySessionToId)
             }
 
+        }
+
+    }
+
+    @Nested
+    inner class GetFullSession {
+
+        @Test
+        fun `with existing session`() {
+            mockTransaction()
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionServiceSpy = spyk(sessionService)
+            every { sessionServiceSpy.find(dummySessionDto) } returns dummySession
+            with(sessionMapperMock) {
+                every { dummySession.toFullSessionClientDto() } returns dummyFullSessionClientDto
+            }
+
+            val result = sessionServiceSpy.getFullSession(dummySessionDto)
+
+            assertEquals(dummyFullSessionClientDto, result)
+            verifyOrder {
+                sessionServiceSpy.find(dummySessionDto)
+                with(sessionMapperMock) {
+                    dummySession.toFullSessionClientDto()
+                }
+            }
+        }
+
+        @Test
+        fun `with non-existing session`() {
+            mockTransaction()
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionServiceSpy = spyk(sessionService)
+            every { sessionServiceSpy.find(dummySessionDto) } returns null
+
+            assertThrows<DataNotFoundException> {
+                sessionServiceSpy.getFullSession(dummySessionDto)
+            }
+
+            verify {
+                sessionServiceSpy.find(dummySessionDto)
+            }
+        }
+    }
+
+    @Nested
+    inner class CreateFullUser {
+
+        @Test
+        fun `create when a user already exists`() {
+            mockTransaction()
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionServiceSpy = spyk(sessionService)
+            every { sessionRepositoryMock.create() } returns dummySession
+            every { sessionServiceSpy.delete(dummySessionDto) } returns Unit
+            every {
+                userServiceMock.createFullUser(dummyFullSessionServerDto.users[0], dummySession.id.value)
+            } throws DataConflictException()
+
+            assertThrows<DataConflictException> {
+                sessionServiceSpy.createFullSession(dummySessionDto, dummyFullSessionServerDto)
+            }
+
+            verify {
+                sessionRepositoryMock.create()
+            }
+        }
+
+        @Test
+        fun `create when nothing already exists`() {
+            mockTransaction()
+            val sessionService = SessionServiceImpl(userServiceMock, sessionRepositoryMock, userRepositoryMock, sessionMapperMock)
+            val sessionServiceSpy = spyk(sessionService)
+            every { sessionRepositoryMock.create() } returns dummySession
+            every { sessionServiceSpy.delete(dummySessionDto) } returns Unit
+            dummyFullSessionServerDto.users.forEachIndexed { index, fullUserServerDto ->
+                every {
+                    userServiceMock.createFullUser(fullUserServerDto, dummySession.id.value)
+                } returns dummyUserIDBDtoList[index]
+            }
+            with(sessionMapperMock) {
+                every {
+                    dummySession.toSessionDto()
+                } returns dummySessionDtoNew
+            }
+
+            val result = sessionServiceSpy.createFullSession(dummySessionDto, dummyFullSessionServerDto)
+
+            assertEquals(dummySessionDtoNew, result.first)
+            assertEquals(dummyUserIDBDtoList, result.second.users)
+            verifyOrder {
+                sessionRepositoryMock.create()
+                with(sessionMapperMock) {
+                    dummySession.toSessionDto()
+                }
+            }
+            verifyOrder {
+                sessionRepositoryMock.create()
+                for (fullUser in dummyFullSessionServerDto.users) {
+                    userServiceMock.createFullUser(fullUser, dummySession.id.value)
+                }
+            }
+            verify { sessionServiceSpy.delete(dummySessionDto) }
         }
 
     }

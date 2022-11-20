@@ -1,6 +1,9 @@
 package com.mypasswordgen.server.test.mapper
 
+import com.mypasswordgen.common.dto.FullEmailClientDto
+import com.mypasswordgen.common.dto.FullUserClientDto
 import com.mypasswordgen.common.dto.client.UserClientDto
+import com.mypasswordgen.server.mapper.EmailMapper
 import com.mypasswordgen.server.mapper.impl.UserMapperImpl
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.User
@@ -25,11 +28,15 @@ class UserMapperTest : MapperTestParent() {
     private lateinit var dummyEmailAddressList: List<String>
     private lateinit var dummyEmailIdsList: MutableList<String>
     private lateinit var dummyUserClientDto: UserClientDto
+    private lateinit var emailMapperMock: EmailMapper
+    private lateinit var dummyFullEmailClientList: List<FullEmailClientDto>
+    private lateinit var dummyFullUserClientDto: FullUserClientDto
 
     @BeforeAll
     override fun initMocks() {
         userMock = mockk()
         emailListMock = listOf(mockk(), mockk())
+        emailMapperMock = mockk()
     }
 
     @BeforeEach
@@ -38,6 +45,8 @@ class UserMapperTest : MapperTestParent() {
         dummyEmailAddressList = listOf("email1", "email2")
         dummyEmailIdsList = mutableListOf("id1", "id2")
         dummyUserClientDto = UserClientDto(dummyUserId, listOf())
+        dummyFullEmailClientList = listOf(FullEmailClientDto("email1"), FullEmailClientDto("email2"))
+        dummyFullUserClientDto = FullUserClientDto()
     }
 
     @Nested
@@ -50,7 +59,7 @@ class UserMapperTest : MapperTestParent() {
             every { userMock.load(any()) } returns userMock
             every { userMock.id.value.toString() } returns dummyUserId
             every { userMock.emails } returns emptySized()
-            val userMapper = UserMapperImpl()
+            val userMapper = UserMapperImpl(emailMapperMock)
             val userDto = userMapper.userToUserClientDto(userMock)
             assertEquals(dummyUserId, userDto.id)
             assertTrue(userDto.emailIdList.isEmpty())
@@ -70,7 +79,7 @@ class UserMapperTest : MapperTestParent() {
             emailListMock.forEachIndexed { index, userMock ->
                 every { userMock.id.value.toString() } returns dummyEmailAddressList[index]
             }
-            val userMapper = UserMapperImpl()
+            val userMapper = UserMapperImpl(emailMapperMock)
             val userDto = userMapper.userToUserClientDto(userMock)
             assertEquals(dummyUserId, userDto.id)
             assertEquals(dummyEmailAddressList, userDto.emailIdList)
@@ -82,12 +91,13 @@ class UserMapperTest : MapperTestParent() {
 
         @Test
         fun `with receiver`() {
-            val userMapper = UserMapperImpl()
+            val userMapper = UserMapperImpl(emailMapperMock)
             val userMapperSpy = spyk(userMapper)
             every { userMapperSpy.userToUserClientDto(userMock) } returns dummyUserClientDto
-            with(userMapperSpy) {
+            val result = with(userMapperSpy) {
                 userMock.toUserClientDto()
             }
+            assertEquals(dummyUserClientDto, result)
             verifySequence {
                 with(userMapperSpy) {
                     userMock.toUserClientDto()
@@ -96,6 +106,56 @@ class UserMapperTest : MapperTestParent() {
             }
         }
 
+    }
+
+    @Nested
+    inner class UserToFullUserClientDto {
+        @Test
+        fun `with argument`() {
+            every { userMock.emails } returns SizedCollection(emailListMock)
+            emailListMock.forEachIndexed { index, email ->
+                every {
+                    with(emailMapperMock) {
+                        email.toFullEmailClientDto()
+                    }
+                } returns dummyFullEmailClientList[index]
+            }
+
+            val userMapper = UserMapperImpl(emailMapperMock)
+
+            val result = userMapper.userToFullUserClientDto(userMock)
+
+            assertEquals(2, result.emails.size)
+            for (i in 0..1) {
+                assertEquals(dummyFullEmailClientList[i], result.emails[i])
+            }
+            verifyOrder {
+                userMock.emails
+                for (user in emailListMock) {
+                    with(emailMapperMock) {
+                        user.toFullEmailClientDto()
+                    }
+                }
+            }
+        }
+
+        @Test
+        fun `with receiver`() {
+            val userMapper = UserMapperImpl(emailMapperMock)
+            val sessionMapperSpy = spyk(userMapper)
+            every { sessionMapperSpy.userToFullUserClientDto(userMock) } returns dummyFullUserClientDto
+            val result = with(sessionMapperSpy) {
+                userMock.toFullUserClientDto()
+            }
+
+            assertEquals(dummyFullUserClientDto, result)
+            verifySequence {
+                with(sessionMapperSpy) {
+                    userMock.toFullUserClientDto()
+                }
+                sessionMapperSpy.userToFullUserClientDto(userMock)
+            }
+        }
     }
 
 }

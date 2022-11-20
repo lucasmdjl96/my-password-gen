@@ -58,6 +58,10 @@ val App = { initialState: InitialState ->
                 this.background = background
                 this.updateBackground = { color -> background = color }
             }
+            if (!keyboardUp && online) FileManager {
+                this.loggedIn = userClient != null
+                this.username = userClient?.username
+            }
             main {
                 className = CssClasses.container
                 TitleContainer {
@@ -69,9 +73,14 @@ val App = { initialState: InitialState ->
                         if (ctrlKey && key == "Enter") {
                             ::click on getHtmlElementById("onlineToggle")!!
                         }
-                    }
-                    if (!keyboardUp && connectionOn) FileManager {
-                        this.loggedIn = false
+                        if (ctrlKey && key == "i") {
+                            preventDefault()
+                            ::click on getHtmlElementById("import")
+                        }
+                        if (ctrlKey && key == "e") {
+                            preventDefault()
+                            ::click on getHtmlElementById("export")
+                        }
                     }
                     OnlineToggle {
                         this.cookiesAccepted = cookiesAccepted
@@ -104,9 +113,10 @@ val App = { initialState: InitialState ->
                         if (ctrlKey && key == "Backspace") {
                             ::click on getHtmlElementById("logout")!!
                         }
-                    }
-                    if (!keyboardUp && connectionOn) FileManager {
-                        this.loggedIn = true
+                        if (ctrlKey && key == "e") {
+                            preventDefault()
+                            ::click on getHtmlElementById("export")
+                        }
                     }
                     LogoutButton {
                         this.reset = {

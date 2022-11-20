@@ -11,7 +11,8 @@ interface EmailRepository {
 
     fun getById(id: UUID): Email?
 
-    fun getByAddressAndUser(emailAddress: String, user: User): Email?
+    fun getByAddressAndUser(emailAddress: String, userId: UUID): Email?
+    fun getByAddressAndUser(emailAddress: String, user: User) = getByAddressAndUser(emailAddress, user.id.value)
 
     fun delete(email: Email)
 

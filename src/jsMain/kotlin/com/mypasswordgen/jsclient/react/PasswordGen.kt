@@ -251,7 +251,7 @@ inline fun <T, S> withReceiver(crossinline block: T.() -> S): (T) -> S = {
     it.block()
 }
 
-infix fun ((HTMLElement) -> Unit).on(element: HTMLElement): Unit = this(element)
+infix fun ((HTMLElement?) -> Unit?).on(element: HTMLElement?): Unit? = this(element)
 
-fun click(element: HTMLElement) = element.click()
-fun focus(element: HTMLElement) = element.focus()
+fun click(element: HTMLElement?) = element?.click()
+fun focus(element: HTMLElement?) = element?.focus()

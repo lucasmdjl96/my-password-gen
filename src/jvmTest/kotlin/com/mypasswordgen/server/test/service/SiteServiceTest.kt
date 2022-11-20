@@ -1,16 +1,18 @@
 package com.mypasswordgen.server.test.service
 
+import com.mypasswordgen.common.dto.FullSiteServerDto
 import com.mypasswordgen.common.dto.client.SiteClientDto
 import com.mypasswordgen.common.dto.server.SiteServerDto
+import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.SiteMapper
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.Site
 import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
+import com.mypasswordgen.server.repository.SessionRepository
 import com.mypasswordgen.server.repository.SiteRepository
 import com.mypasswordgen.server.repository.UserRepository
-import com.mypasswordgen.server.service.SessionService
 import com.mypasswordgen.server.service.impl.SiteServiceImpl
 import com.mypasswordgen.server.tables.Emails
 import com.mypasswordgen.server.tables.Sites
@@ -27,7 +29,7 @@ class SiteServiceTest : ServiceTestParent() {
 
     private lateinit var siteRepositoryMock: SiteRepository
     private lateinit var userRepositoryMock: UserRepository
-    private lateinit var sessionServiceMock: SessionService
+    private lateinit var sessionRepositoryMock: SessionRepository
     private lateinit var siteMapperMock: SiteMapper
 
     private lateinit var dummySessionId: UUID
@@ -37,12 +39,14 @@ class SiteServiceTest : ServiceTestParent() {
     private lateinit var dummySiteId: UUID
     private lateinit var dummySiteServerDto: SiteServerDto
     private lateinit var dummySiteClientDto: SiteClientDto
+    private lateinit var dummyFullSiteServerDto: FullSiteServerDto
+    private lateinit var dummySiteNameEncoded: String
 
     @BeforeAll
     override fun initMocks() {
         siteRepositoryMock = mockk()
         userRepositoryMock = mockk()
-        sessionServiceMock = mockk()
+        sessionRepositoryMock = mockk()
         siteMapperMock = mockk()
     }
 
@@ -55,6 +59,8 @@ class SiteServiceTest : ServiceTestParent() {
         dummySiteId = UUID.fromString("3fd37556-8aeb-4174-aa48-707e134b8a2c")
         dummySiteServerDto = SiteServerDto("coolWeb")
         dummySiteClientDto = SiteClientDto("de7da9c3-bc14-4d29-aa6d-15fb2122e072")
+        dummyFullSiteServerDto = FullSiteServerDto("site1")
+        dummySiteNameEncoded = "siteXXX"
     }
 
     @Nested
@@ -62,7 +68,7 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `create site when email exists and site doesn't exist yet`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns dummyEmail
             every { siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail) } returns null
             every { siteRepositoryMock.createAndGetId(dummySiteServerDto.siteName, dummyEmail) } returns dummySiteId
@@ -73,13 +79,13 @@ class SiteServiceTest : ServiceTestParent() {
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             val siteResult = siteService.create(dummySiteServerDto, dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
                 siteRepositoryMock.createAndGetId(dummySiteServerDto.siteName, dummyEmail)
@@ -93,13 +99,13 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `create site when email exists and site already exists`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns dummyEmail
             every { siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail) } returns dummySite
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<DataConflictException> {
                 siteService.create(dummySiteServerDto, dummySessionId)
@@ -111,7 +117,7 @@ class SiteServiceTest : ServiceTestParent() {
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
             }
@@ -119,18 +125,18 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `create site when email doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<Exception> { siteService.create(dummySiteServerDto, dummySessionId) }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
             }
             verify {
@@ -140,17 +146,17 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `create site when last user doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns null
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<Exception> { siteService.create(dummySiteServerDto, dummySessionId) }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
             }
             verify {
                 siteRepositoryMock wasNot Called
@@ -165,7 +171,7 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `find site when email and site exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns dummyEmail
             every { siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail) } returns dummySite
             with(siteMapperMock) {
@@ -174,13 +180,13 @@ class SiteServiceTest : ServiceTestParent() {
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             val siteResult = siteService.find(dummySiteServerDto, dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
                 with(siteMapperMock) {
@@ -192,13 +198,13 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `find site when email exists but site doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns dummyEmail
             every { siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<DataNotFoundException> {
                 siteService.find(dummySiteServerDto, dummySessionId)
@@ -206,7 +212,7 @@ class SiteServiceTest : ServiceTestParent() {
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
             }
@@ -214,12 +220,12 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `find site when email doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<Exception> { siteService.find(dummySiteServerDto, dummySessionId) }
             verify {
@@ -227,24 +233,24 @@ class SiteServiceTest : ServiceTestParent() {
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
             }
         }
 
         @Test
         fun `find site when last user doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns null
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<Exception> { siteService.find(dummySiteServerDto, dummySessionId) }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
             }
             verify {
                 siteRepositoryMock wasNot Called
@@ -259,7 +265,7 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `delete site when email and site exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns dummyEmail
             every { siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail) } returns dummySite
             every { siteRepositoryMock.delete(dummySite) } just Runs
@@ -269,13 +275,13 @@ class SiteServiceTest : ServiceTestParent() {
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             val result = siteService.delete(dummySiteServerDto, dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
                 with(siteMapperMock) {
@@ -288,13 +294,13 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `delete site when email exists but site doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns dummyEmail
             every { siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<DataNotFoundException> {
                 siteService.delete(dummySiteServerDto, dummySessionId)
@@ -302,7 +308,7 @@ class SiteServiceTest : ServiceTestParent() {
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
                 siteRepositoryMock.getByNameAndEmail(dummySiteServerDto.siteName, dummyEmail)
             }
@@ -313,12 +319,12 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `delete site when email doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             every { userRepositoryMock.getLastEmail(dummyUser) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<Exception> { siteService.delete(dummySiteServerDto, dummySessionId) }
             verify {
@@ -326,28 +332,71 @@ class SiteServiceTest : ServiceTestParent() {
             }
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.getLastEmail(dummyUser)
             }
         }
 
         @Test
         fun `delete site when last user doesn't exist`() {
-            every { sessionServiceMock.getLastUser(dummySessionId) } returns null
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
             val siteService =
-                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionServiceMock, siteMapperMock)
+                SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
 
             assertThrows<Exception> { siteService.delete(dummySiteServerDto, dummySessionId) }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionServiceMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
             }
             verify {
                 siteRepositoryMock wasNot Called
                 userRepositoryMock wasNot Called
+            }
+        }
+
+    }
+
+    @Nested
+    inner class CreateFullSite {
+
+        @Test
+        fun `create when it already exists`() {
+            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
+            every { dummyFullSiteServerDto.siteName.encode() } returns dummySiteNameEncoded
+            every { siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value) } returns dummySite
+            mockTransaction()
+
+            val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
+            assertThrows<DataConflictException> {
+                siteService.createFullSite(dummyFullSiteServerDto, dummyEmail.id.value)
+            }
+
+            verifyOrder {
+                dummyFullSiteServerDto.siteName.encode()
+                siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value)
+            }
+        }
+
+        @Test
+        fun `create when it doesn't exist`() {
+            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
+            every { dummyFullSiteServerDto.siteName.encode() } returns dummySiteNameEncoded
+            every { siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value) } returns null
+            every { siteRepositoryMock.createAndGetId(dummySiteNameEncoded, dummyEmail.id.value) } returns dummySiteId
+            mockTransaction()
+
+            val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
+
+            val result = siteService.createFullSite(dummyFullSiteServerDto, dummyEmail.id.value)
+
+            assertEquals(dummyFullSiteServerDto.siteName, result.siteName)
+            assertEquals(dummySiteId.toString(), result.id)
+            verifyOrder {
+                dummyFullSiteServerDto.siteName.encode()
+                siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value)
             }
         }
 

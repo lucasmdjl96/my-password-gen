@@ -2,18 +2,19 @@ package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.common.dto.*
 import com.mypasswordgen.common.routes.SessionRoute
+import com.mypasswordgen.common.routes.UserRoute
 import com.mypasswordgen.jsclient.*
+import com.mypasswordgen.jsclient.dto.DownloadCode
+import com.mypasswordgen.jsclient.dto.DownloadCode.SESSION
+import com.mypasswordgen.jsclient.dto.DownloadCode.USER
+import com.mypasswordgen.jsclient.dto.DownloadSession
+import com.mypasswordgen.jsclient.dto.DownloadUser
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.w3c.dom.url.URL
-import org.w3c.files.Blob
-import org.w3c.files.BlobPropertyBag
 import org.w3c.files.FileReader
 import org.w3c.files.get
 import react.FC
@@ -22,130 +23,160 @@ import react.dom.html.InputType
 import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
+import react.useEffect
 import react.useState
-
-val jsonFormatter = Json {
-    prettyPrint = true
-}
+import kotlin.js.Promise
 
 external interface FileManagerProps : Props {
     var loggedIn: Boolean
+    var username: String?
 }
 
 val FileManager = FC<FileManagerProps> { props ->
     var sessionData by useState<FullSessionServerDto>()
+    var userData by useState<FullUserServerDto>()
+
+    lateinit var exportPromise: Promise<Unit>
+
+    useEffect(props.loggedIn) {
+        sessionData = null
+        userData = null
+    }
 
     div {
         className = CssClasses.fileManagerContainer
         if (!props.loggedIn) div {
             +"Import"
+            id = "import"
             onClick = {
-                ::click on getHtmlElementById("import")!!
+                ::click on getHtmlElementById("importButton")!!
             }
-            input {
-                id = "import"
-                hidden = true
-                type = InputType.file
-                accept = ".json,application/json"
-                multiple = false
-                onChange = { event ->
-                    if (event.target.files != null && event.target.files!!.length == 1) {
-                        val file = event.target.files!![0]!!
-                        if (file.type == "application/json") {
-                            val reader = FileReader()
-                            reader.onload = {
-                                val fullSessionServer =
-                                    jsonFormatter.decodeFromString<FullSessionServerDto>(reader.result as String)
-                                val usernames = fullSessionServer.users.map(FullUserServerDto::username)
-                                if (usernames.none { username -> username == "FILL_THIS_IN" }
-                                    && usernames.allUnique()
-                                ) scope.launch {
-                                    uploadData(fullSessionServer)
+        }
+        if (!props.loggedIn) input {
+            id = "importButton"
+            hidden = true
+            type = InputType.file
+            accept = ".json,application/json"
+            multiple = false
+            onChange = { event ->
+                if (event.target.files != null && event.target.files!!.length == 1) {
+                    val file = event.target.files!![0]!!
+                    if (file.type == "application/json") {
+                        val reader = FileReader()
+                        reader.onload = {
+                            val text = reader.result as String
+                            console.log(text)
+                            when (DownloadCode.fromText(text)) {
+
+                                SESSION -> run {
+                                    console.log("SESSION")
+                                    val session = DownloadSession.dataFromText(text)
+                                    val usernames = session.users.map(FullUserServerDto::username)
+                                    if (usernames.none { username -> username == "FILL_THIS_IN" }) scope.launch {
+                                        uploadData(session)
+                                    }
+                                }
+
+                                USER -> run {
+                                    console.log("USER")
+                                    val user = DownloadUser.dataFromText(text)
+                                    scope.launch {
+                                        uploadData(user)
+                                    }
+                                }
+
+                                null -> run {
+                                    console.log("NULL")
                                 }
                             }
-                            reader.readAsText(file)
                         }
+                        reader.readAsText(file)
                     }
                 }
             }
         }
         div {
             +"Export"
-            id = "test"
+            id = "export"
             onClick = {
-                if (sessionData == null) scope.launch {
+                if (sessionData == null && !props.loggedIn) scope.launch {
                     sessionData = downloadSessionData()
-                    ::click on getHtmlElementById("export")!!
+                } else if (userData == null && props.loggedIn) scope.launch {
+                    userData = downloadUserData(props.username!!)
                 } else {
-                    ::click on getHtmlElementById("export")!!
+                    exportPromise.then {
+                        ::click on getHtmlElementById("exportButton")!!
+                    }
                 }
             }
-            ReactHTML.a {
-                id = "export"
-                hidden = true
-                if (sessionData != null) {
-                    download = "my-password-gen.json"
-                    val file = Blob(
-                        arrayOf(jsonFormatter.encodeToString(sessionData)),
-                        BlobPropertyBag(type = "application/json")
-                    )
+        }
+        ReactHTML.a {
+            id = "exportButton"
+            hidden = true
+            exportPromise = Promise { resolve, reject ->
+                if (sessionData != null && !props.loggedIn) {
+                    download = "my-password-gen-session.json"
+                    val file = DownloadSession(sessionData!!).toFile()
                     href = URL.createObjectURL(file)
+                    resolve(Unit)
                 }
+                if (userData != null && props.loggedIn) {
+                    download = "my-password-gen-user.json"
+                    val file = DownloadUser(userData!!).toFile()
+                    href = URL.createObjectURL(file)
+                    resolve(Unit)
+                }
+            }.then {
+                ::click on getHtmlElementById("exportButton")!!
             }
         }
     }
 }
 
+
 suspend fun downloadSessionData(): FullSessionServerDto? {
-    val response = jsonClient.get(SessionRoute.Export()) {
-    }
+    val response = jsonClient.get(SessionRoute.Export())
     if (response.status != HttpStatusCode.OK) return null
     val fullSessionClient = response.body<FullSessionClientDto>()
     val fullSessionServer = FullSessionServerDto()
     database.biReadTransaction<EmailIDBDto, SiteIDBDto> {
         for (fullUserClient in fullSessionClient.users) {
-            val fullUserServerDto = FullUserServerDto("FILL_THIS_IN")
-            fullSessionServer.addUser(fullUserServerDto)
-            for (fullEmailClient in fullUserClient.emails) {
-                get<EmailIDBDto>(fullEmailClient.id) { email ->
-                    if (email != null) {
-                        val fullEmailServerDto = FullEmailServerDto(email.emailAddress)
-                        fullUserServerDto.addEmail(fullEmailServerDto)
-                        for (fullSiteClient in fullEmailClient.sites) {
-                            get<SiteIDBDto>(fullSiteClient.id) { site ->
-                                if (site != null) {
-                                    val fullSiteServerDto = FullSiteServerDto(site.siteName)
-                                    fullEmailServerDto.addSite(fullSiteServerDto)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            val fullUserServer = FullUserServerDto("FILL_THIS_IN")
+            fullSessionServer.addUser(fullUserServer)
+            loadUserData(fullUserClient, fullUserServer)
         }
     }.awaitCompletion()
     return fullSessionServer
 }
 
-suspend fun mockDownloadData(): FullSessionServerDto? {
-    return FullSessionServerDto(
-        mutableListOf(
-            FullUserServerDto(
-                "abc",
-                mutableListOf(
-                    FullEmailServerDto(
-                        "a@b",
-                        mutableListOf(
-                            FullSiteServerDto("ABC"),
-                            FullSiteServerDto("DEF"),
-                        )
-                    ),
-                    FullEmailServerDto("c@d")
-                )
-            ),
-            FullUserServerDto("def")
-        )
-    )
+private inline fun IDBTransaction.loadUserData(fromFullUserClient: FullUserClientDto, intoFullUserServer: FullUserServerDto) {
+    for (fullEmailClient in fromFullUserClient.emails) {
+        get<EmailIDBDto>(fullEmailClient.id) { email ->
+            if (email != null) {
+                val fullEmailServer = FullEmailServerDto(email.emailAddress)
+                intoFullUserServer.addEmail(fullEmailServer)
+                for (fullSiteClient in fullEmailClient.sites) {
+                    get<SiteIDBDto>(fullSiteClient.id) { site ->
+                        if (site != null) {
+                            val fullSiteServer = FullSiteServerDto(site.siteName)
+                            fullEmailServer.addSite(fullSiteServer)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+suspend fun downloadUserData(username: String): FullUserServerDto? {
+    val response = jsonClient.get(UserRoute.Export(username))
+    if (response.status != HttpStatusCode.OK) return null
+    val fullUserClient = response.body<FullUserClientDto>()
+    val fullUserServer = FullUserServerDto(username)
+    database.biReadTransaction<EmailIDBDto, SiteIDBDto> {
+        loadUserData(fullUserClient, fullUserServer)
+    }.awaitCompletion()
+    return fullUserServer
 }
 
 suspend fun uploadData(fullSessionServerDto: FullSessionServerDto) {
@@ -169,15 +200,19 @@ suspend fun uploadData(fullSessionServerDto: FullSessionServerDto) {
     }.awaitCompletion()
 }
 
-suspend fun dummyUploadData(fullSessionServerDto: FullSessionServerDto) {
-    console.log(Json.encodeToString(fullSessionServerDto))
-}
-
-fun <T> List<T>.allUnique(): Boolean {
-    val seen = mutableListOf<T>()
-    for (t in this) {
-        if (t in seen) return false
-        else seen.add(t)
+suspend fun uploadData(fullUserServerDto: FullUserServerDto) {
+    val result = jsonClient.post(UserRoute.Import()) {
+        setBody(fullUserServerDto)
+        contentType(ContentType.Application.Json)
     }
-    return true
+    if (result.status != HttpStatusCode.OK) return
+    val user = result.body<UserIDBDto>()
+    database.biReadWriteTransaction<EmailIDBDto, SiteIDBDto> {
+        for (email in user.emails) {
+            add(email)
+            for (site in email.sites) {
+                add(site)
+            }
+        }
+    }.awaitCompletion()
 }

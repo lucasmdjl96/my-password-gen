@@ -1,5 +1,8 @@
 package com.mypasswordgen.server.test.controller
 
+import com.mypasswordgen.common.dto.FullUserClientDto
+import com.mypasswordgen.common.dto.FullUserServerDto
+import com.mypasswordgen.common.dto.UserIDBDto
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
@@ -25,6 +28,9 @@ class UserControllerTest : ControllerTestParent() {
     private lateinit var dummySessionDto: SessionDto
     private lateinit var dummyUserServerDto: UserServerDto
     private lateinit var dummyEncodedUserServerDto: UserServerDto
+    private lateinit var dummyFullUserServerDto: FullUserServerDto
+    private lateinit var dummyUserIDBDto: UserIDBDto
+    private lateinit var dummyFullUserClientDto: FullUserClientDto
 
     private lateinit var userServiceMock: UserService
     private lateinit var callMock: ApplicationCall
@@ -44,6 +50,9 @@ class UserControllerTest : ControllerTestParent() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyUserServerDto = UserServerDto("userServer123")
         dummyEncodedUserServerDto = UserServerDto("userServer321")
+        dummyFullUserServerDto = FullUserServerDto("User123")
+        dummyUserIDBDto = UserIDBDto()
+        dummyFullUserClientDto = FullUserClientDto()
     }
 
     @Nested
@@ -227,6 +236,110 @@ class UserControllerTest : ControllerTestParent() {
 
         }
 
+    }
+
+    @Nested
+    inner class Import {
+        @Test
+        fun `import when user already exists`() = runBlocking {
+            mockCall(callMock, dummySessionDto, dummyFullUserServerDto)
+            every {
+                userServiceMock.createFullUser(dummyFullUserServerDto, dummySessionDto.sessionId)
+            } throws DataConflictException()
+
+            val userController = UserControllerImpl(userServiceMock)
+            assertThrows<DataConflictException> {
+                userController.post(callMock, UserRoute.Import())
+            }
+
+            coVerifyOrder {
+                callMock.sessions.get<SessionDto>()
+                userServiceMock.createFullUser(dummyFullUserServerDto, dummySessionDto.sessionId)
+            }
+            coVerifyOrder {
+                callMock.receive<FullUserServerDto>()
+                userServiceMock.createFullUser(dummyFullUserServerDto, dummySessionDto.sessionId)
+            }
+        }
+
+        @Test
+        fun `import when user doesn't exist`() = runBlocking {
+            mockCall(callMock, dummySessionDto, dummyFullUserServerDto)
+            every {
+                userServiceMock.createFullUser(dummyFullUserServerDto, dummySessionDto.sessionId)
+            } returns dummyUserIDBDto
+
+            val userController = UserControllerImpl(userServiceMock)
+            userController.post(callMock, UserRoute.Import())
+
+            coVerifyOrder {
+                callMock.sessions.get<SessionDto>()
+                userServiceMock.createFullUser(dummyFullUserServerDto, dummySessionDto.sessionId)
+                callMock.respond(dummyUserIDBDto)
+            }
+            coVerifyOrder {
+                callMock.receive<FullUserServerDto>()
+                userServiceMock.createFullUser(dummyFullUserServerDto, dummySessionDto.sessionId)
+            }
+        }
+    }
+
+    @Nested
+    inner class Export {
+        @Test
+        fun `export when user already exists`() = runBlocking {
+            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
+            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
+            every {
+                userServiceMock.getFullUser(
+                    dummyEncodedUserServerDto,
+                    dummySessionDto.sessionId
+                )
+            } returns dummyFullUserClientDto
+            mockCall(callMock, dummySessionDto)
+
+            val userController = UserControllerImpl(userServiceMock)
+
+            userController.get(callMock, UserRoute.Export(dummyUserServerDto.username))
+
+            coVerifyOrder {
+                callMock.sessions.get<SessionDto>()
+                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+            }
+            coVerifyOrder {
+                dummyUserServerDto.encode()
+                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                callMock.respond(dummyFullUserClientDto)
+            }
+        }
+
+        @Test
+        fun `export when user doesn't exist`() = runBlocking {
+            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
+            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
+            every {
+                userServiceMock.getFullUser(
+                    dummyEncodedUserServerDto,
+                    dummySessionDto.sessionId
+                )
+            } throws DataNotFoundException()
+            mockCall(callMock, dummySessionDto)
+
+            val userController = UserControllerImpl(userServiceMock)
+
+            assertThrows<DataNotFoundException> {
+                userController.get(callMock, UserRoute.Export(dummyUserServerDto.username))
+            }
+
+            coVerifyOrder {
+                callMock.sessions.get<SessionDto>()
+                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+            }
+            coVerifyOrder {
+                dummyUserServerDto.encode()
+                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+            }
+        }
     }
 
 }

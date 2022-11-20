@@ -11,4 +11,7 @@ interface UserController {
 
     suspend fun patch(call: ApplicationCall, userRoute: UserRoute.Logout)
 
+    suspend fun get(call: ApplicationCall, userRoute: UserRoute.Export)
+    suspend fun post(call: ApplicationCall, userRoute: UserRoute.Import)
+
 }

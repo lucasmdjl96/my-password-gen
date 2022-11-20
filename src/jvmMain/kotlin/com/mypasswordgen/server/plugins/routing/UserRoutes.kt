@@ -12,5 +12,7 @@ fun Route.userRoutes() {
     post<UserRoute.Login>(userController::post)
     post<UserRoute.Register>(userController::post)
     patch<UserRoute.Logout>(userController::patch)
+    get<UserRoute.Export>(userController::get)
+    post<UserRoute.Import>(userController::post)
 
 }

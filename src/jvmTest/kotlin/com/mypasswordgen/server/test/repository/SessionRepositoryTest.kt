@@ -235,4 +235,178 @@ class SessionRepositoryTest : RepositoryTestParent() {
 
     }
 
+    @Nested
+    inner class GetLastUserWithSessionID {
+
+        @Test
+        fun `get last user when no session`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initSessionId2 = UUID.fromString("576e3ad7-481a-4426-9074-a855fffef0d5")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                UPDATE SESSIONS
+                    SET LAST_USER_ID = '$initUserId'
+                    WHERE ID = '$initSessionId';
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getLastUser(initSessionId2)
+            assertNull(user)
+        }
+
+        @Test
+        fun `get last user when null`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getLastUser(initSessionId)
+            assertNull(user)
+        }
+
+        @Test
+        fun `get last user when not null`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                UPDATE SESSIONS
+                    SET LAST_USER_ID = '$initUserId'
+                    WHERE ID = '$initSessionId';
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getLastUser(initSessionId)
+            assertNotNull(user)
+            assertEquals(initUserId, user.id.value)
+        }
+    }
+
+    @Nested
+    inner class SetLastUserWithSessionId {
+
+        @Test
+        fun `set last user when no session`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initSessionId2 = UUID.fromString("8e6a37e6-a6fa-4767-b53e-fffced72580e")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = User.findById(initUserId)!!
+            sessionRepository.setLastUser(initSessionId2, user)
+            val newSession = Session.findById(initSessionId2)
+            assertNull(newSession)
+        }
+
+        @Test
+        fun `set last user from null to not null`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = User.findById(initUserId)!!
+            sessionRepository.setLastUser(initSessionId, user)
+            val newSession = Session.findById(initSessionId)
+            assertNotNull(newSession)
+            assertNotNull(newSession.lastUser)
+            assertEquals(user.id.value, newSession.lastUser!!.id.value)
+        }
+
+        @Test
+        fun `set last user from not null to null`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                UPDATE SESSIONS
+                    SET LAST_USER_ID = '$initUserId'
+                    WHERE ID = '$initSessionId';
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            sessionRepository.setLastUser(initSessionId, null)
+            val newSession = Session.findById(initSessionId)
+            assertNotNull(newSession)
+            assertNull(newSession.lastUser)
+        }
+
+        @Test
+        fun `set last user from not null to not null`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                UPDATE SESSIONS
+                    SET LAST_USER_ID = '$initUserId'
+                    WHERE ID = '$initSessionId';
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = User.findById(initUserId)!!
+            sessionRepository.setLastUser(initSessionId, user)
+            val newSession = Session.findById(initSessionId)
+            assertNotNull(newSession)
+            assertNotNull(newSession.lastUser)
+            assertEquals(user.id.value, newSession.lastUser!!.id.value)
+        }
+
+        @Test
+        fun `set last user from null to null`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            sessionRepository.setLastUser(initSessionId, null)
+            val newSession = Session.findById(initSessionId)
+            assertNotNull(newSession)
+            assertNull(newSession.lastUser)
+        }
+
+    }
+
 }

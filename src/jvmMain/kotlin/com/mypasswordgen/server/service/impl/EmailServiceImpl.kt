@@ -64,7 +64,10 @@ class EmailServiceImpl(
     }
 
     override fun createFullEmail(fullEmail: FullEmailServerDto, userId: UUID) = transaction {
-        val id = emailRepository.createAndGetId(fullEmail.emailAddress.encode(), userId)
+        val emailAddress = fullEmail.emailAddress.encode()
+        if (emailRepository.getByAddressAndUser(emailAddress, userId) != null) throw DataConflictException()
+        val id = emailRepository.createAndGetId(emailAddress, userId)
+
         EmailIDBDto(emailAddress = fullEmail.emailAddress, id = id.toString()).apply {
             for (fullSite in fullEmail.sites) {
                 sites.add(

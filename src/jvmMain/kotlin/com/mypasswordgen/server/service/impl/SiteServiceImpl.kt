@@ -63,7 +63,9 @@ class SiteServiceImpl(
     }
 
     override fun createFullSite(fullSite: FullSiteServerDto, emailId: UUID) = transaction {
-        val id = siteRepository.createAndGetId(fullSite.siteName.encode(), emailId)
+        val siteName = fullSite.siteName.encode()
+        if (siteRepository.getByNameAndEmail(siteName, emailId) != null) throw DataConflictException()
+        val id = siteRepository.createAndGetId(siteName, emailId)
         SiteIDBDto(siteName = fullSite.siteName, id = id.toString())
     }
 

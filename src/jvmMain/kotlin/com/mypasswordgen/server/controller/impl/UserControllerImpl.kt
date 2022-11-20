@@ -1,5 +1,6 @@
 package com.mypasswordgen.server.controller.impl
 
+import com.mypasswordgen.common.dto.FullUserServerDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
 import com.mypasswordgen.server.controller.UserController
@@ -36,6 +37,20 @@ class UserControllerImpl(
         val userServerDto = call.receive<UserServerDto>().encode()
         userService.logout(userServerDto, sessionId)
         call.respond(HttpStatusCode.OK)
+    }
+
+    override suspend fun post(call: ApplicationCall, userRoute: UserRoute.Import) {
+        val sessionDto = call.sessions.get<SessionDto>() ?: throw NotAuthenticatedException()
+        val fullUserServerDto = call.receive<FullUserServerDto>()
+        val userIDBDto = userService.createFullUser(fullUserServerDto, sessionDto.sessionId)
+        call.respond(userIDBDto)
+    }
+
+    override suspend fun get(call: ApplicationCall, userRoute: UserRoute.Export) {
+        val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
+        val userServerDto = UserServerDto(userRoute.username).encode()
+        val fullUserClientDto = userService.getFullUser(userServerDto, sessionId)
+        call.respond(fullUserClientDto)
     }
 
 }

@@ -1,7 +1,6 @@
 package com.mypasswordgen.server.repository.impl
 
 import com.mypasswordgen.server.model.Email
-import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.repository.EmailRepository
 import com.mypasswordgen.server.tables.Emails
 import mu.KotlinLogging
@@ -26,10 +25,10 @@ class EmailRepositoryImpl : EmailRepository {
         return Email.findById(id)
     }
 
-    override fun getByAddressAndUser(emailAddress: String, user: User): Email? {
+    override fun getByAddressAndUser(emailAddress: String, userId: UUID): Email? {
         logger.debug { "getByAddressAndUser" }
         return Email.find {
-            Emails.emailAddress eq emailAddress and (Emails.userId eq user.id)
+            Emails.emailAddress eq emailAddress and (Emails.userId eq userId)
         }.firstOrNull()
     }
 

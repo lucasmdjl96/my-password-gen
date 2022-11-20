@@ -1,5 +1,6 @@
 package com.mypasswordgen.server.test.mapper
 
+import com.mypasswordgen.common.dto.FullSiteClientDto
 import com.mypasswordgen.common.dto.client.SiteClientDto
 import com.mypasswordgen.server.mapper.impl.SiteMapperImpl
 import com.mypasswordgen.server.model.Site
@@ -18,6 +19,7 @@ class SiteMapperTest : MapperTestParent() {
     private lateinit var siteMock: Site
     private lateinit var dummySiteId: String
     private lateinit var dummySiteClientDto: SiteClientDto
+    private lateinit var dummyFullSiteClientDto: FullSiteClientDto
 
     @BeforeAll
     override fun initMocks() {
@@ -28,6 +30,7 @@ class SiteMapperTest : MapperTestParent() {
     override fun initDummies() {
         dummySiteId = "site123"
         dummySiteClientDto = SiteClientDto(dummySiteId)
+        dummyFullSiteClientDto = FullSiteClientDto(dummySiteId)
     }
 
     @Nested
@@ -46,14 +49,45 @@ class SiteMapperTest : MapperTestParent() {
             val siteMapper = SiteMapperImpl()
             val siteMapperSpy = spyk(siteMapper)
             every { siteMapperSpy.siteToSiteClientDto(siteMock) } returns dummySiteClientDto
-            with(siteMapperSpy) {
+            val result = with(siteMapperSpy) {
                 siteMock.toSiteClientDto()
             }
+            assertEquals(dummySiteClientDto, result)
             verifySequence {
                 with(siteMapperSpy) {
                     siteMock.toSiteClientDto()
                 }
                 siteMapperSpy.siteToSiteClientDto(siteMock)
+            }
+        }
+
+    }
+
+    @Nested
+    inner class SiteToFullSiteClientDto {
+
+        @Test
+        fun `with argument`() {
+            every { siteMock.id.value.toString() } returns dummySiteId
+            val siteMapper = SiteMapperImpl()
+            val fullSiteClientDto = siteMapper.siteToFullSiteClientDto(siteMock)
+            assertEquals(dummySiteId, fullSiteClientDto.id)
+        }
+
+        @Test
+        fun `with receiver`() {
+            val siteMapper = SiteMapperImpl()
+            val siteMapperSpy = spyk(siteMapper)
+            every { siteMapperSpy.siteToFullSiteClientDto(siteMock) } returns dummyFullSiteClientDto
+            val result = with(siteMapperSpy) {
+                siteMock.toFullSiteClientDto()
+            }
+            assertEquals(dummyFullSiteClientDto, result)
+            verifySequence {
+                with(siteMapperSpy) {
+                    siteMock.toFullSiteClientDto()
+                }
+                siteMapperSpy.siteToFullSiteClientDto(siteMock)
             }
         }
 

@@ -11,7 +11,8 @@ interface SiteRepository {
 
     fun getById(id: UUID): Site?
 
-    fun getByNameAndEmail(siteName: String, email: Email): Site?
+    fun getByNameAndEmail(siteName: String, emailId: UUID): Site?
+    fun getByNameAndEmail(siteName: String, email: Email) = getByNameAndEmail(siteName, email.id.value)
 
     fun delete(site: Site)
 

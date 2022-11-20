@@ -1,5 +1,6 @@
 package com.mypasswordgen.server.service
 
+import com.mypasswordgen.common.dto.FullUserClientDto
 import com.mypasswordgen.common.dto.FullUserServerDto
 import com.mypasswordgen.common.dto.UserIDBDto
 import com.mypasswordgen.common.dto.client.UserClientDto
@@ -15,5 +16,7 @@ interface UserService {
     fun logout(userServerDto: UserServerDto, sessionId: UUID)
 
     fun createFullUser(fullUser: FullUserServerDto, sessionId: UUID): UserIDBDto
+
+    fun getFullUser(userServerDto: UserServerDto, sessionId: UUID): FullUserClientDto
 
 }
