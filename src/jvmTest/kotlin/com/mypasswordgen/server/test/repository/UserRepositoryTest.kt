@@ -5,6 +5,8 @@ import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.repository.impl.UserRepositoryImpl
 import com.mypasswordgen.server.tables.Users
+import io.mockk.every
+import io.mockk.mockkStatic
 import org.jetbrains.exposed.sql.select
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -26,11 +28,16 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initUsername2 = "not-user"
+            val initUsernameEncoded = "UserAbc"
+            val initUsername2Encoded = "UserCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initUsername2.encode() } returns initUsername2Encoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -50,7 +57,7 @@ class UserRepositoryTest : RepositoryTestParent() {
             assertEquals(beforeCount + 1, afterCount)
             val user = User.findById(userId)
             assertNotNull(user)
-            assertEquals(initUsername2.encode(), user.username)
+            assertEquals(initUsername2Encoded, user.username)
             assertEquals(initSessionId, user.session.id.value)
             assertNull(user.lastEmail)
         }
@@ -60,13 +67,16 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initSessionId = UUID.fromString("ef383190-6c04-405b-986f-ec320820b7fe")
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             var beforeCount = 0L
             testTransaction {
                 exec(
                     """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 COMMIT;
             """.trimIndent()
                 )
@@ -93,11 +103,14 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initSessionId2 = UUID.fromString("af4fcab5-52e0-47b8-af6f-3addcda81392")
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -118,11 +131,14 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initSessionId = UUID.fromString("ef383190-6c04-405b-986f-ec320820b7fe")
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -137,11 +153,14 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUserId2 = UUID.fromString("e6ffeb59-77bf-4132-98b0-4d5b5f8441cb")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -159,17 +178,20 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initSessionId = UUID.fromString("ef383190-6c04-405b-986f-ec320820b7fe")
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
             val user = userRepository.getByNameAndSession(initUsername, initSessionId)
             assertNotNull(user)
-            assertEquals(initUsername.encode(), user.username)
+            assertEquals(initUsernameEncoded, user.username)
             assertEquals(initSessionId, user.session.id.value)
         }
 
@@ -181,14 +203,19 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId2 = UUID.fromString("81d91b6c-443c-4b3d-98b8-fdb2dee54e58")
             val initUsername = "User123"
             val initUsername2 = "User234"
+            val initUsernameEncoded = "UserAbc"
+            val initUsername2Encoded = "UserCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initUsername2.encode() } returns initUsername2Encoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId2');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '${initUsername.encode()}2', '$initSessionId2');
+                    VALUES ('$initUserId2', '$initUsername2Encoded', '$initSessionId2');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -202,11 +229,14 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initSessionId2 = UUID.fromString("a60d7f85-3298-4010-b689-af67612533c0")
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -220,11 +250,14 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initUsername2 = "not-user"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -245,14 +278,19 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId2 = UUID.fromString("81d91b6c-443c-4b3d-98b8-fdb2dee54e58")
             val initUsername = "User123"
             val initUsername2 = "User234"
+            val initUsernameEncoded = "UserAbc"
+            val initUsername2Encoded = "UserCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initUsername2.encode() } returns initUsername2Encoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId2');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
+                    VALUES ('$initUserId2', '$initUsername2Encoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -273,13 +311,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId2 = UUID.fromString("81d91b6c-443c-4b3d-98b8-fdb2dee54e58")
             val initUsername = "User123"
             val initUsername2 = "User234"
+            val initUsernameEncoded = "UserAbc"
+            val initUsername2Encoded = "UserCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initUsername2.encode() } returns initUsername2Encoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
+                    VALUES ('$initUserId2', '$initUsername2Encoded', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -299,15 +342,20 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId2 = UUID.fromString("81d91b6c-443c-4b3d-98b8-fdb2dee54e58")
             val initUsername = "User123"
             val initUsername2 = "User234"
+            val initUsernameEncoded = "UserAbc"
+            val initUsername2Encoded = "UserCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initUsername2.encode() } returns initUsername2Encoded
             var userIds = emptyList<UUID>()
             testTransaction {
                 exec(
                     """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
+                    VALUES ('$initUserId2', '$initUsername2Encoded', '$initSessionId');
                 COMMIT;
             """.trimIndent()
                 )
@@ -332,6 +380,9 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initUserId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUserId2 = UUID.fromString("81d91b6c-443c-4b3d-98b8-fdb2dee54e58")
             val initUsername = "User123"
+            val initUsernameEncoded = "UserAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
             var userIds = emptyList<UUID>()
             testTransaction {
                 exec(
@@ -339,9 +390,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId2');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '${initUsername.encode()}', '$initSessionId2');
+                    VALUES ('$initUserId2', '$initUsernameEncoded', '$initSessionId2');
                 COMMIT;
             """.trimIndent()
                 )
@@ -370,13 +421,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initEmailId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initEmailAddress = "Email001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -396,13 +452,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initEmailId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initEmailAddress = "Email001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 UPDATE USERS
                     SET LAST_EMAIL_ID = '$initEmailId'
                     WHERE ID = '$initUserId'
@@ -423,13 +484,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initEmailId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initEmailAddress = "Email001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 UPDATE USERS
                     SET LAST_EMAIL_ID = '$initEmailId'
                     WHERE ID = '$initUserId'
@@ -452,13 +518,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initEmailId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initEmailAddress = "Email001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -481,13 +552,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initEmailId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initEmailAddress = "Email001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -503,13 +579,18 @@ class UserRepositoryTest : RepositoryTestParent() {
             val initEmailId = UUID.fromString("4a2e9aed-9639-4b1e-8dcc-1dc8eb9c2f06")
             val initUsername = "User123"
             val initEmailAddress = "Email001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 UPDATE USERS
                     SET LAST_EMAIL_ID = '$initEmailId'
                     WHERE ID = '$initUserId'

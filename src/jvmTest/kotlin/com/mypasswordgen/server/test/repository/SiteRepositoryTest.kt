@@ -5,6 +5,8 @@ import com.mypasswordgen.server.model.Site
 import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.repository.impl.SiteRepositoryImpl
 import com.mypasswordgen.server.tables.Sites
+import io.mockk.every
+import io.mockk.mockkStatic
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Nested
@@ -31,15 +33,24 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
             val initSiteName2 = "not-site"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            val initSiteName2Encoded = "SiteCba"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
+            every { initSiteName2.encode() } returns initSiteName2Encoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -58,7 +69,7 @@ class SiteRepositoryTest : RepositoryTestParent() {
             assertEquals(beforeCount + 1, afterCount)
             val site = Site.findById(siteId)
             assertNotNull(site)
-            assertEquals(initSiteName2.encode(), site.name)
+            assertEquals(initSiteName2Encoded, site.name)
             assertEquals(initEmailId, site.email.id.value)
         }
 
@@ -71,17 +82,24 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initUsername = "User123"
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             var beforeCount = 0L
             testTransaction {
                 exec(
                     """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
                 COMMIT;
             """.trimIndent()
                 )
@@ -115,15 +133,22 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initUsername = "User123"
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -142,15 +167,22 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initUsername = "User123"
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -172,22 +204,29 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initUsername = "User123"
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
             val email = Email.findById(initEmailId)!!
             val site = siteRepository.getByNameAndEmail(initSiteName, email)
             assertNotNull(site)
-            assertEquals(initSiteName.encode(), site.name)
+            assertEquals(initSiteNameEncoded, site.name)
             assertEquals(initEmailId, site.email.id.value)
         }
 
@@ -202,17 +241,26 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initEmailAddress = "Email001"
             val initEmailAddress2 = "Email002"
             val initSiteName = "Site001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initEmailAddress2Encoded = "EmailAcb"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initEmailAddress2.encode() } returns initEmailAddress2Encoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId2', '${initEmailAddress2.encode()}', '$initUserId');
+                    VALUES ('$initEmailId2', '$initEmailAddress2Encoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -231,15 +279,22 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
             val initSiteName2 = "not-site"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -262,15 +317,22 @@ class SiteRepositoryTest : RepositoryTestParent() {
             val initUsername = "User123"
             val initEmailAddress = "Email001"
             val initSiteName = "Site001"
+            val initUsernameEncoded = "UserAbc"
+            val initEmailAddressEncoded = "EmailCba"
+            val initSiteNameEncoded = "SiteAbc"
+            mockkStatic("com.mypasswordgen.server.repository.crypto.Sha256Kt")
+            every { initUsername.encode() } returns initUsernameEncoded
+            every { initEmailAddress.encode() } returns initEmailAddressEncoded
+            every { initSiteName.encode() } returns initSiteNameEncoded
             exec(
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                    VALUES ('$initUserId', '$initUsernameEncoded', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
+                    VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
+                    VALUES ('$initSiteId', '$initSiteNameEncoded', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
