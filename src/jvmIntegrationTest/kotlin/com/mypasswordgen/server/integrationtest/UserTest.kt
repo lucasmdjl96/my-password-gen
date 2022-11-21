@@ -680,7 +680,7 @@ class UserTest : TestParent() {
         }
 
         @Test
-        fun `export session with bad cookie`() = testApplication {
+        fun `export user with bad cookie`() = testApplication {
             val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
             val initSessionId2 = UUID.fromString("f7e628f1-9afe-475a-9c57-9426bd45596d")
             val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
@@ -702,7 +702,7 @@ class UserTest : TestParent() {
         }
 
         @Test
-        fun `export session with no cookie`() = testApplication {
+        fun `export user with no cookie`() = testApplication {
             val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
             val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
             val initUsername = "User123"
@@ -877,7 +877,7 @@ class UserTest : TestParent() {
         }
 
         @Test
-        fun `import session with blank existing session`() = testApplication {
+        fun `import user with blank existing session`() = testApplication {
             val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
             val username = "User123"
             val emailAddress = "email1"
@@ -914,7 +914,7 @@ class UserTest : TestParent() {
         }
 
         @Test
-        fun `import session with non-blank existing session`() = testApplication {
+        fun `import user with non-blank existing session`() = testApplication {
             val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
             val username = "User123"
             val emailAddress = "Email001"

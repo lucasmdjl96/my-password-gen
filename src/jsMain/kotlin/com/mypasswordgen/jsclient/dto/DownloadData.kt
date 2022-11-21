@@ -22,14 +22,12 @@ enum class DownloadCode {
     companion object {
         fun fromText(text: String): DownloadCode? {
             val codes = DownloadCode.values().joinToString("|", "(", ")")
-            console.log(codes)
             val regex = Regex(
                 """
                     "$codeName": "$codes"
                 """.trimIndent()
             )
-            console.log(regex.pattern)
-            val (code) = regex.find(text)?.destructured ?: return null //groupValues?.get(1) id it doesn't work
+            val (code) = regex.find(text)?.destructured ?: return null
             return DownloadCode.valueOf(code)
         }
     }
