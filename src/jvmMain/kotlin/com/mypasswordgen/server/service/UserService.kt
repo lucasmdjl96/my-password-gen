@@ -1,9 +1,9 @@
 package com.mypasswordgen.server.service
 
-import com.mypasswordgen.common.dto.FullUserClientDto
-import com.mypasswordgen.common.dto.FullUserServerDto
-import com.mypasswordgen.common.dto.UserIDBDto
 import com.mypasswordgen.common.dto.client.UserClientDto
+import com.mypasswordgen.common.dto.fullClient.FullUserClientDto
+import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
+import com.mypasswordgen.common.dto.idb.UserIDBDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import java.util.*
 

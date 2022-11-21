@@ -1,8 +1,8 @@
 package com.mypasswordgen.server.test.controller
 
-import com.mypasswordgen.common.dto.FullSessionClientDto
-import com.mypasswordgen.common.dto.FullSessionServerDto
-import com.mypasswordgen.common.dto.SessionIDBDto
+import com.mypasswordgen.common.dto.fullClient.FullSessionClientDto
+import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
+import com.mypasswordgen.common.dto.idb.SessionIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.server.controller.impl.SessionControllerImpl
 import com.mypasswordgen.server.dto.SessionDto

@@ -1,7 +1,7 @@
 package com.mypasswordgen.server.mapper.impl
 
 
-import com.mypasswordgen.common.dto.FullSessionClientDto
+import com.mypasswordgen.common.dto.fullClient.FullSessionClientDto
 import com.mypasswordgen.server.dto.SessionDto
 import com.mypasswordgen.server.mapper.SessionMapper
 import com.mypasswordgen.server.mapper.UserMapper

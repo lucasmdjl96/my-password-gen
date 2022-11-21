@@ -1,7 +1,7 @@
 package com.mypasswordgen.server.service.impl
 
-import com.mypasswordgen.common.dto.EmailIDBDto
-import com.mypasswordgen.common.dto.FullEmailServerDto
+import com.mypasswordgen.common.dto.fullServer.FullEmailServerDto
+import com.mypasswordgen.common.dto.idb.EmailIDBDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
 import com.mypasswordgen.server.mapper.EmailMapper
 import com.mypasswordgen.server.plugins.DataConflictException

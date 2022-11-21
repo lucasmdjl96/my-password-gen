@@ -1,8 +1,8 @@
 package com.mypasswordgen.server.test.mapper
 
-import com.mypasswordgen.common.dto.FullEmailClientDto
-import com.mypasswordgen.common.dto.FullSiteClientDto
 import com.mypasswordgen.common.dto.client.EmailClientDto
+import com.mypasswordgen.common.dto.fullClient.FullEmailClientDto
+import com.mypasswordgen.common.dto.fullClient.FullSiteClientDto
 import com.mypasswordgen.server.mapper.SiteMapper
 import com.mypasswordgen.server.mapper.impl.EmailMapperImpl
 import com.mypasswordgen.server.model.Email

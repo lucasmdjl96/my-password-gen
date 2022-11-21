@@ -1,10 +1,10 @@
 package com.mypasswordgen.server.test.service
 
-import com.mypasswordgen.common.dto.EmailIDBDto
-import com.mypasswordgen.common.dto.FullEmailServerDto
-import com.mypasswordgen.common.dto.FullUserClientDto
-import com.mypasswordgen.common.dto.FullUserServerDto
 import com.mypasswordgen.common.dto.client.UserClientDto
+import com.mypasswordgen.common.dto.fullClient.FullUserClientDto
+import com.mypasswordgen.common.dto.fullServer.FullEmailServerDto
+import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
+import com.mypasswordgen.common.dto.idb.EmailIDBDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.server.mapper.UserMapper
 import com.mypasswordgen.server.model.User

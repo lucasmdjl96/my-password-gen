@@ -1,7 +1,7 @@
 package com.mypasswordgen.jsclient
 
-import com.mypasswordgen.common.dto.EmailIDBDto
-import com.mypasswordgen.common.dto.SiteIDBDto
+import com.mypasswordgen.common.dto.idb.EmailIDBDto
+import com.mypasswordgen.common.dto.idb.SiteIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.jsclient.dto.InitialState
 import com.mypasswordgen.jsclient.plugins.installContentNegotiation

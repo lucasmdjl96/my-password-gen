@@ -1,7 +1,7 @@
 package com.mypasswordgen.server.test.service
 
-import com.mypasswordgen.common.dto.FullSiteServerDto
 import com.mypasswordgen.common.dto.client.SiteClientDto
+import com.mypasswordgen.common.dto.fullServer.FullSiteServerDto
 import com.mypasswordgen.common.dto.server.SiteServerDto
 import com.mypasswordgen.server.mapper.SiteMapper
 import com.mypasswordgen.server.model.Email

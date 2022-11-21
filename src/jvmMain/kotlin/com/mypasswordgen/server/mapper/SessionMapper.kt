@@ -1,6 +1,6 @@
 package com.mypasswordgen.server.mapper
 
-import com.mypasswordgen.common.dto.FullSessionClientDto
+import com.mypasswordgen.common.dto.fullClient.FullSessionClientDto
 import com.mypasswordgen.server.dto.SessionDto
 import com.mypasswordgen.server.model.Session
 

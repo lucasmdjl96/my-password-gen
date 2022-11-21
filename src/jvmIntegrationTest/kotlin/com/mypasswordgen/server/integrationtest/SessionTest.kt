@@ -1,6 +1,13 @@
 package com.mypasswordgen.server.integrationtest
 
-import com.mypasswordgen.common.dto.*
+import com.mypasswordgen.common.dto.fullClient.FullEmailClientDto
+import com.mypasswordgen.common.dto.fullClient.FullSessionClientDto
+import com.mypasswordgen.common.dto.fullClient.FullSiteClientDto
+import com.mypasswordgen.common.dto.fullClient.FullUserClientDto
+import com.mypasswordgen.common.dto.fullServer.FullEmailServerDto
+import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
+import com.mypasswordgen.common.dto.fullServer.FullSiteServerDto
+import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User

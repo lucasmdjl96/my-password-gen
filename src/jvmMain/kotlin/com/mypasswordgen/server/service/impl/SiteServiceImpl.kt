@@ -1,7 +1,7 @@
 package com.mypasswordgen.server.service.impl
 
-import com.mypasswordgen.common.dto.FullSiteServerDto
-import com.mypasswordgen.common.dto.SiteIDBDto
+import com.mypasswordgen.common.dto.fullServer.FullSiteServerDto
+import com.mypasswordgen.common.dto.idb.SiteIDBDto
 import com.mypasswordgen.common.dto.server.SiteServerDto
 import com.mypasswordgen.server.mapper.SiteMapper
 import com.mypasswordgen.server.plugins.DataConflictException

@@ -1,9 +1,9 @@
 package com.mypasswordgen.server.test.service
 
-import com.mypasswordgen.common.dto.FullSessionClientDto
-import com.mypasswordgen.common.dto.FullSessionServerDto
-import com.mypasswordgen.common.dto.FullUserServerDto
-import com.mypasswordgen.common.dto.UserIDBDto
+import com.mypasswordgen.common.dto.fullClient.FullSessionClientDto
+import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
+import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
+import com.mypasswordgen.common.dto.idb.UserIDBDto
 import com.mypasswordgen.server.dto.SessionDto
 import com.mypasswordgen.server.mapper.SessionMapper
 import com.mypasswordgen.server.model.Session

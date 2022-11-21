@@ -1,7 +1,7 @@
 package com.mypasswordgen.jsclient.dto
 
-import com.mypasswordgen.common.dto.FullSessionServerDto
-import com.mypasswordgen.common.dto.FullUserServerDto
+import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
+import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import org.w3c.files.Blob
