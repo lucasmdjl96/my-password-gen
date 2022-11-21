@@ -1,6 +1,5 @@
 package com.mypasswordgen.jsclient.react
 
-import com.mypasswordgen.common.dto.EmailIDBDto
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
@@ -162,9 +161,9 @@ suspend fun loginUser(username: String): UserClient? {
     else {
         val userClientDto = response.body<UserClientDto>()
         val emailList = mutableListOf<String>()
-        database.readTransaction<EmailIDBDto>() {
+        database.readTransaction<Email>() {
             for (emailId in userClientDto.emailIdList) {
-                get<EmailIDBDto>(emailId) { email ->
+                get<Email>(emailId) { email ->
                     if (email != null) emailList.add(email.emailAddress)
                 }
             }

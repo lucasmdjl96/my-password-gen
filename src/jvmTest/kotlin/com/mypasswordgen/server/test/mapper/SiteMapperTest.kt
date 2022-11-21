@@ -68,6 +68,7 @@ class SiteMapperTest : MapperTestParent() {
 
         @Test
         fun `with argument`() {
+            mockTransaction()
             every { siteMock.id.value.toString() } returns dummySiteId
             val siteMapper = SiteMapperImpl()
             val fullSiteClientDto = siteMapper.siteToFullSiteClientDto(siteMock)

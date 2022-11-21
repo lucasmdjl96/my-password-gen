@@ -1,7 +1,5 @@
 package com.mypasswordgen.jsclient.react
 
-import com.mypasswordgen.common.dto.EmailIDBDto
-import com.mypasswordgen.common.dto.SiteIDBDto
 import com.mypasswordgen.common.dto.client.EmailClientDto
 import com.mypasswordgen.common.dto.client.SiteClientDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
@@ -175,9 +173,9 @@ suspend fun checkEmail(emailAddress: String): EmailClient? {
     else {
         val emailClientDto = response.body<EmailClientDto>()
         val siteList = mutableListOf<String>()
-        database.readTransaction<SiteIDBDto>() {
+        database.readTransaction<Site>() {
             for (siteId in emailClientDto.siteIdList) {
-                get<SiteIDBDto>(siteId) { site ->
+                get<Site>(siteId) { site ->
                     if (site != null) siteList.add(site.siteName)
                 }
             }
@@ -194,8 +192,8 @@ suspend fun addEmail(emailAddress: String): EmailClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        database.readWriteTransaction<EmailIDBDto>() {
-            add(EmailIDBDto(emailClientDto.id, emailAddress))
+        database.readWriteTransaction<Email>() {
+            add<Email>(Email(emailClientDto.id, emailAddress))
         }.awaitCompletion()
         EmailClient(emailAddress, mutableListOf())
     }
@@ -206,10 +204,10 @@ suspend fun removeEmail(emailAddress: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        database.biReadWriteTransaction<EmailIDBDto, SiteIDBDto>() {
-            delete<EmailIDBDto>(emailClientDto.id)
+        database.biReadWriteTransaction<Email, Site>() {
+            delete<Email>(emailClientDto.id)
             for (siteId in emailClientDto.siteIdList) {
-                delete<SiteIDBDto>(siteId)
+                delete<Site>(siteId)
             }
         }.awaitCompletion()
     }
@@ -229,8 +227,8 @@ suspend fun addSite(siteName: String): SiteClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val siteClientDto = response.body<SiteClientDto>()
-        database.readWriteTransaction<SiteIDBDto>() {
-            add(SiteIDBDto(siteClientDto.id, siteName))
+        database.readWriteTransaction<Site>() {
+            add<Site>(Site(siteClientDto.id, siteName))
         }.awaitCompletion()
         SiteClient(siteName)
     }
@@ -241,8 +239,8 @@ suspend fun removeSite(siteName: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val siteClientDto = response.body<SiteClientDto>()
-        database.readWriteTransaction<SiteIDBDto>() {
-            delete<SiteIDBDto>(siteClientDto.id)
+        database.readWriteTransaction<Site>() {
+            delete<Site>(siteClientDto.id)
         }.awaitCompletion()
     }
 }

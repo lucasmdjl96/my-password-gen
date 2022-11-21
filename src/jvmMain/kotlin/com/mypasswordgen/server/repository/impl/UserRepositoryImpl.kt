@@ -42,10 +42,12 @@ class UserRepositoryImpl : UserRepository {
     }
 
     override fun setLastEmail(user: User, email: Email?) {
+        logger.debug { "setLastEmail" }
         user.lastEmail = email
     }
 
     override fun getLastEmail(user: User): Email? {
+        logger.debug { "getLastEmail" }
         return user.lastEmail
     }
 

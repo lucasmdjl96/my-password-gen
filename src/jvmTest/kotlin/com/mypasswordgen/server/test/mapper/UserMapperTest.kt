@@ -8,7 +8,6 @@ import com.mypasswordgen.server.mapper.impl.UserMapperImpl
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.User
 import io.mockk.*
-import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.SizedCollection
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.emptySized
@@ -55,25 +54,20 @@ class UserMapperTest : MapperTestParent() {
         @Test
         fun `with no emails`() {
             mockTransaction()
-            mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
-            every { userMock.load(any()) } returns userMock
             every { userMock.id.value.toString() } returns dummyUserId
             every { userMock.emails } returns emptySized()
             val userMapper = UserMapperImpl(emailMapperMock)
             val userDto = userMapper.userToUserClientDto(userMock)
             assertEquals(dummyUserId, userDto.id)
             assertTrue(userDto.emailIdList.isEmpty())
-            verifyOrder {
+            verify {
                 transaction(statement = any<Transaction.() -> Any>())
-                userMock.load(User::emails)
             }
         }
 
         @Test
         fun `with emails`() {
             mockTransaction()
-            mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
-            every { userMock.load(any()) } returns userMock
             every { userMock.id.value.toString() } returns dummyUserId
             every { userMock.emails } returns SizedCollection(emailListMock)
             emailListMock.forEachIndexed { index, userMock ->
@@ -83,9 +77,8 @@ class UserMapperTest : MapperTestParent() {
             val userDto = userMapper.userToUserClientDto(userMock)
             assertEquals(dummyUserId, userDto.id)
             assertEquals(dummyEmailAddressList, userDto.emailIdList)
-            verifyOrder {
+            verify {
                 transaction(statement = any<Transaction.() -> Any>())
-                userMock.load(User::emails)
             }
         }
 
@@ -112,6 +105,7 @@ class UserMapperTest : MapperTestParent() {
     inner class UserToFullUserClientDto {
         @Test
         fun `with argument`() {
+            mockTransaction()
             every { userMock.emails } returns SizedCollection(emailListMock)
             emailListMock.forEachIndexed { index, email ->
                 every {

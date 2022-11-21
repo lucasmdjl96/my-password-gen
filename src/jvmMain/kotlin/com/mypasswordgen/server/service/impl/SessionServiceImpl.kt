@@ -57,6 +57,7 @@ class SessionServiceImpl(
     }
 
     override fun getFullSession(sessionDto: SessionDto): FullSessionClientDto = transaction {
+        logger.debug { "getFullSession" }
         val session = find(sessionDto) ?: throw DataNotFoundException()
         with(sessionMapper) {
             session.toFullSessionClientDto()
@@ -65,6 +66,7 @@ class SessionServiceImpl(
 
     override fun createFullSession(sessionDto: SessionDto, fullSession: FullSessionServerDto): Pair<SessionDto, SessionIDBDto> =
         transaction {
+            logger.debug { "createFullSession" }
             val newSession = sessionRepository.create()
             delete(sessionDto)
             val sessionIDBDto = SessionIDBDto {

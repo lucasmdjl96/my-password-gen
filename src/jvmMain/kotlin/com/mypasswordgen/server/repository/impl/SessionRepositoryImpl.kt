@@ -26,18 +26,22 @@ class SessionRepositoryImpl : SessionRepository {
     }
 
     override fun setLastUser(session: Session, user: User?) {
+        logger.debug { "setLastUser" }
         session.lastUser = user
     }
 
     override fun getLastUser(session: Session): User? {
+        logger.debug { "getLastUser" }
         return session.lastUser
     }
 
     override fun getLastUser(sessionId: UUID): User? {
+        logger.debug { "getLastUser" }
         return getById(sessionId)?.lastUser
     }
 
     override fun setLastUser(sessionId: UUID, user: User?) {
+        logger.debug { "setLastUser" }
         getById(sessionId)?.lastUser = user
     }
 

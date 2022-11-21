@@ -56,6 +56,7 @@ class UserServiceImpl(
     }
 
     override fun createFullUser(fullUser: FullUserServerDto, sessionId: UUID) = transaction {
+        logger.debug { "createFullUser" }
         val username = fullUser.username.encode()
         if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException()
         val id = userRepository.createAndGetId(username, sessionId)
@@ -68,6 +69,7 @@ class UserServiceImpl(
     }
 
     override fun getFullUser(userServerDto: UserServerDto, sessionId: UUID) = transaction {
+        logger.debug { "getFullUser" }
         val username = userServerDto.username
         val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException()
         with(userMapper) {

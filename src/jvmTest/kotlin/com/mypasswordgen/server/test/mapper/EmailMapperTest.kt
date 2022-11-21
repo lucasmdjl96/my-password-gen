@@ -8,7 +8,6 @@ import com.mypasswordgen.server.mapper.impl.EmailMapperImpl
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.Site
 import io.mockk.*
-import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.SizedCollection
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.emptySized
@@ -55,25 +54,20 @@ class EmailMapperTest : MapperTestParent() {
         @Test
         fun `with no sites`() {
             mockTransaction()
-            mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
-            every { emailMock.load(any()) } returns emailMock
             every { emailMock.id.value.toString() } returns dummyEmailId
             every { emailMock.sites } returns emptySized()
             val emailMapper = EmailMapperImpl(siteMapperMock)
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
             assertEquals(dummyEmailId, emailDto.id)
             assertTrue(emailDto.siteIdList.isEmpty())
-            verifyOrder {
+            verify {
                 transaction(statement = any<Transaction.() -> Any>())
-                emailMock.load(Email::sites)
             }
         }
 
         @Test
         fun `with sites`() {
             mockTransaction()
-            mockkStatic("org.jetbrains.exposed.dao.ReferencesKt")
-            every { emailMock.load(any()) } returns emailMock
             every { emailMock.id.value.toString() } returns dummyEmailId
             every { emailMock.sites } returns SizedCollection(siteListMock)
             siteListMock.forEachIndexed { index, siteMock ->
@@ -83,9 +77,8 @@ class EmailMapperTest : MapperTestParent() {
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
             assertEquals(dummyEmailId, emailDto.id)
             assertEquals(dummySiteIdsList, emailDto.siteIdList)
-            verifyOrder {
+            verify {
                 transaction(statement = any<Transaction.() -> Any>())
-                emailMock.load(Email::sites)
             }
         }
 
@@ -112,6 +105,7 @@ class EmailMapperTest : MapperTestParent() {
     inner class EmailToFullEmailClientDto {
         @Test
         fun `with argument`() {
+            mockTransaction()
             every { emailMock.id.value.toString() } returns dummyEmailId
             every { emailMock.sites } returns SizedCollection(siteListMock)
             siteListMock.forEachIndexed { index, email ->

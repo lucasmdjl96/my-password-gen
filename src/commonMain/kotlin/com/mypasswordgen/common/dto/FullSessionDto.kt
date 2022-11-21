@@ -39,10 +39,11 @@ data class FullEmailClientDto(val id: String, val sites: List<FullSiteClientDto>
 data class FullSiteClientDto(val id: String)
 
 @Serializable
-data class FullSessionServerDto(val users: List<FullUserServerDto>) {
-    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).userList)
+data class FullSessionServerDto(val users: MutableList<FullUserServerDto>) {
+    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).users)
+    fun addUser(user: FullUserServerDto) = users.add(user)
     class Builder {
-        private val users: MutableList<FullUserServerDto> = mutableListOf()
+        val users: MutableList<FullUserServerDto> = mutableListOf()
         val userList: List<FullUserServerDto>
             get() = users.toList()
         operator fun FullUserServerDto.unaryPlus() = users.add(this)
@@ -50,10 +51,11 @@ data class FullSessionServerDto(val users: List<FullUserServerDto>) {
 }
 
 @Serializable
-data class FullUserServerDto(val username: String, val emails: List<FullEmailServerDto>) {
-    constructor(username: String, builderBlock: Builder.() -> Unit = {}) : this(username, Builder().apply(builderBlock).emailList)
+data class FullUserServerDto(val username: String, val emails: MutableList<FullEmailServerDto>) {
+    constructor(username: String, builderBlock: Builder.() -> Unit = {}) : this(username, Builder().apply(builderBlock).emails)
+    fun addEmail(email: FullEmailServerDto) = emails.add(email)
     class Builder {
-        private val emails: MutableList<FullEmailServerDto> = mutableListOf()
+        val emails: MutableList<FullEmailServerDto> = mutableListOf()
         val emailList: List<FullEmailServerDto>
             get() = emails.toList()
         operator fun FullEmailServerDto.unaryPlus() = emails.add(this)
@@ -61,10 +63,11 @@ data class FullUserServerDto(val username: String, val emails: List<FullEmailSer
 }
 
 @Serializable
-data class FullEmailServerDto(val emailAddress: String, val sites: List<FullSiteServerDto>) {
-    constructor(emailAddress: String, builderBlock: Builder.() -> Unit = {}) : this(emailAddress, Builder().apply(builderBlock).siteList)
+data class FullEmailServerDto(val emailAddress: String, val sites: MutableList<FullSiteServerDto>) {
+    constructor(emailAddress: String, builderBlock: Builder.() -> Unit = {}) : this(emailAddress, Builder().apply(builderBlock).sites)
+    fun addSite(site: FullSiteServerDto) = sites.add(site)
     class Builder {
-        private val sites: MutableList<FullSiteServerDto> = mutableListOf()
+        val sites: MutableList<FullSiteServerDto> = mutableListOf()
         val siteList: List<FullSiteServerDto>
             get() = sites.toList()
         operator fun FullSiteServerDto.unaryPlus() = sites.add(this)

@@ -40,7 +40,6 @@ val FileManager = FC<FileManagerProps> { props ->
 
     useEffect(props.loggedIn) {
         sessionData = null
-        userData = null
     }
 
     div {
@@ -65,11 +64,9 @@ val FileManager = FC<FileManagerProps> { props ->
                         val reader = FileReader()
                         reader.onload = {
                             val text = reader.result as String
-                            console.log(text)
                             when (DownloadCode.fromText(text)) {
 
                                 SESSION -> run {
-                                    console.log("SESSION")
                                     val session = DownloadSession.dataFromText(text)
                                     val usernames = session.users.map(FullUserServerDto::username)
                                     if (usernames.none { username -> username == "FILL_THIS_IN" }) scope.launch {
@@ -78,7 +75,6 @@ val FileManager = FC<FileManagerProps> { props ->
                                 }
 
                                 USER -> run {
-                                    console.log("USER")
                                     val user = DownloadUser.dataFromText(text)
                                     scope.launch {
                                         uploadData(user)
@@ -86,7 +82,6 @@ val FileManager = FC<FileManagerProps> { props ->
                                 }
 
                                 null -> run {
-                                    console.log("NULL")
                                 }
                             }
                         }
@@ -128,6 +123,7 @@ val FileManager = FC<FileManagerProps> { props ->
                 }
             }.then {
                 ::click on getHtmlElementById("exportButton")!!
+                userData = null
             }
         }
     }
@@ -138,14 +134,12 @@ suspend fun downloadSessionData(): FullSessionServerDto? {
     val response = jsonClient.get(SessionRoute.Export())
     if (response.status != HttpStatusCode.OK) return null
     val fullSessionClient = response.body<FullSessionClientDto>()
-    var fullSessionServer: FullSessionServerDto? = null
-    database.biReadTransaction<EmailIDBDto, SiteIDBDto> {
-        fullSessionServer = FullSessionServerDto {
-            for (fullUserClient in fullSessionClient.users) {
-                +FullUserServerDto("FILL_THIS_IN") {
-                    loadUserData(fullUserClient, this)
-                }
-            }
+    val fullSessionServer = FullSessionServerDto()
+    database.biReadTransaction<Email, Site> {
+        for (fullUserClient in fullSessionClient.users) {
+            val fullUserServer = FullUserServerDto("FILL_THIS_IN")
+            fullSessionServer.addUser(fullUserServer)
+            loadUserData(fullUserClient, fullUserServer)
         }
     }.awaitCompletion()
     return fullSessionServer
@@ -153,15 +147,18 @@ suspend fun downloadSessionData(): FullSessionServerDto? {
 
 private inline fun IDBTransaction.loadUserData(
     fromFullUserClient: FullUserClientDto,
-    fullUserServerBuilder: FullUserServerDto.Builder
+    intoFullUserServer: FullUserServerDto
 ) {
-    with(fullUserServerBuilder) {
-        for (fullEmailClient in fromFullUserClient.emails) {
-            get<EmailIDBDto>(fullEmailClient.id) { email ->
-                if (email != null) +FullEmailServerDto(email.emailAddress) {
-                    for (fullSiteClient in fullEmailClient.sites) {
-                        get<SiteIDBDto>(fullSiteClient.id) { site ->
-                            if (site != null) +FullSiteServerDto(site.siteName)
+    for (fullEmailClient in fromFullUserClient.emails) {
+        get<Email>(fullEmailClient.id) { email ->
+            if (email != null) {
+                val fullEmailServer = FullEmailServerDto(email.emailAddress)
+                intoFullUserServer.addEmail(fullEmailServer)
+                for (fullSiteClient in fullEmailClient.sites) {
+                    get<Site>(fullSiteClient.id) { site ->
+                        if (site != null) {
+                            val fullSiteServer = FullSiteServerDto(site.siteName)
+                            fullEmailServer.addSite(fullSiteServer)
                         }
                     }
                 }
@@ -174,11 +171,9 @@ suspend fun downloadUserData(username: String): FullUserServerDto? {
     val response = jsonClient.get(UserRoute.Export(username))
     if (response.status != HttpStatusCode.OK) return null
     val fullUserClient = response.body<FullUserClientDto>()
-    var fullUserServer: FullUserServerDto? = null
-    database.biReadTransaction<EmailIDBDto, SiteIDBDto> {
-        fullUserServer = FullUserServerDto(username) {
-            loadUserData(fullUserClient, this)
-        }
+    val fullUserServer = FullUserServerDto(username)
+    database.biReadTransaction<Email, Site> {
+        loadUserData(fullUserClient, fullUserServer)
     }.awaitCompletion()
     return fullUserServer
 }
@@ -190,13 +185,13 @@ suspend fun uploadData(fullSessionServerDto: FullSessionServerDto) {
     }
     if (result.status != HttpStatusCode.OK) return
     val session = result.body<SessionIDBDto>()
-    database.biReadWriteTransaction<EmailIDBDto, SiteIDBDto> {
-        onSuccessOf(clear<EmailIDBDto>(), clear<SiteIDBDto>()) {
+    database.biReadWriteTransaction<Email, Site> {
+        onSuccessOf(clear<Email>(), clear<Site>()) {
             for (user in session.users) {
                 for (email in user.emails) {
-                    add(email)
+                    add<Email>(email.toEmail())
                     for (site in email.sites) {
-                        add(site)
+                        add<Site>(site.toSite())
                     }
                 }
             }
@@ -211,11 +206,11 @@ suspend fun uploadData(fullUserServerDto: FullUserServerDto) {
     }
     if (result.status != HttpStatusCode.OK) return
     val user = result.body<UserIDBDto>()
-    database.biReadWriteTransaction<EmailIDBDto, SiteIDBDto> {
+    database.biReadWriteTransaction<Email, Site> {
         for (email in user.emails) {
-            add(email)
+            add<Email>(email.toEmail())
             for (site in email.sites) {
-                add(site)
+                add<Site>(site.toSite())
             }
         }
     }.awaitCompletion()

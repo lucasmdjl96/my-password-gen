@@ -75,6 +75,7 @@ class SessionMapperTest : MapperTestParent() {
     inner class SessionToFullSessionClientDto {
         @Test
         fun `with argument`() {
+            mockTransaction()
             every { sessionMock.users } returns SizedCollection(userListMock)
             userListMock.forEachIndexed { index, user ->
                 every {

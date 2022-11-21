@@ -6,7 +6,6 @@ import com.mypasswordgen.server.mapper.EmailMapper
 import com.mypasswordgen.server.mapper.UserMapper
 import com.mypasswordgen.server.model.User
 import mu.KotlinLogging
-import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.transactions.transaction
 
 private val logger = KotlinLogging.logger("UserMapperImpl")
@@ -14,13 +13,13 @@ private val logger = KotlinLogging.logger("UserMapperImpl")
 class UserMapperImpl(private val emailMapper: EmailMapper) : UserMapper {
 
     override fun userToUserClientDto(user: User): UserClientDto = transaction {
-        logger.debug { "userToUserClientDto: $user" }
-        user.load(User::emails)
+        logger.debug { "userToUserClientDto" }
         UserClientDto(user.id.value.toString(), user.emails.map { email -> email.id.value.toString() })
     }
 
-    override fun userToFullUserClientDto(user: User): FullUserClientDto {
-        return FullUserClientDto {
+    override fun userToFullUserClientDto(user: User) = transaction {
+        logger.debug { "userToFullUserClientDto" }
+        FullUserClientDto {
             user.emails.forEach { email ->
                 with(emailMapper) {
                     +email.toFullEmailClientDto()

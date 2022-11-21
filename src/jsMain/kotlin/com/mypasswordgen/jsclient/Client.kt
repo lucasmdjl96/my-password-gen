@@ -17,6 +17,7 @@ import kotlinx.browser.document
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.w3c.workers.RegistrationOptions
 import react.create
 import react.dom.client.createRoot
@@ -67,8 +68,8 @@ fun openIndexedDB() {
         database = openDatabase("database", 1) {
             versionChangeLog {
                 version(1) {
-                    createObjectStore<EmailIDBDto>(keyPath = "id")
-                    createObjectStore<SiteIDBDto>(keyPath = "id")
+                    createObjectStore<Email>(keyPath = "id")
+                    createObjectStore<Site>(keyPath = "id")
                 }
             }
             onBlocked {
@@ -88,3 +89,11 @@ fun openIndexedDB() {
         }*/
     }
 }
+
+@Serializable
+data class Email(val id: String, val emailAddress: String)
+fun EmailIDBDto.toEmail() = Email(this.id, this.emailAddress)
+
+@Serializable
+data class Site(val id: String, val siteName: String)
+fun SiteIDBDto.toSite() = Site(this.id, this.siteName)
