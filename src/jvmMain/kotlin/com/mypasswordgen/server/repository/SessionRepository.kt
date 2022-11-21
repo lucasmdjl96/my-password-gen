@@ -20,4 +20,6 @@ interface SessionRepository {
 
     fun setLastUser(sessionId: UUID, user: User?)
 
+    fun getIfLastUser(sessionId: UUID, username: String): User?
+
 }

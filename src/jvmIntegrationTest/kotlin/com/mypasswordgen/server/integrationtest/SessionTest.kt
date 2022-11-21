@@ -2,9 +2,9 @@ package com.mypasswordgen.server.integrationtest
 
 import com.mypasswordgen.common.dto.*
 import com.mypasswordgen.common.routes.SessionRoute
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Emails
 import com.mypasswordgen.server.tables.Sessions
 import com.mypasswordgen.server.tables.Sites

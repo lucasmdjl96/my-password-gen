@@ -3,6 +3,7 @@ package com.mypasswordgen.server.repository.impl
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.repository.SessionRepository
+import com.mypasswordgen.server.repository.crypto.encode
 import mu.KotlinLogging
 import java.util.*
 
@@ -43,6 +44,13 @@ class SessionRepositoryImpl : SessionRepository {
     override fun setLastUser(sessionId: UUID, user: User?) {
         logger.debug { "setLastUser" }
         getById(sessionId)?.lastUser = user
+    }
+
+    override fun getIfLastUser(sessionId: UUID, username: String): User? {
+        logger.debug { "getIfLastUser" }
+        val user = getLastUser(sessionId)
+        return if (user?.username == username.encode()) user
+        else null
     }
 
 }

@@ -5,7 +5,6 @@ import com.mypasswordgen.common.dto.FullSiteServerDto
 import com.mypasswordgen.common.dto.SiteIDBDto
 import com.mypasswordgen.common.dto.client.EmailClientDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.EmailMapper
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.User
@@ -41,7 +40,6 @@ class EmailServiceTest : ServiceTestParent() {
     private lateinit var dummyEmail: Email
     private lateinit var dummyEmailClientDto: EmailClientDto
     private lateinit var dummyFullEmailServerDto: FullEmailServerDto
-    private lateinit var dummyEmailAddressEncoded: String
     private lateinit var dummySiteIDBDtoList: List<SiteIDBDto>
 
     @BeforeAll
@@ -69,7 +67,6 @@ class EmailServiceTest : ServiceTestParent() {
                 FullSiteServerDto("site1"), FullSiteServerDto("site2")
             )
         )
-        dummyEmailAddressEncoded = "EmailXXX"
         dummySiteIDBDtoList = listOf(SiteIDBDto("id1", "site1x"), SiteIDBDto("id2", "site2x"))
     }
 
@@ -386,11 +383,9 @@ class EmailServiceTest : ServiceTestParent() {
 
         @Test
         fun `create when it already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullEmailServerDto.emailAddress.encode() } returns dummyEmailAddressEncoded
             every {
                 emailRepositoryMock.getByAddressAndUser(
-                    dummyEmailAddressEncoded, dummyEmail.id.value
+                    dummyFullEmailServerDto.emailAddress, dummyEmail.id.value
                 )
             } returns dummyEmail
             mockTransaction()
@@ -407,23 +402,20 @@ class EmailServiceTest : ServiceTestParent() {
             }
 
             verifyOrder {
-                dummyFullEmailServerDto.emailAddress.encode()
-                emailRepositoryMock.getByAddressAndUser(dummyEmailAddressEncoded, dummyEmail.id.value)
+                emailRepositoryMock.getByAddressAndUser(dummyFullEmailServerDto.emailAddress, dummyEmail.id.value)
             }
         }
 
         @Test
         fun `create when a site already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullEmailServerDto.emailAddress.encode() } returns dummyEmailAddressEncoded
             every {
                 emailRepositoryMock.getByAddressAndUser(
-                    dummyEmailAddressEncoded, dummyUser.id.value
+                    dummyFullEmailServerDto.emailAddress, dummyUser.id.value
                 )
             } returns null
             every {
                 emailRepositoryMock.createAndGetId(
-                    dummyEmailAddressEncoded, dummyUser.id.value
+                    dummyFullEmailServerDto.emailAddress, dummyUser.id.value
                 )
             } returns dummyEmailId
             every {
@@ -445,25 +437,22 @@ class EmailServiceTest : ServiceTestParent() {
             }
 
             verifyOrder {
-                dummyFullEmailServerDto.emailAddress.encode()
-                emailRepositoryMock.getByAddressAndUser(dummyEmailAddressEncoded, dummyUser.id.value)
-                emailRepositoryMock.createAndGetId(dummyEmailAddressEncoded, dummyUser.id.value)
+                emailRepositoryMock.getByAddressAndUser(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
+                emailRepositoryMock.createAndGetId(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
                 siteServiceMock.createFullSite(dummyFullEmailServerDto.sites[0], dummyEmailId)
             }
         }
 
         @Test
         fun `create when nothing already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullEmailServerDto.emailAddress.encode() } returns dummyEmailAddressEncoded
             every {
                 emailRepositoryMock.getByAddressAndUser(
-                    dummyEmailAddressEncoded, dummyUser.id.value
+                    dummyFullEmailServerDto.emailAddress, dummyUser.id.value
                 )
             } returns null
             every {
                 emailRepositoryMock.createAndGetId(
-                    dummyEmailAddressEncoded, dummyUser.id.value
+                    dummyFullEmailServerDto.emailAddress, dummyUser.id.value
                 )
             } returns dummyEmailId
             dummyFullEmailServerDto.sites.forEachIndexed { index, site ->
@@ -488,9 +477,8 @@ class EmailServiceTest : ServiceTestParent() {
             assertEquals(dummyEmailId.toString(), result.id)
             assertEquals(dummySiteIDBDtoList, result.sites)
             verifyOrder {
-                dummyFullEmailServerDto.emailAddress.encode()
-                emailRepositoryMock.getByAddressAndUser(dummyEmailAddressEncoded, dummyUser.id.value)
-                emailRepositoryMock.createAndGetId(dummyEmailAddressEncoded, dummyUser.id.value)
+                emailRepositoryMock.getByAddressAndUser(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
+                emailRepositoryMock.createAndGetId(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
                 for (site in dummyFullEmailServerDto.sites) {
                     siteServiceMock.createFullSite(site, dummyEmailId)
                 }

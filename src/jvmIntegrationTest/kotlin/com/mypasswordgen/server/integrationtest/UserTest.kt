@@ -4,9 +4,9 @@ import com.mypasswordgen.common.dto.*
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Emails
 import com.mypasswordgen.server.tables.Sites
 import com.mypasswordgen.server.tables.Users
@@ -438,6 +438,7 @@ class UserTest : TestParent() {
                 val initUsernameEncoded = initUsername.encode()
                 val initEmailId = UUID.fromString("d962f6d5-4758-44f4-80dc-fcf5edf31d33")
                 val initEmailAddress = "Email001"
+                val initEmailAddressEncoded = initEmailAddress.encode()
                 testTransaction {
                     exec(
                         """
@@ -449,7 +450,7 @@ class UserTest : TestParent() {
                             SET LAST_USER_ID = '$initUserId'
                             WHERE ID = '$initSessionId';
                         INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID)
-                            VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                            VALUES ('$initEmailId', '$initEmailAddressEncoded', '$initUserId');
                         UPDATE USERS
                             SET LAST_EMAIL_ID = '$initEmailId'
                             WHERE ID = '$initUserId';

@@ -3,7 +3,6 @@ package com.mypasswordgen.server.test.service
 import com.mypasswordgen.common.dto.FullSiteServerDto
 import com.mypasswordgen.common.dto.client.SiteClientDto
 import com.mypasswordgen.common.dto.server.SiteServerDto
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.SiteMapper
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.Site
@@ -40,7 +39,6 @@ class SiteServiceTest : ServiceTestParent() {
     private lateinit var dummySiteServerDto: SiteServerDto
     private lateinit var dummySiteClientDto: SiteClientDto
     private lateinit var dummyFullSiteServerDto: FullSiteServerDto
-    private lateinit var dummySiteNameEncoded: String
 
     @BeforeAll
     override fun initMocks() {
@@ -60,7 +58,6 @@ class SiteServiceTest : ServiceTestParent() {
         dummySiteServerDto = SiteServerDto("coolWeb")
         dummySiteClientDto = SiteClientDto("de7da9c3-bc14-4d29-aa6d-15fb2122e072")
         dummyFullSiteServerDto = FullSiteServerDto("site1")
-        dummySiteNameEncoded = "siteXXX"
     }
 
     @Nested
@@ -364,9 +361,7 @@ class SiteServiceTest : ServiceTestParent() {
 
         @Test
         fun `create when it already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullSiteServerDto.siteName.encode() } returns dummySiteNameEncoded
-            every { siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value) } returns dummySite
+            every { siteRepositoryMock.getByNameAndEmail(dummyFullSiteServerDto.siteName, dummyEmail.id.value) } returns dummySite
             mockTransaction()
 
             val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
@@ -375,17 +370,14 @@ class SiteServiceTest : ServiceTestParent() {
             }
 
             verifyOrder {
-                dummyFullSiteServerDto.siteName.encode()
-                siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value)
+                siteRepositoryMock.getByNameAndEmail(dummyFullSiteServerDto.siteName, dummyEmail.id.value)
             }
         }
 
         @Test
         fun `create when it doesn't exist`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullSiteServerDto.siteName.encode() } returns dummySiteNameEncoded
-            every { siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value) } returns null
-            every { siteRepositoryMock.createAndGetId(dummySiteNameEncoded, dummyEmail.id.value) } returns dummySiteId
+            every { siteRepositoryMock.getByNameAndEmail(dummyFullSiteServerDto.siteName, dummyEmail.id.value) } returns null
+            every { siteRepositoryMock.createAndGetId(dummyFullSiteServerDto.siteName, dummyEmail.id.value) } returns dummySiteId
             mockTransaction()
 
             val siteService = SiteServiceImpl(siteRepositoryMock, userRepositoryMock, sessionRepositoryMock, siteMapperMock)
@@ -395,8 +387,7 @@ class SiteServiceTest : ServiceTestParent() {
             assertEquals(dummyFullSiteServerDto.siteName, result.siteName)
             assertEquals(dummySiteId.toString(), result.id)
             verifyOrder {
-                dummyFullSiteServerDto.siteName.encode()
-                siteRepositoryMock.getByNameAndEmail(dummySiteNameEncoded, dummyEmail.id.value)
+                siteRepositoryMock.getByNameAndEmail(dummyFullSiteServerDto.siteName, dummyEmail.id.value)
             }
         }
 

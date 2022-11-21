@@ -3,6 +3,7 @@ package com.mypasswordgen.server.repository.impl
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.repository.UserRepository
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Users
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
@@ -17,7 +18,7 @@ class UserRepositoryImpl : UserRepository {
     override fun createAndGetId(username: String, sessionId: UUID): UUID {
         logger.debug { "createAndGetId" }
         return Users.insertAndGetId {
-            it[this.username] = username
+            it[this.username] = username.encode()
             it[this.sessionId] = sessionId
         }.value
     }
@@ -30,7 +31,7 @@ class UserRepositoryImpl : UserRepository {
     override fun getByNameAndSession(username: String, sessionId: UUID): User? {
         logger.debug { "getByNameAndSession" }
         return User.find {
-            Users.sessionId eq sessionId and (Users.username eq username)
+            Users.sessionId eq sessionId and (Users.username eq username.encode())
         }.firstOrNull()
     }
 

@@ -2,6 +2,7 @@ package com.mypasswordgen.server.test.repository
 
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.repository.impl.UserRepositoryImpl
 import com.mypasswordgen.server.tables.Users
 import org.jetbrains.exposed.sql.select
@@ -29,7 +30,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -49,7 +50,7 @@ class UserRepositoryTest : RepositoryTestParent() {
             assertEquals(beforeCount + 1, afterCount)
             val user = User.findById(userId)
             assertNotNull(user)
-            assertEquals(initUsername2, user.username)
+            assertEquals(initUsername2.encode(), user.username)
             assertEquals(initSessionId, user.session.id.value)
             assertNull(user.lastEmail)
         }
@@ -65,7 +66,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                     """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 COMMIT;
             """.trimIndent()
                 )
@@ -96,7 +97,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -121,7 +122,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -140,7 +141,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -162,13 +163,13 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
             val user = userRepository.getByNameAndSession(initUsername, initSessionId)
             assertNotNull(user)
-            assertEquals(initUsername, user.username)
+            assertEquals(initUsername.encode(), user.username)
             assertEquals(initSessionId, user.session.id.value)
         }
 
@@ -185,9 +186,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId2');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '$initUsername2', '$initSessionId2');
+                    VALUES ('$initUserId2', '${initUsername.encode()}2', '$initSessionId2');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -205,7 +206,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -223,7 +224,7 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -249,9 +250,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId2');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '$initUsername2', '$initSessionId');
+                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -276,9 +277,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '$initUsername2', '$initSessionId');
+                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -304,9 +305,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                     """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '$initUsername2', '$initSessionId');
+                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
                 COMMIT;
             """.trimIndent()
                 )
@@ -338,9 +339,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId2');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId2', '$initUsername', '$initSessionId2');
+                    VALUES ('$initUserId2', '${initUsername.encode()}', '$initSessionId2');
                 COMMIT;
             """.trimIndent()
                 )
@@ -373,9 +374,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -399,9 +400,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 UPDATE USERS
                     SET LAST_EMAIL_ID = '$initEmailId'
                     WHERE ID = '$initUserId'
@@ -426,9 +427,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 UPDATE USERS
                     SET LAST_EMAIL_ID = '$initEmailId'
                     WHERE ID = '$initUserId'
@@ -455,9 +456,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -484,9 +485,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
             """.trimIndent()
             )
             val userRepository = UserRepositoryImpl()
@@ -506,9 +507,9 @@ class UserRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 UPDATE USERS
                     SET LAST_EMAIL_ID = '$initEmailId'
                     WHERE ID = '$initUserId'

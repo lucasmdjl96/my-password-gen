@@ -2,8 +2,8 @@ package com.mypasswordgen.server.integrationtest
 
 import com.mypasswordgen.common.dto.server.SiteServerDto
 import com.mypasswordgen.common.routes.SiteRoute
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.model.Site
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Sites
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*

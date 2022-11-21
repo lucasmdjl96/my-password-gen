@@ -2,6 +2,7 @@ package com.mypasswordgen.server.test.repository
 
 import com.mypasswordgen.server.model.Session
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.repository.impl.SessionRepositoryImpl
 import com.mypasswordgen.server.tables.Sessions
 import org.jetbrains.exposed.sql.selectAll
@@ -107,7 +108,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -129,7 +130,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -152,7 +153,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -177,7 +178,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -202,7 +203,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -220,7 +221,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -248,7 +249,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -268,7 +269,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -285,7 +286,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -311,7 +312,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -330,7 +331,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -351,7 +352,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -373,7 +374,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 UPDATE SESSIONS
                     SET LAST_USER_ID = '$initUserId'
                     WHERE ID = '$initSessionId';
@@ -397,7 +398,7 @@ class SessionRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID)
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
             """.trimIndent()
             )
             val sessionRepository = SessionRepositoryImpl()
@@ -405,6 +406,91 @@ class SessionRepositoryTest : RepositoryTestParent() {
             val newSession = Session.findById(initSessionId)
             assertNotNull(newSession)
             assertNull(newSession.lastUser)
+        }
+
+    }
+
+    @Nested
+    inner class GetIfLastUser {
+
+        @Test
+        fun `no session`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initSessionId2 = UUID.fromString("39a321a5-6297-426a-91a6-e76de4d76168")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getIfLastUser(initSessionId2, initUsername)
+            assertNull(user)
+        }
+
+        @Test
+        fun `no last user`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getIfLastUser(initSessionId, initUsername)
+            assertNull(user)
+        }
+
+        @Test
+        fun `different last user`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUserId2 = UUID.fromString("dd24c136-75bd-417f-b938-0e1d32084daa")
+            val initUsername = "User123"
+            val initUsername2 = "User321"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId2', '${initUsername2.encode()}', '$initSessionId');
+                UPDATE SESSIONS
+                    SET LAST_USER_ID = '$initUserId'
+                    WHERE ID = '$initSessionId';
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getIfLastUser(initSessionId, initUsername2)
+            assertNull(user)
+        }
+
+        @Test
+        fun `same last user`() = testTransaction {
+            val initSessionId = UUID.fromString("6a1cfcd2-040f-4756-aba6-cad8e0934ff9")
+            val initUserId = UUID.fromString("7f2b4ee9-d150-4d67-9c5d-5d957476ed56")
+            val initUsername = "User123"
+            exec(
+                """
+                INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
+                INSERT INTO USERS (ID, USERNAME, SESSION_ID)
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
+                UPDATE SESSIONS
+                    SET LAST_USER_ID = '$initUserId'
+                    WHERE ID = '$initSessionId';
+            """.trimIndent()
+            )
+            val sessionRepository = SessionRepositoryImpl()
+            val user = sessionRepository.getIfLastUser(initSessionId, initUsername)
+            assertNotNull(user)
+            assertEquals(initUserId, user.id.value)
         }
 
     }

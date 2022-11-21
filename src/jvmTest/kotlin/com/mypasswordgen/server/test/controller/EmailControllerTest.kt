@@ -4,7 +4,6 @@ import com.mypasswordgen.common.dto.client.EmailClientDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
 import com.mypasswordgen.common.routes.EmailRoute
 import com.mypasswordgen.server.controller.impl.EmailControllerImpl
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.dto.SessionDto
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
@@ -16,7 +15,6 @@ import io.ktor.server.sessions.*
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.*
 import java.util.*
@@ -29,7 +27,6 @@ class EmailControllerTest : ControllerTestParent() {
     private lateinit var dummySessionDto: SessionDto
     private lateinit var dummyEmailClientDto: EmailClientDto
     private lateinit var dummyEmailServerDto: EmailServerDto
-    private lateinit var dummyEmailServerDtoEncoded: EmailServerDto
 
     @BeforeAll
     override fun initMocks() {
@@ -45,7 +42,6 @@ class EmailControllerTest : ControllerTestParent() {
             listOf("ef48a78f-6ca8-4bab-9b8b-1ee34118b07d", "bfa6f332-8854-4b31-bc40-fdeca43f027f")
         )
         dummyEmailServerDto = EmailServerDto("email@email.com")
-        dummyEmailServerDtoEncoded = EmailServerDto("liame@liame.moc")
     }
 
     @Nested
@@ -53,11 +49,9 @@ class EmailControllerTest : ControllerTestParent() {
 
         @Test
         fun `create new email when it doesn't exist`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyEmailServerDto.encode() } returns dummyEmailServerDtoEncoded
             every {
                 emailServiceMock.create(
-                    dummyEmailServerDtoEncoded,
+                    dummyEmailServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyEmailClientDto
@@ -69,23 +63,20 @@ class EmailControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                emailServiceMock.create(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.create(dummyEmailServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<EmailServerDto>()
-                dummyEmailServerDto.encode()
-                emailServiceMock.create(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.create(dummyEmailServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyEmailClientDto)
             }
         }
 
         @Test
         fun `create new email when it already exists`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyEmailServerDto.encode() } returns dummyEmailServerDtoEncoded
             every {
                 emailServiceMock.create(
-                    dummyEmailServerDtoEncoded,
+                    dummyEmailServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataConflictException()
@@ -99,12 +90,11 @@ class EmailControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                emailServiceMock.create(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.create(dummyEmailServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<EmailServerDto>()
-                dummyEmailServerDto.encode()
-                emailServiceMock.create(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.create(dummyEmailServerDto, dummySessionDto.sessionId)
             }
         }
 
@@ -115,11 +105,9 @@ class EmailControllerTest : ControllerTestParent() {
 
         @Test
         fun `find email when it already exists`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyEmailServerDto.encode() } returns dummyEmailServerDtoEncoded
             every {
                 emailServiceMock.find(
-                    dummyEmailServerDtoEncoded,
+                    dummyEmailServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyEmailClientDto
@@ -134,19 +122,16 @@ class EmailControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                dummyEmailServerDto.encode()
-                emailServiceMock.find(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.find(dummyEmailServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyEmailClientDto)
             }
         }
 
         @Test
         fun `find email when it doesn't exist`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyEmailServerDto.encode() } returns dummyEmailServerDtoEncoded
             every {
                 emailServiceMock.find(
-                    dummyEmailServerDtoEncoded,
+                    dummyEmailServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -160,8 +145,7 @@ class EmailControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                dummyEmailServerDto.encode()
-                emailServiceMock.find(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.find(dummyEmailServerDto, dummySessionDto.sessionId)
             }
         }
 
@@ -171,11 +155,9 @@ class EmailControllerTest : ControllerTestParent() {
     inner class Delete {
         @Test
         fun `delete email when it already exists`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyEmailServerDto.encode() } returns dummyEmailServerDtoEncoded
             every {
                 emailServiceMock.delete(
-                    dummyEmailServerDtoEncoded,
+                    dummyEmailServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyEmailClientDto
@@ -190,19 +172,16 @@ class EmailControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                dummyEmailServerDto.encode()
-                emailServiceMock.delete(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyEmailClientDto)
             }
         }
 
         @Test
         fun `delete email when it doesn't exist`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyEmailServerDto.encode() } returns dummyEmailServerDtoEncoded
             every {
                 emailServiceMock.delete(
-                    dummyEmailServerDtoEncoded,
+                    dummyEmailServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -216,8 +195,7 @@ class EmailControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                dummyEmailServerDto.encode()
-                emailServiceMock.delete(dummyEmailServerDtoEncoded, dummySessionDto.sessionId)
+                emailServiceMock.delete(dummyEmailServerDto, dummySessionDto.sessionId)
             }
         }
     }

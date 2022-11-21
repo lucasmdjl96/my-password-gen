@@ -2,6 +2,7 @@ package com.mypasswordgen.server.repository.impl
 
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.repository.EmailRepository
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Emails
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
@@ -15,7 +16,7 @@ class EmailRepositoryImpl : EmailRepository {
     override fun createAndGetId(emailAddress: String, userId: UUID): UUID {
         logger.debug { "createAndGetId" }
         return Emails.insertAndGetId {
-            it[this.emailAddress] = emailAddress
+            it[this.emailAddress] = emailAddress.encode()
             it[this.userId] = userId
         }.value
     }
@@ -28,7 +29,7 @@ class EmailRepositoryImpl : EmailRepository {
     override fun getByAddressAndUser(emailAddress: String, userId: UUID): Email? {
         logger.debug { "getByAddressAndUser" }
         return Email.find {
-            Emails.emailAddress eq emailAddress and (Emails.userId eq userId)
+            Emails.emailAddress eq emailAddress.encode() and (Emails.userId eq userId)
         }.firstOrNull()
     }
 

@@ -2,6 +2,7 @@ package com.mypasswordgen.server.test.repository
 
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.Site
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.repository.impl.SiteRepositoryImpl
 import com.mypasswordgen.server.tables.Sites
 import org.jetbrains.exposed.sql.select
@@ -34,11 +35,11 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -57,7 +58,7 @@ class SiteRepositoryTest : RepositoryTestParent() {
             assertEquals(beforeCount + 1, afterCount)
             val site = Site.findById(siteId)
             assertNotNull(site)
-            assertEquals(initSiteName2, site.name)
+            assertEquals(initSiteName2.encode(), site.name)
             assertEquals(initEmailId, site.email.id.value)
         }
 
@@ -76,11 +77,11 @@ class SiteRepositoryTest : RepositoryTestParent() {
                     """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
                 COMMIT;
             """.trimIndent()
                 )
@@ -118,11 +119,11 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -145,11 +146,11 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -175,18 +176,18 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
             val email = Email.findById(initEmailId)!!
             val site = siteRepository.getByNameAndEmail(initSiteName, email)
             assertNotNull(site)
-            assertEquals(initSiteName, site.name)
+            assertEquals(initSiteName.encode(), site.name)
             assertEquals(initEmailId, site.email.id.value)
         }
 
@@ -205,13 +206,13 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId2', '$initEmailAddress2', '$initUserId');
+                    VALUES ('$initEmailId2', '${initEmailAddress2.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -234,11 +235,11 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()
@@ -265,11 +266,11 @@ class SiteRepositoryTest : RepositoryTestParent() {
                 """
                 INSERT INTO SESSIONS (ID) VALUES ('$initSessionId');
                 INSERT INTO USERS (ID, USERNAME, SESSION_ID) 
-                    VALUES ('$initUserId', '$initUsername', '$initSessionId');
+                    VALUES ('$initUserId', '${initUsername.encode()}', '$initSessionId');
                 INSERT INTO EMAILS (ID, EMAIL_ADDRESS, USER_ID) 
-                    VALUES ('$initEmailId', '$initEmailAddress', '$initUserId');
+                    VALUES ('$initEmailId', '${initEmailAddress.encode()}', '$initUserId');
                 INSERT INTO SITES (ID, SITE_NAME, EMAIL_ID)
-                    VALUES ('$initSiteId', '$initSiteName', '$initEmailId');
+                    VALUES ('$initSiteId', '${initSiteName.encode()}', '$initEmailId');
             """.trimIndent()
             )
             val siteRepository = SiteRepositoryImpl()

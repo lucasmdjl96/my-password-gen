@@ -2,6 +2,7 @@ package com.mypasswordgen.server.repository.impl
 
 import com.mypasswordgen.server.model.Site
 import com.mypasswordgen.server.repository.SiteRepository
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Sites
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.and
@@ -15,7 +16,7 @@ class SiteRepositoryImpl : SiteRepository {
     override fun createAndGetId(siteName: String, emailId: UUID): UUID {
         logger.debug { "createAndGetId" }
         return Sites.insertAndGetId {
-            it[this.siteName] = siteName
+            it[this.siteName] = siteName.encode()
             it[this.emailId] = emailId
         }.value
     }
@@ -29,7 +30,7 @@ class SiteRepositoryImpl : SiteRepository {
     override fun getByNameAndEmail(siteName: String, emailId: UUID): Site? {
         logger.debug { "getByNameAndEmail" }
         return Site.find {
-            Sites.siteName eq siteName and (Sites.emailId eq emailId)
+            Sites.siteName eq siteName.encode() and (Sites.emailId eq emailId)
         }.firstOrNull()
     }
 

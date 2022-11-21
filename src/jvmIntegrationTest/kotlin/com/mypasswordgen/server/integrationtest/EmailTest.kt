@@ -3,9 +3,9 @@ package com.mypasswordgen.server.integrationtest
 import com.mypasswordgen.common.dto.client.EmailClientDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
 import com.mypasswordgen.common.routes.EmailRoute
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.model.Email
 import com.mypasswordgen.server.model.User
+import com.mypasswordgen.server.repository.crypto.encode
 import com.mypasswordgen.server.tables.Emails
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*

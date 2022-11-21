@@ -3,7 +3,6 @@ package com.mypasswordgen.server.service.impl
 import com.mypasswordgen.common.dto.FullSiteServerDto
 import com.mypasswordgen.common.dto.SiteIDBDto
 import com.mypasswordgen.common.dto.server.SiteServerDto
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.SiteMapper
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
@@ -64,7 +63,7 @@ class SiteServiceImpl(
 
     override fun createFullSite(fullSite: FullSiteServerDto, emailId: UUID) = transaction {
         logger.debug { "createFullSite" }
-        val siteName = fullSite.siteName.encode()
+        val siteName = fullSite.siteName
         if (siteRepository.getByNameAndEmail(siteName, emailId) != null) throw DataConflictException()
         val id = siteRepository.createAndGetId(siteName, emailId)
         SiteIDBDto(siteName = fullSite.siteName, id = id.toString())

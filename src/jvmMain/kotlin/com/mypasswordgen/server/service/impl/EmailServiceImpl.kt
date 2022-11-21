@@ -3,7 +3,6 @@ package com.mypasswordgen.server.service.impl
 import com.mypasswordgen.common.dto.EmailIDBDto
 import com.mypasswordgen.common.dto.FullEmailServerDto
 import com.mypasswordgen.common.dto.server.EmailServerDto
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.EmailMapper
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
@@ -65,7 +64,7 @@ class EmailServiceImpl(
 
     override fun createFullEmail(fullEmail: FullEmailServerDto, userId: UUID) = transaction {
         logger.debug { "createFullEmail" }
-        val emailAddress = fullEmail.emailAddress.encode()
+        val emailAddress = fullEmail.emailAddress
         if (emailRepository.getByAddressAndUser(emailAddress, userId) != null) throw DataConflictException()
         val id = emailRepository.createAndGetId(emailAddress, userId)
         EmailIDBDto(emailAddress = fullEmail.emailAddress, id = id.toString()) {

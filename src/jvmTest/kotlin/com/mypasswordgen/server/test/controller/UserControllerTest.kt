@@ -7,7 +7,6 @@ import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
 import com.mypasswordgen.server.controller.impl.UserControllerImpl
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.dto.SessionDto
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
@@ -27,7 +26,6 @@ class UserControllerTest : ControllerTestParent() {
     private lateinit var dummyUserClientDto: UserClientDto
     private lateinit var dummySessionDto: SessionDto
     private lateinit var dummyUserServerDto: UserServerDto
-    private lateinit var dummyEncodedUserServerDto: UserServerDto
     private lateinit var dummyFullUserServerDto: FullUserServerDto
     private lateinit var dummyUserIDBDto: UserIDBDto
     private lateinit var dummyFullUserClientDto: FullUserClientDto
@@ -49,7 +47,6 @@ class UserControllerTest : ControllerTestParent() {
         )
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyUserServerDto = UserServerDto("userServer123")
-        dummyEncodedUserServerDto = UserServerDto("userServer321")
         dummyFullUserServerDto = FullUserServerDto("User123")
         dummyUserIDBDto = UserIDBDto()
         dummyFullUserClientDto = FullUserClientDto()
@@ -60,11 +57,9 @@ class UserControllerTest : ControllerTestParent() {
 
         @Test
         fun `user login when already registered`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.find(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyUserClientDto
@@ -76,23 +71,20 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.find(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
-                userServiceMock.find(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyUserClientDto)
             }
         }
 
         @Test
         fun `user login when not already registered`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.find(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -106,12 +98,11 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.find(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
-                userServiceMock.find(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
             }
         }
 
@@ -122,11 +113,9 @@ class UserControllerTest : ControllerTestParent() {
 
         @Test
         fun `user register when not already registered`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.create(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyUserClientDto
@@ -138,23 +127,20 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.create(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
-                userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.create(dummyUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyUserClientDto)
             }
         }
 
         @Test
         fun `user register when already registered`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.create(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataConflictException()
@@ -168,12 +154,11 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.create(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
-                userServiceMock.create(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.create(dummyUserServerDto, dummySessionDto.sessionId)
             }
         }
 
@@ -185,9 +170,7 @@ class UserControllerTest : ControllerTestParent() {
         @Test
         fun `logout user`() = runBlocking {
             mockCall(callMock, dummySessionDto, dummyUserServerDto)
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
-            every { userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId) } just Runs
+            every { userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId) } just Runs
 
             val userController = UserControllerImpl(userServiceMock)
 
@@ -195,12 +178,11 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
-                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(HttpStatusCode.OK)
             }
 
@@ -209,11 +191,9 @@ class UserControllerTest : ControllerTestParent() {
         @Test
         fun `logout user when bad data`() = runBlocking {
             mockCall(callMock, dummySessionDto, dummyUserServerDto)
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.logout(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -226,12 +206,11 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
                 callMock.receive<UserServerDto>()
-                dummyUserServerDto.encode()
-                userServiceMock.logout(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
             }
 
         }
@@ -288,11 +267,9 @@ class UserControllerTest : ControllerTestParent() {
     inner class Export {
         @Test
         fun `export when user already exists`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.getFullUser(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyFullUserClientDto
@@ -304,22 +281,16 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
-            }
-            coVerifyOrder {
-                dummyUserServerDto.encode()
-                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.getFullUser(dummyUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyFullUserClientDto)
             }
         }
 
         @Test
         fun `export when user doesn't exist`() = runBlocking {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyUserServerDto.encode() } returns dummyEncodedUserServerDto
             every {
                 userServiceMock.getFullUser(
-                    dummyEncodedUserServerDto,
+                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -333,11 +304,10 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.getFullUser(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
-                dummyUserServerDto.encode()
-                userServiceMock.getFullUser(dummyEncodedUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.getFullUser(dummyUserServerDto, dummySessionDto.sessionId)
             }
         }
     }

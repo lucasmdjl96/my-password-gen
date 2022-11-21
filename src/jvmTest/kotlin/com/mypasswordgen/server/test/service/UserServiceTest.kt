@@ -6,7 +6,6 @@ import com.mypasswordgen.common.dto.FullUserClientDto
 import com.mypasswordgen.common.dto.FullUserServerDto
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.UserMapper
 import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.plugins.DataConflictException
@@ -37,7 +36,6 @@ class UserServiceTest : ServiceTestParent() {
     private lateinit var dummySessionId: UUID
     private lateinit var dummyUserClientDto: UserClientDto
     private lateinit var dummyFullUserServerDto: FullUserServerDto
-    private lateinit var dummyUsernameEncoded: String
     private lateinit var dummyEmailIDBDtoList: List<EmailIDBDto>
     private lateinit var dummyFullUserClientDto: FullUserClientDto
 
@@ -64,7 +62,6 @@ class UserServiceTest : ServiceTestParent() {
                 FullEmailServerDto("email1"), FullEmailServerDto("email2")
             )
         )
-        dummyUsernameEncoded = "UserXXX"
         dummyEmailIDBDtoList = listOf(EmailIDBDto("id1", "email1x"), EmailIDBDto("id2", "email2x"))
         dummyFullUserClientDto = FullUserClientDto()
     }
@@ -191,8 +188,7 @@ class UserServiceTest : ServiceTestParent() {
         @Test
         fun `logout when user exists`() {
             val userMock = mockk<User>()
-            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns userMock
-            every { userMock.username } returns dummyUserServerDto.username
+            every { sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username) } returns userMock
             every { userRepositoryMock.setLastEmail(userMock, null) } just Runs
             every { sessionRepositoryMock.setLastUser(dummySessionId, null) } just Runs
             mockTransaction()
@@ -203,8 +199,7 @@ class UserServiceTest : ServiceTestParent() {
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getLastUser(dummySessionId)
-                userMock.username
+                sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username)
                 userRepositoryMock.setLastEmail(userMock, null)
                 sessionRepositoryMock.setLastUser(dummySessionId, null)
             }
@@ -212,11 +207,9 @@ class UserServiceTest : ServiceTestParent() {
         }
 
         @Test
-        fun `logout when user doesn't is not last user`() {
+        fun `logout when user is not last user`() {
             val userMock = mockk<User>()
-            val otherUsername = "UserXYZ"
-            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns userMock
-            every { userMock.username } returns otherUsername
+            every { sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username) } returns null
             mockTransaction()
 
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
@@ -227,8 +220,7 @@ class UserServiceTest : ServiceTestParent() {
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getLastUser(dummySessionId)
-                userMock.username
+                sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username)
             }
             verify(exactly = 0) {
                 userRepositoryMock.setLastEmail(userMock, null)
@@ -239,7 +231,7 @@ class UserServiceTest : ServiceTestParent() {
 
         @Test
         fun `logout when no last user`() {
-            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
+            every { sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username) } returns null
             mockTransaction()
 
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
@@ -250,7 +242,7 @@ class UserServiceTest : ServiceTestParent() {
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getLastUser(dummySessionId)
+                sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username)
             }
             verify(exactly = 0) {
                 userRepositoryMock.setLastEmail(any(), null)
@@ -266,11 +258,9 @@ class UserServiceTest : ServiceTestParent() {
 
         @Test
         fun `create when it already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullUserServerDto.username.encode() } returns dummyUsernameEncoded
             every {
                 userRepositoryMock.getByNameAndSession(
-                    dummyUsernameEncoded, dummySessionId
+                    dummyFullUserServerDto.username, dummySessionId
                 )
             } returns dummyUser
             mockTransaction()
@@ -286,23 +276,20 @@ class UserServiceTest : ServiceTestParent() {
             }
 
             verifyOrder {
-                dummyFullUserServerDto.username.encode()
-                userRepositoryMock.getByNameAndSession(dummyUsernameEncoded, dummySessionId)
+                userRepositoryMock.getByNameAndSession(dummyFullUserServerDto.username, dummySessionId)
             }
         }
 
         @Test
         fun `create when a email already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullUserServerDto.username.encode() } returns dummyUsernameEncoded
             every {
                 userRepositoryMock.getByNameAndSession(
-                    dummyUsernameEncoded, dummySessionId
+                    dummyFullUserServerDto.username, dummySessionId
                 )
             } returns null
             every {
                 userRepositoryMock.createAndGetId(
-                    dummyUsernameEncoded, dummySessionId
+                    dummyFullUserServerDto.username, dummySessionId
                 )
             } returns dummyUserId
             every {
@@ -323,25 +310,22 @@ class UserServiceTest : ServiceTestParent() {
             }
 
             verifyOrder {
-                dummyFullUserServerDto.username.encode()
-                userRepositoryMock.getByNameAndSession(dummyUsernameEncoded, dummySessionId)
-                userRepositoryMock.createAndGetId(dummyUsernameEncoded, dummySessionId)
+                userRepositoryMock.getByNameAndSession(dummyFullUserServerDto.username, dummySessionId)
+                userRepositoryMock.createAndGetId(dummyFullUserServerDto.username, dummySessionId)
                 emailServiceMock.createFullEmail(dummyFullUserServerDto.emails[0], dummyUserId)
             }
         }
 
         @Test
         fun `create when nothing already exists`() {
-            mockkStatic("com.mypasswordgen.server.crypto.Sha256Kt")
-            every { dummyFullUserServerDto.username.encode() } returns dummyUsernameEncoded
             every {
                 userRepositoryMock.getByNameAndSession(
-                    dummyUsernameEncoded, dummySessionId
+                    dummyFullUserServerDto.username, dummySessionId
                 )
             } returns null
             every {
                 userRepositoryMock.createAndGetId(
-                    dummyUsernameEncoded, dummySessionId
+                    dummyFullUserServerDto.username, dummySessionId
                 )
             } returns dummyUserId
             dummyFullUserServerDto.emails.forEachIndexed { index, email ->
@@ -363,9 +347,8 @@ class UserServiceTest : ServiceTestParent() {
 
             assertEquals(dummyEmailIDBDtoList, result.emails)
             verifyOrder {
-                dummyFullUserServerDto.username.encode()
-                userRepositoryMock.getByNameAndSession(dummyUsernameEncoded, dummySessionId)
-                userRepositoryMock.createAndGetId(dummyUsernameEncoded, dummySessionId)
+                userRepositoryMock.getByNameAndSession(dummyFullUserServerDto.username, dummySessionId)
+                userRepositoryMock.createAndGetId(dummyFullUserServerDto.username, dummySessionId)
                 for (email in dummyFullUserServerDto.emails) {
                     emailServiceMock.createFullEmail(email, dummyUserId)
                 }

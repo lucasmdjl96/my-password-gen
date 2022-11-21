@@ -3,7 +3,6 @@ package com.mypasswordgen.server.service.impl
 import com.mypasswordgen.common.dto.FullUserServerDto
 import com.mypasswordgen.common.dto.UserIDBDto
 import com.mypasswordgen.common.dto.server.UserServerDto
-import com.mypasswordgen.server.crypto.encode
 import com.mypasswordgen.server.mapper.UserMapper
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
@@ -49,15 +48,14 @@ class UserServiceImpl(
 
     override fun logout(userServerDto: UserServerDto, sessionId: UUID): Unit = transaction {
         logger.debug { "logout" }
-        val user = sessionRepository.getLastUser(sessionId) ?: throw DataNotFoundException()
-        if (user.username != userServerDto.username) throw DataNotFoundException()
+        val user = sessionRepository.getIfLastUser(sessionId, userServerDto.username) ?: throw DataNotFoundException()
         userRepository.setLastEmail(user, null)
         sessionRepository.setLastUser(sessionId, null)
     }
 
     override fun createFullUser(fullUser: FullUserServerDto, sessionId: UUID) = transaction {
         logger.debug { "createFullUser" }
-        val username = fullUser.username.encode()
+        val username = fullUser.username
         if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException()
         val id = userRepository.createAndGetId(username, sessionId)
         UserIDBDto {
