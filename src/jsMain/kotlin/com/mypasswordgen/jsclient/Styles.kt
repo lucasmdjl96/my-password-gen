@@ -55,6 +55,12 @@ object CssClasses {
     val foot = ClassName("foot")
 
     val donate = ClassName("donate")
+
+    val errorPopup = ClassName("errorPopup")
+
+    val successPopup = ClassName("successPopup")
+
+    val mainPopupContainer = ClassName("mainPopupContainer")
 }
 
 @Suppress("NOTHING_TO_INLINE")

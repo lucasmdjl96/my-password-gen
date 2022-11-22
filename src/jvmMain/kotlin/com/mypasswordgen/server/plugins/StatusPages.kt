@@ -8,24 +8,24 @@ import io.ktor.server.response.*
 fun Application.installStatusPages() {
     install(StatusPages) {
         exception<DataNotFoundException> { call, cause ->
-            call.respond(HttpStatusCode.NotFound)
+            call.respond(HttpStatusCode.NotFound, cause.message)
         }
         exception<DataConflictException> { call, cause ->
-            call.respond(HttpStatusCode.Conflict)
+            call.respond(HttpStatusCode.Conflict, cause.message)
         }
         exception<NotAuthenticatedException> { call, cause ->
-            call.respond(HttpStatusCode.Unauthorized)
+            call.respond(HttpStatusCode.Unauthorized, cause.message)
         }
         exception<NotEnoughInformationException> { call, cause ->
-            call.respond(HttpStatusCode.PreconditionFailed)
+            call.respond(HttpStatusCode.PreconditionFailed, cause.message)
         }
     }
 }
 
-class DataNotFoundException : RuntimeException()
+class DataNotFoundException(override val message: String = "") : RuntimeException()
 
-class DataConflictException : RuntimeException()
+class DataConflictException(override val message: String = "") : RuntimeException()
 
-class NotAuthenticatedException : RuntimeException()
+class NotAuthenticatedException(override val message: String = "Session not found.") : RuntimeException()
 
-class NotEnoughInformationException : RuntimeException()
+class NotEnoughInformationException(override val message: String = "") : RuntimeException()

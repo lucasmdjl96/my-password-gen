@@ -362,6 +362,28 @@ input + .material-icons {
     margin: 1.7rem;
 }
 
+.errorPopup {
+    font-size: 1.8rem;
+    color: hsl(0, 100%, 40%);
+    background-color: hsl(0, 100%, 85%);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.successPopup {
+    font-size: 1.8rem;
+    color:  hsl(120, 100%, 30%);
+    background-color: hsl(120, 100%, 75%);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.mainPopupContainer {
+    height: 0;
+    position: fixed;
+    top: 50px;
+}
+
 @media (hover: none) {
     .buttonContainer button:hover {
         background-color: hsl(181, 100%, 41%);

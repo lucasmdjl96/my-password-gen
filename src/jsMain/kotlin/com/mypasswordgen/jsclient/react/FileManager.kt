@@ -64,6 +64,7 @@ val FileManager = FC<FileManagerProps> { props ->
             type = InputType.file
             accept = ".json,application/json"
             multiple = false
+            value = ""
             onChange = { event ->
                 if (event.target.files != null && event.target.files!!.length == 1) {
                     val file = event.target.files!![0]!!
@@ -71,13 +72,19 @@ val FileManager = FC<FileManagerProps> { props ->
                         val reader = FileReader()
                         reader.onload = {
                             val text = reader.result as String
+                            val successPopup = getHtmlElementById("successPopup")
+                            val errorPopup = getHtmlElementById("errorPopup")
                             when (DownloadCode.fromText(text)) {
-
                                 SESSION -> run {
                                     val session = DownloadSession.dataFromText(text)
                                     val usernames = session.users.map(FullUserServerDto::username)
                                     if (usernames.none { username -> username == "FILL_THIS_IN" }) scope.launch {
                                         uploadData(session)
+                                        successPopup?.innerText = "Import successful."
+                                        ::click on successPopup
+                                    } else {
+                                        errorPopup?.innerText = "Import failed. Please fill in the correct usernames in the file."
+                                        ::click on errorPopup
                                     }
                                 }
 
@@ -85,10 +92,14 @@ val FileManager = FC<FileManagerProps> { props ->
                                     val user = DownloadUser.dataFromText(text)
                                     scope.launch {
                                         uploadData(user)
+                                        successPopup?.innerText = "Import successful."
+                                        ::click on successPopup
                                     }
                                 }
 
                                 null -> run {
+                                    errorPopup?.innerText = "Import failed. Message code not recognized.."
+                                    ::click on errorPopup
                                 }
                             }
                         }

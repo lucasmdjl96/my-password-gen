@@ -27,11 +27,11 @@ class SiteServiceImpl(
     override fun create(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }
         val (siteName) = siteServerDto
-        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException()
-        if (siteRepository.getByNameAndEmail(siteName, email) != null) throw DataConflictException()
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
+        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException("No last email found.")
+        if (siteRepository.getByNameAndEmail(siteName, email) != null) throw DataConflictException("Site name already exists.")
         val id = siteRepository.createAndGetId(siteName, email)
-        val site = siteRepository.getById(id) ?: throw DataNotFoundException()
+        val site = siteRepository.getById(id)!!
         with(siteMapper) {
             site.toSiteClientDto()
         }
@@ -40,9 +40,9 @@ class SiteServiceImpl(
     override fun find(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "find" }
         val (siteName) = siteServerDto
-        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException()
-        val site = siteRepository.getByNameAndEmail(siteName, email) ?: throw DataNotFoundException()
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
+        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException("No last email found.")
+        val site = siteRepository.getByNameAndEmail(siteName, email) ?: throw DataNotFoundException("Site name not found.")
         with(siteMapper) {
             site.toSiteClientDto()
         }
@@ -51,9 +51,9 @@ class SiteServiceImpl(
     override fun delete(siteServerDto: SiteServerDto, sessionId: UUID) = transaction {
         logger.debug { "delete" }
         val (siteName) = siteServerDto
-        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException()
-        val site = siteRepository.getByNameAndEmail(siteName, email) ?: throw DataNotFoundException()
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
+        val email = userRepository.getLastEmail(user) ?: throw NotEnoughInformationException("No last email found.")
+        val site = siteRepository.getByNameAndEmail(siteName, email) ?: throw DataNotFoundException("Site name not found.")
         val siteClientDto = with(siteMapper) {
             site.toSiteClientDto()
         }
@@ -64,7 +64,7 @@ class SiteServiceImpl(
     override fun createFullSite(fullSite: FullSiteServerDto, emailId: UUID) = transaction {
         logger.debug { "createFullSite" }
         val siteName = fullSite.siteName
-        if (siteRepository.getByNameAndEmail(siteName, emailId) != null) throw DataConflictException()
+        if (siteRepository.getByNameAndEmail(siteName, emailId) != null) throw DataConflictException("Import failed. Site name already exists.")
         val id = siteRepository.createAndGetId(siteName, emailId)
         SiteIDBDto(siteName = fullSite.siteName, id = id.toString())
     }

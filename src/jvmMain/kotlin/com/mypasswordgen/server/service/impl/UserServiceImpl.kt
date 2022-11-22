@@ -27,9 +27,9 @@ class UserServiceImpl(
     override fun create(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }
         val username = userServerDto.username
-        if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException()
+        if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException("Username already exists.")
         val id = userRepository.createAndGetId(username, sessionId)
-        val user = userRepository.getById(id) ?: throw DataNotFoundException()
+        val user = userRepository.getById(id)!!
         sessionRepository.setLastUser(sessionId, user)
         with(userMapper) {
             user.toUserClientDto()
@@ -39,7 +39,7 @@ class UserServiceImpl(
     override fun find(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "find" }
         val username = userServerDto.username
-        val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException()
+        val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException("No such username found.")
         sessionRepository.setLastUser(sessionId, user)
         with(userMapper) {
             user.toUserClientDto()
@@ -48,7 +48,7 @@ class UserServiceImpl(
 
     override fun logout(userServerDto: UserServerDto, sessionId: UUID): Unit = transaction {
         logger.debug { "logout" }
-        val user = sessionRepository.getIfLastUser(sessionId, userServerDto.username) ?: throw DataNotFoundException()
+        val user = sessionRepository.getIfLastUser(sessionId, userServerDto.username) ?: throw DataNotFoundException("Username is not from last user.")
         userRepository.setLastEmail(user, null)
         sessionRepository.setLastUser(sessionId, null)
     }
@@ -56,7 +56,7 @@ class UserServiceImpl(
     override fun createFullUser(fullUser: FullUserServerDto, sessionId: UUID) = transaction {
         logger.debug { "createFullUser" }
         val username = fullUser.username
-        if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException()
+        if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException("Import failed. Username already exists.")
         val id = userRepository.createAndGetId(username, sessionId)
         UserIDBDto {
             for (fullEmail in fullUser.emails) {
@@ -69,7 +69,7 @@ class UserServiceImpl(
     override fun getFullUser(userServerDto: UserServerDto, sessionId: UUID) = transaction {
         logger.debug { "getFullUser" }
         val username = userServerDto.username
-        val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException()
+        val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException("No such username found.")
         with(userMapper) {
             user.toFullUserClientDto()
         }

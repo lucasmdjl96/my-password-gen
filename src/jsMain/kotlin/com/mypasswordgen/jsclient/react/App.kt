@@ -33,6 +33,8 @@ val App = { initialState: InitialState ->
         var showCookieBanner by useState(initialState.cookiesAccepted == null)
         var keyboardUp by useState(false)
         var connectionOn by useState(window.navigator.onLine)
+        var showErrorPopup by useState(false)
+        var showSuccessPopup by useState(false)
 
         window.visualViewport.addEventListener("resize", {
             keyboardUp = window.visualViewport.height < 500 && window.visualViewport.width < 500
@@ -60,6 +62,12 @@ val App = { initialState: InitialState ->
             if (!keyboardUp && online) FileManager {
                 this.loggedIn = userClient != null
                 this.username = userClient?.username
+            }
+            MainPopup {
+                this.showErrorPopup = showErrorPopup
+                this.changeErrorPopup = { showErrorPopup = it }
+                this.showSuccessPopup = showSuccessPopup
+                this.changeSuccessPopup = { showSuccessPopup = it }
             }
             main {
                 className = CssClasses.container

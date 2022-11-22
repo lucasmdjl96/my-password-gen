@@ -29,10 +29,10 @@ class EmailServiceImpl(
     override fun create(emailServerDto: EmailServerDto, sessionId: UUID) = transaction {
         logger.debug { "create" }
         val (emailAddress) = emailServerDto
-        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        if (emailRepository.getByAddressAndUser(emailAddress, user) != null) throw DataConflictException()
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
+        if (emailRepository.getByAddressAndUser(emailAddress, user) != null) throw DataConflictException("Email address already exists.")
         val id = emailRepository.createAndGetId(emailAddress, user)
-        val email = emailRepository.getById(id) ?: throw DataNotFoundException()
+        val email = emailRepository.getById(id)!!
         userRepository.setLastEmail(user, email)
         with(emailMapper) {
             email.toEmailClientDto()
@@ -42,8 +42,8 @@ class EmailServiceImpl(
     override fun find(emailServerDto: EmailServerDto, sessionId: UUID) = transaction {
         logger.debug { "find" }
         val (emailAddress) = emailServerDto
-        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        val email = emailRepository.getByAddressAndUser(emailAddress, user) ?: throw DataNotFoundException()
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
+        val email = emailRepository.getByAddressAndUser(emailAddress, user) ?: throw DataNotFoundException("No such email address found.")
         userRepository.setLastEmail(user, email)
         with(emailMapper) {
             email.toEmailClientDto()
@@ -53,8 +53,8 @@ class EmailServiceImpl(
     override fun delete(emailServerDto: EmailServerDto, sessionId: UUID) = transaction {
         logger.debug { "delete" }
         val (emailAddress) = emailServerDto
-        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException()
-        val email = emailRepository.getByAddressAndUser(emailAddress, user) ?: throw DataNotFoundException()
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
+        val email = emailRepository.getByAddressAndUser(emailAddress, user) ?: throw DataNotFoundException("No such email address found.")
         val emailClientDto = with(emailMapper) {
             email.toEmailClientDto()
         }
@@ -65,7 +65,7 @@ class EmailServiceImpl(
     override fun createFullEmail(fullEmail: FullEmailServerDto, userId: UUID) = transaction {
         logger.debug { "createFullEmail" }
         val emailAddress = fullEmail.emailAddress
-        if (emailRepository.getByAddressAndUser(emailAddress, userId) != null) throw DataConflictException()
+        if (emailRepository.getByAddressAndUser(emailAddress, userId) != null) throw DataConflictException("Import failed. Email address already exists.")
         val id = emailRepository.createAndGetId(emailAddress, userId)
         EmailIDBDto(emailAddress = fullEmail.emailAddress, id = id.toString()) {
             for (fullSite in fullEmail.sites) {

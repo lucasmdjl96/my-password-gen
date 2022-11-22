@@ -58,7 +58,7 @@ class SessionServiceImpl(
 
     override fun getFullSession(sessionDto: SessionDto): FullSessionClientDto = transaction {
         logger.debug { "getFullSession" }
-        val session = find(sessionDto) ?: throw DataNotFoundException()
+        val session = find(sessionDto) ?: throw DataNotFoundException("No session found.")
         with(sessionMapper) {
             session.toFullSessionClientDto()
         }
