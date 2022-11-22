@@ -98,7 +98,7 @@ val FileManager = FC<FileManagerProps> { props ->
                                 }
 
                                 null -> run {
-                                    errorPopup?.innerText = "Import failed. Message code not recognized.."
+                                    errorPopup?.innerText = "Import failed. Message code not recognized."
                                     ::click on errorPopup
                                 }
                             }

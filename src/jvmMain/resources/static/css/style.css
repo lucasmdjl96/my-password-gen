@@ -382,6 +382,7 @@ input + .material-icons {
     height: 0;
     position: fixed;
     top: 50px;
+    text-align: center;
 }
 
 @media (hover: none) {
