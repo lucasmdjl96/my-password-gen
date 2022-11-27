@@ -53,7 +53,7 @@ class UserMapperTest : MapperTestParent() {
         dummyUserId = "user123"
         dummyEmailAddressList = listOf("email1", "email2")
         dummyEmailIdsList = mutableListOf("id1", "id2")
-        dummyUserClientDto = UserClientDto(dummyUserId, listOf())
+        dummyUserClientDto = UserClientDto(dummyUserId, setOf())
         dummyFullEmailClientList = listOf(FullEmailClientDto("email1"), FullEmailClientDto("email2"))
         dummyFullUserClientDto = FullUserClientDto()
     }
@@ -69,7 +69,7 @@ class UserMapperTest : MapperTestParent() {
             val userMapper = UserMapperImpl(emailMapperMock)
             val userDto = userMapper.userToUserClientDto(userMock)
             assertEquals(dummyUserId, userDto.id)
-            assertTrue(userDto.emailIdList.isEmpty())
+            assertTrue(userDto.emailIdSet.isEmpty())
             verify {
                 transaction(statement = any<Transaction.() -> Any>())
             }
@@ -86,7 +86,7 @@ class UserMapperTest : MapperTestParent() {
             val userMapper = UserMapperImpl(emailMapperMock)
             val userDto = userMapper.userToUserClientDto(userMock)
             assertEquals(dummyUserId, userDto.id)
-            assertEquals(dummyEmailAddressList, userDto.emailIdList)
+            assertEquals(dummyEmailAddressList.toSet(), userDto.emailIdSet)
             verify {
                 transaction(statement = any<Transaction.() -> Any>())
             }
@@ -130,8 +130,9 @@ class UserMapperTest : MapperTestParent() {
             val result = userMapper.userToFullUserClientDto(userMock)
 
             assertEquals(2, result.emails.size)
+            val emailList = result.emails.toList()
             for (i in 0..1) {
-                assertEquals(dummyFullEmailClientList[i], result.emails[i])
+                assertEquals(dummyFullEmailClientList[i], emailList[i])
             }
             verifyOrder {
                 userMock.emails

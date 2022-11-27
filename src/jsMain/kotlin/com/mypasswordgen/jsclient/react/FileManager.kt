@@ -88,7 +88,7 @@ val FileManager = FC<FileManagerProps> { props ->
                                 SESSION -> run {
                                     val session = DownloadSession.dataFromText(text)
                                     val usernames = session.users.map(FullUserServerDto::username)
-                                    if (usernames.none { username -> username == "FILL_THIS_IN" }) scope.launch {
+                                    if (usernames.none { username -> username.startsWith("FILL_THIS_IN_") }) scope.launch {
                                         uploadData(session)
                                         successPopup?.innerText = "Import successful."
                                         ::click on successPopup
@@ -162,14 +162,17 @@ suspend fun downloadSessionData(): FullSessionServerDto? {
     val response = jsonClient.get(SessionRoute.Export())
     if (response.status != HttpStatusCode.OK) return null
     val fullSessionClient = response.body<FullSessionClientDto>()
+    console.log("fullSessionClient", fullSessionClient.users.size)
     val fullSessionServer = FullSessionServerDto()
     database.biReadTransaction<Email, Site> {
+        var i = 1
         for (fullUserClient in fullSessionClient.users) {
-            val fullUserServer = FullUserServerDto("FILL_THIS_IN")
+            val fullUserServer = FullUserServerDto("FILL_THIS_IN_${i++}")
             fullSessionServer.addUser(fullUserServer)
             loadUserData(fullUserClient, fullUserServer)
         }
     }.awaitCompletion()
+    console.log("fullSessionServer", fullSessionServer.users.size)
     return fullSessionServer
 }
 

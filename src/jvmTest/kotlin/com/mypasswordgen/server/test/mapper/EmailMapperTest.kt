@@ -53,7 +53,7 @@ class EmailMapperTest : MapperTestParent() {
         dummyEmailId = "email123"
         dummySiteNameList = listOf("site1", "site2")
         dummySiteIdsList = mutableListOf("id1", "id2")
-        dummyEmailClientDto = EmailClientDto(dummyEmailId, listOf())
+        dummyEmailClientDto = EmailClientDto(dummyEmailId, setOf())
         dummyFullSiteClientList = listOf(FullSiteClientDto("site1"), FullSiteClientDto("site2"))
         dummyFullEmailClientDto = FullEmailClientDto("email1")
     }
@@ -69,7 +69,7 @@ class EmailMapperTest : MapperTestParent() {
             val emailMapper = EmailMapperImpl(siteMapperMock)
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
             assertEquals(dummyEmailId, emailDto.id)
-            assertTrue(emailDto.siteIdList.isEmpty())
+            assertTrue(emailDto.siteIdSet.isEmpty())
             verify {
                 transaction(statement = any<Transaction.() -> Any>())
             }
@@ -86,7 +86,7 @@ class EmailMapperTest : MapperTestParent() {
             val emailMapper = EmailMapperImpl(siteMapperMock)
             val emailDto = emailMapper.emailToEmailClientDto(emailMock)
             assertEquals(dummyEmailId, emailDto.id)
-            assertEquals(dummySiteIdsList, emailDto.siteIdList)
+            assertEquals(dummySiteIdsList.toSet(), emailDto.siteIdSet)
             verify {
                 transaction(statement = any<Transaction.() -> Any>())
             }
@@ -132,8 +132,9 @@ class EmailMapperTest : MapperTestParent() {
 
             assertEquals(dummyEmailId, result.id)
             assertEquals(2, result.sites.size)
+            val siteList = result.sites.toList()
             for (i in 0..1) {
-                assertEquals(dummyFullSiteClientList[i], result.sites[i])
+                assertEquals(dummyFullSiteClientList[i], siteList[i])
             }
             verifyOrder {
                 emailMock.sites

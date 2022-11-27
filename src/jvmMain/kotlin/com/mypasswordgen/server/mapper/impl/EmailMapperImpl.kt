@@ -26,7 +26,7 @@ class EmailMapperImpl(private val siteMapper: SiteMapper) : EmailMapper {
         logger.debug { "emailToEmailClientDto" }
         EmailClientDto(
             email.id.value.toString(),
-            email.sites.map { site -> site.id.value.toString() }
+            email.sites.map { site -> site.id.value.toString() }.toSet()
         )
     }
 

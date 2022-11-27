@@ -13,12 +13,12 @@ package com.mypasswordgen.common.dto.idb
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserIDBDto(val emails: List<EmailIDBDto>) {
-    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).emailList)
+class UserIDBDto(val emails: Set<EmailIDBDto>) {
+    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).emailSet)
     class Builder {
-        private val emails: MutableList<EmailIDBDto> = mutableListOf()
-        val emailList: List<EmailIDBDto>
-            get() = emails.toList()
+        private val emails: MutableSet<EmailIDBDto> = mutableSetOf()
+        val emailSet: Set<EmailIDBDto>
+            get() = emails.toSet()
         operator fun EmailIDBDto.unaryPlus() = emails.add(this)
     }
 }

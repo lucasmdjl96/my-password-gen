@@ -31,7 +31,6 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.junit.jupiter.api.Nested
@@ -299,117 +298,6 @@ class SessionTest : TestParent() {
                 setBody(FullSessionServerDto())
             }
             assertEquals(HttpStatusCode.Unauthorized, response.status)
-        }
-
-        @Test
-        fun `import session with conflicting sites`() = testApplication {
-            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
-            val username = "User123"
-            val emailAddress = "email1"
-            val siteName = "site1"
-            testTransaction {
-                exec(
-                    """
-                    INSERT INTO SESSIONS (ID)
-                        VALUES ('$initSessionId');
-                """.trimIndent()
-                )
-            }
-            val fullSessionServerDto = FullSessionServerDto {
-                +FullUserServerDto(username) {
-                    +FullEmailServerDto(emailAddress) {
-                        +FullSiteServerDto(siteName)
-                        +FullSiteServerDto(siteName)
-                    }
-                }
-            }
-            val client = createAndConfigureClientWithCookie(initSessionId)
-            val response = client.post(SessionRoute.Import()) {
-                contentType(ContentType.Application.Json)
-                setBody(fullSessionServerDto)
-            }
-            assertEquals(HttpStatusCode.Conflict, response.status)
-            testTransaction {
-                assertNotNull(Session.findById(initSessionId))
-                assertEmpty(Users.select( Users.sessionId eq initSessionId))
-            }
-        }
-
-        @Test
-        fun `import session with conflicting emails`() = testApplication {
-            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
-            val username = "User123"
-            val emailAddress = "email1"
-            val siteName = "site1"
-            val siteName2 = "site2"
-            testTransaction {
-                exec(
-                    """
-                    INSERT INTO SESSIONS (ID)
-                        VALUES ('$initSessionId');
-                """.trimIndent()
-                )
-            }
-            val fullSessionServerDto = FullSessionServerDto {
-                +FullUserServerDto(username) {
-                    +FullEmailServerDto(emailAddress) {
-                        +FullSiteServerDto(siteName)
-                    }
-                    +FullEmailServerDto(emailAddress) {
-                        +FullSiteServerDto(siteName2)
-                    }
-                }
-            }
-            val client = createAndConfigureClientWithCookie(initSessionId)
-            val response = client.post(SessionRoute.Import()) {
-                contentType(ContentType.Application.Json)
-                setBody(fullSessionServerDto)
-            }
-            assertEquals(HttpStatusCode.Conflict, response.status)
-            testTransaction {
-                assertNotNull(Session.findById(initSessionId))
-                assertEmpty(Users.select( Users.sessionId eq initSessionId))
-            }
-        }
-
-        @Test
-        fun `import session with conflicting users`() = testApplication {
-            val initSessionId = UUID.fromString("4f272978-493c-4e4e-a39f-71629c065e4e")
-            val username = "User123"
-            val emailAddress = "email1"
-            val emailAddress2 = "email2"
-            val siteName = "site1"
-            val siteName2 = "site2"
-            testTransaction {
-                exec(
-                    """
-                    INSERT INTO SESSIONS (ID)
-                        VALUES ('$initSessionId');
-                """.trimIndent()
-                )
-            }
-            val fullSessionServerDto = FullSessionServerDto {
-                +FullUserServerDto(username) {
-                    +FullEmailServerDto(emailAddress) {
-                        +FullSiteServerDto(siteName)
-                    }
-                }
-                +FullUserServerDto(username) {
-                    +FullEmailServerDto(emailAddress2) {
-                        +FullSiteServerDto(siteName2)
-                    }
-                }
-            }
-            val client = createAndConfigureClientWithCookie(initSessionId)
-            val response = client.post(SessionRoute.Import()) {
-                contentType(ContentType.Application.Json)
-                setBody(fullSessionServerDto)
-            }
-            assertEquals(HttpStatusCode.Conflict, response.status)
-            testTransaction {
-                assertNotNull(Session.findById(initSessionId))
-                assertEmpty(Users.select( Users.sessionId eq initSessionId))
-            }
         }
 
         @Test

@@ -62,13 +62,13 @@ class UserServiceTest : ServiceTestParent() {
         dummyUserServerDto = UserServerDto("user123")
         dummyUserClientDto = UserClientDto(
             "0544fc3d-f169-431e-83b9-3a240404e8cd",
-            listOf("81d35212-d8aa-4d51-b556-92ba0b0b7b36", "1278a8d9-c5e8-4abd-bbfa-68f29e04094c")
+            setOf("81d35212-d8aa-4d51-b556-92ba0b0b7b36", "1278a8d9-c5e8-4abd-bbfa-68f29e04094c")
         )
         dummyUser = User(EntityID(UUID.fromString("ea83b232-af3d-4f5c-a7fe-8d10da8db6ba"), Users))
         dummyUserId = UUID.fromString("712c2153-80e4-4c29-b08e-71ac72facaa0")
         dummySessionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000")
         dummyFullUserServerDto = FullUserServerDto(
-            "user1", mutableListOf(
+            "user1", mutableSetOf(
                 FullEmailServerDto("email1"), FullEmailServerDto("email2")
             )
         )
@@ -304,7 +304,7 @@ class UserServiceTest : ServiceTestParent() {
             } returns dummyUserId
             every {
                 emailServiceMock.createFullEmail(
-                    dummyFullUserServerDto.emails[0], dummyUserId
+                    dummyFullUserServerDto.emails.iterator().next(), dummyUserId
                 )
             } throws DataConflictException()
             mockTransaction()
@@ -322,7 +322,7 @@ class UserServiceTest : ServiceTestParent() {
             verifyOrder {
                 userRepositoryMock.getByNameAndSession(dummyFullUserServerDto.username, dummySessionId)
                 userRepositoryMock.createAndGetId(dummyFullUserServerDto.username, dummySessionId)
-                emailServiceMock.createFullEmail(dummyFullUserServerDto.emails[0], dummyUserId)
+                emailServiceMock.createFullEmail(dummyFullUserServerDto.emails.iterator().next(), dummyUserId)
             }
         }
 
@@ -355,7 +355,7 @@ class UserServiceTest : ServiceTestParent() {
             )
             val result = userService.createFullUser(dummyFullUserServerDto, dummySessionId)
 
-            assertEquals(dummyEmailIDBDtoList, result.emails)
+            assertEquals(dummyEmailIDBDtoList.toSet(), result.emails)
             verifyOrder {
                 userRepositoryMock.getByNameAndSession(dummyFullUserServerDto.username, dummySessionId)
                 userRepositoryMock.createAndGetId(dummyFullUserServerDto.username, dummySessionId)

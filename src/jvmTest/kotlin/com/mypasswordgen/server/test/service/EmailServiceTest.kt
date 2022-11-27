@@ -70,10 +70,10 @@ class EmailServiceTest : ServiceTestParent() {
         dummyEmail = Email(EntityID(UUID.fromString("7e91ff67-3de2-47bb-970d-9b76ea4c7883"), Emails))
         dummyEmailClientDto = EmailClientDto(
             "1c749bba-b9c5-43c7-8a2b-d6656b9e54b6",
-            listOf("61a403d1-dead-4404-8597-093e3ea94ebf", "525c3b27-efc1-4d1a-a3bf-27c6f6d2f1ea")
+            setOf("61a403d1-dead-4404-8597-093e3ea94ebf", "525c3b27-efc1-4d1a-a3bf-27c6f6d2f1ea")
         )
         dummyFullEmailServerDto = FullEmailServerDto(
-            "email1", mutableListOf(
+            "email1", mutableSetOf(
                 FullSiteServerDto("site1"), FullSiteServerDto("site2")
             )
         )
@@ -430,7 +430,7 @@ class EmailServiceTest : ServiceTestParent() {
             } returns dummyEmailId
             every {
                 siteServiceMock.createFullSite(
-                    dummyFullEmailServerDto.sites[0], dummyEmailId
+                    dummyFullEmailServerDto.sites.iterator().next(), dummyEmailId
                 )
             } throws DataConflictException()
             mockTransaction()
@@ -449,7 +449,7 @@ class EmailServiceTest : ServiceTestParent() {
             verifyOrder {
                 emailRepositoryMock.getByAddressAndUser(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
                 emailRepositoryMock.createAndGetId(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
-                siteServiceMock.createFullSite(dummyFullEmailServerDto.sites[0], dummyEmailId)
+                siteServiceMock.createFullSite(dummyFullEmailServerDto.sites.iterator().next(), dummyEmailId)
             }
         }
 
@@ -485,7 +485,7 @@ class EmailServiceTest : ServiceTestParent() {
 
             assertEquals(dummyFullEmailServerDto.emailAddress, result.emailAddress)
             assertEquals(dummyEmailId.toString(), result.id)
-            assertEquals(dummySiteIDBDtoList, result.sites)
+            assertEquals(dummySiteIDBDtoList.toSet(), result.sites)
             verifyOrder {
                 emailRepositoryMock.getByAddressAndUser(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)
                 emailRepositoryMock.createAndGetId(dummyFullEmailServerDto.emailAddress, dummyUser.id.value)

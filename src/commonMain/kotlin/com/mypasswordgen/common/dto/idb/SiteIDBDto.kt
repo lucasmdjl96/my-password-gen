@@ -13,4 +13,17 @@ package com.mypasswordgen.common.dto.idb
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SiteIDBDto(val id: String, val siteName: String)
+data class SiteIDBDto(val id: String, val siteName: String) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SiteIDBDto) return false
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}

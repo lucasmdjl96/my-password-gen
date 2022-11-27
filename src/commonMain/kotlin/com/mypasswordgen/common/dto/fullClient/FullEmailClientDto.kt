@@ -13,12 +13,28 @@ package com.mypasswordgen.common.dto.fullClient
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FullEmailClientDto(val id: String, val sites: List<FullSiteClientDto>) {
-    constructor(id: String, builderBlock: Builder.() -> Unit = {}) : this(id, Builder().apply(builderBlock).siteList)
+data class FullEmailClientDto(val id: String, val sites: Set<FullSiteClientDto>) {
+
+    constructor(id: String, builderBlock: Builder.() -> Unit = {}) : this(id, Builder().apply(builderBlock).siteSet)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FullEmailClientDto) return false
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
     class Builder {
-        private val sites: MutableList<FullSiteClientDto> = mutableListOf()
-        val siteList: List<FullSiteClientDto>
-            get() = sites.toList()
+        private val sites: MutableSet<FullSiteClientDto> = mutableSetOf()
+        val siteSet: Set<FullSiteClientDto>
+            get() = sites.toSet()
         operator fun FullSiteClientDto.unaryPlus() = sites.add(this)
     }
+
 }

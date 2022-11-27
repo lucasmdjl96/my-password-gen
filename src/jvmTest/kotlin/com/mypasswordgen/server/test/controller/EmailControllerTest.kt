@@ -49,7 +49,7 @@ class EmailControllerTest : ControllerTestParent() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyEmailClientDto = EmailClientDto(
             "60a1ec64-374e-4b13-be94-e70d61cec48d",
-            listOf("ef48a78f-6ca8-4bab-9b8b-1ee34118b07d", "bfa6f332-8854-4b31-bc40-fdeca43f027f")
+            setOf("ef48a78f-6ca8-4bab-9b8b-1ee34118b07d", "bfa6f332-8854-4b31-bc40-fdeca43f027f")
         )
         dummyEmailServerDto = EmailServerDto("email@email.com")
     }

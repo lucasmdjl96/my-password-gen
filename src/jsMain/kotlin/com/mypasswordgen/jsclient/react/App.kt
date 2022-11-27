@@ -178,15 +178,15 @@ suspend fun loginUser(username: String): UserClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val userClientDto = response.body<UserClientDto>()
-        val emailList = mutableListOf<String>()
-        database.readTransaction<Email>() {
-            for (emailId in userClientDto.emailIdList) {
+        val emailSet = mutableSetOf<String>()
+        database.readTransaction<Email> {
+            for (emailId in userClientDto.emailIdSet) {
                 get<Email>(emailId) { email ->
-                    if (email != null) emailList.add(email.emailAddress)
+                    if (email != null) emailSet.add(email.emailAddress)
                 }
             }
         }.awaitCompletion()
-        UserClient(username, emailList)
+        UserClient(username, emailSet)
     }
 }
 
@@ -197,7 +197,13 @@ suspend fun registerUser(username: String): UserClient? {
         setBody(UserServerDto(username))
     }
     return if (response.status != HttpStatusCode.OK) null
-    else UserClient(username)
+    else {
+        val userClientDto = response.body<UserClientDto>()
+        database.readWriteTransaction<User> {
+            add<User>(User(userClientDto.id, username))
+        }
+        UserClient(username)
+    }
 }
 
 suspend fun logoutUser(username: String) {

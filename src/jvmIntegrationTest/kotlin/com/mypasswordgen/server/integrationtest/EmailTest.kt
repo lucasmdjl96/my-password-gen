@@ -157,7 +157,7 @@ class EmailTest : TestParent() {
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<EmailClientDto>()
-                assertEquals(listOf(), responseBody.siteIdList)
+                assertEquals(setOf(), responseBody.siteIdSet)
                 testTransaction {
                     assertNotEmpty(Email.find { Emails.userId eq initUserId and (Emails.emailAddress eq initEmailAddress2Encoded) })
                     val user = User.findById(initUserId)
@@ -208,7 +208,7 @@ class EmailTest : TestParent() {
                 }
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<EmailClientDto>()
-                assertEquals(listOf(), responseBody.siteIdList)
+                assertEquals(setOf(), responseBody.siteIdSet)
                 testTransaction {
                     assertNotEmpty(Email.find { Emails.userId eq initUserId and (Emails.emailAddress eq initEmailAddressEncoded) })
                     val user = User.findById(initUserId)
@@ -447,7 +447,7 @@ class EmailTest : TestParent() {
                 val response = client.get(EmailRoute.Find(initEmailAddress))
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<EmailClientDto>()
-                assertEquals(listOf(initSiteId.toString(), initSiteId2.toString()), responseBody.siteIdList)
+                assertEquals(setOf(initSiteId.toString(), initSiteId2.toString()), responseBody.siteIdSet)
                 testTransaction {
                     val user = User.findById(initUserId)
                     assertNotNull(user)

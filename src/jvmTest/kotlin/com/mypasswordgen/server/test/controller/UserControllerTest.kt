@@ -53,7 +53,7 @@ class UserControllerTest : ControllerTestParent() {
     override fun initDummies() {
         dummyUserClientDto = UserClientDto(
             "cff48f5f-5b1c-4336-ae25-c80de052f8cf",
-            listOf("628a5996-8fa5-417a-99fb-97f12f5acccb", "a5d69d82-5399-43db-b9c1-e380066de0a8")
+            setOf("628a5996-8fa5-417a-99fb-97f12f5acccb", "a5d69d82-5399-43db-b9c1-e380066de0a8")
         )
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyUserServerDto = UserServerDto("userServer123")

@@ -13,15 +13,15 @@ package com.mypasswordgen.jsclient.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UserClient(val username: String, val emailList: MutableList<String>) {
+class UserClient(val username: String, val emailSet: MutableSet<String>) {
 
-    constructor(username: String) : this(username, mutableListOf())
+    constructor(username: String) : this(username, mutableSetOf())
 
-    fun hasEmail(emailAddress: String): Boolean = emailList.find { it == emailAddress } != null
+    fun hasEmail(emailAddress: String): Boolean = emailSet.find { it == emailAddress } != null
 
-    fun addEmail(emailAddress: String) = emailList.add(emailAddress)
+    fun addEmail(emailAddress: String) = emailSet.add(emailAddress)
 
-    fun removeEmail(emailAddress: String) = emailList.remove(emailAddress)
+    fun removeEmail(emailAddress: String) = emailSet.remove(emailAddress)
 
     override fun toString(): String {
         return "[UserDto: $username]"

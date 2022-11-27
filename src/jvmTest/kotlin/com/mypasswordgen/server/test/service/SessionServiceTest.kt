@@ -84,7 +84,7 @@ class SessionServiceTest : ServiceTestParent() {
         dummySessionFrom = Session(EntityID(dummySessionFromId, Sessions))
         dummySessionTo = Session(EntityID(dummySessionToId, Sessions))
 
-        dummyFullSessionServerDto = FullSessionServerDto(mutableListOf(
+        dummyFullSessionServerDto = FullSessionServerDto(mutableSetOf(
             FullUserServerDto("user123"),
             FullUserServerDto("userAbc")
         ))
@@ -403,7 +403,7 @@ class SessionServiceTest : ServiceTestParent() {
             every { sessionRepositoryMock.create() } returns dummySession
             every { sessionServiceSpy.delete(dummySessionDto) } returns Unit
             every {
-                userServiceMock.createFullUser(dummyFullSessionServerDto.users[0], dummySession.id.value)
+                userServiceMock.createFullUser(dummyFullSessionServerDto.users.iterator().next(), dummySession.id.value)
             } throws DataConflictException()
 
             assertThrows<DataConflictException> {
@@ -436,7 +436,7 @@ class SessionServiceTest : ServiceTestParent() {
             val result = sessionServiceSpy.createFullSession(dummySessionDto, dummyFullSessionServerDto)
 
             assertEquals(dummySessionDtoNew, result.first)
-            assertEquals(dummyUserIDBDtoList, result.second.users)
+            assertEquals(dummyUserIDBDtoList.toSet(), result.second.users)
             verifyOrder {
                 sessionRepositoryMock.create()
                 with(sessionMapperMock) {

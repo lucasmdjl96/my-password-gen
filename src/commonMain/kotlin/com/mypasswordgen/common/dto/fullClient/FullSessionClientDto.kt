@@ -13,12 +13,12 @@ package com.mypasswordgen.common.dto.fullClient
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FullSessionClientDto(val users: List<FullUserClientDto>) {
-    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).userList)
+data class FullSessionClientDto(val users: Set<FullUserClientDto>) {
+    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).userSet)
     class Builder {
-        private val users: MutableList<FullUserClientDto> = mutableListOf()
-        val userList: List<FullUserClientDto>
-            get() = users.toList()
+        private val users: MutableSet<FullUserClientDto> = mutableSetOf()
+        val userSet: Set<FullUserClientDto>
+            get() = users.toSet()
         operator fun FullUserClientDto.unaryPlus() = users.add(this)
     }
 }

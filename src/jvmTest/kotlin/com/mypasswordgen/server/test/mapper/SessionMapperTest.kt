@@ -10,6 +10,7 @@
 
 package com.mypasswordgen.server.test.mapper
 
+import com.mypasswordgen.common.dto.fullClient.FullEmailClientDto
 import com.mypasswordgen.common.dto.fullClient.FullSessionClientDto
 import com.mypasswordgen.common.dto.fullClient.FullUserClientDto
 import com.mypasswordgen.server.dto.SessionDto
@@ -45,7 +46,7 @@ class SessionMapperTest : MapperTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummyFullUserClientList = listOf(FullUserClientDto(), FullUserClientDto())
+        dummyFullUserClientList = listOf(FullUserClientDto(), FullUserClientDto(setOf(FullEmailClientDto(""))))
         dummySessionId = UUID.fromString("f2e0b5b3-cc9f-4c9e-8715-df4f51a342bf")
         dummySessionDto = SessionDto(dummySessionId)
         dummyFullSessionClientDto = FullSessionClientDto()
@@ -100,8 +101,9 @@ class SessionMapperTest : MapperTestParent() {
             val result = sessionMapper.sessionToFullSessionClientDto(sessionMock)
 
             assertEquals(2, result.users.size)
+            val userList = result.users.toList()
             for (i in 0..1) {
-                assertEquals(dummyFullUserClientList[i], result.users[i])
+                assertEquals(dummyFullUserClientList[i], userList[i])
             }
             verifyOrder {
                 sessionMock.users

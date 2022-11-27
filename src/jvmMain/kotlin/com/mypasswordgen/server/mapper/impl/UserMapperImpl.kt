@@ -24,7 +24,7 @@ class UserMapperImpl(private val emailMapper: EmailMapper) : UserMapper {
 
     override fun userToUserClientDto(user: User): UserClientDto = transaction {
         logger.debug { "userToUserClientDto" }
-        UserClientDto(user.id.value.toString(), user.emails.map { email -> email.id.value.toString() })
+        UserClientDto(user.id.value.toString(), user.emails.map { email -> email.id.value.toString() }.toSet())
     }
 
     override fun userToFullUserClientDto(user: User) = transaction {

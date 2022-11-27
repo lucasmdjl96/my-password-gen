@@ -31,7 +31,7 @@ var scope = MainScope()
 
 external interface DropListProps : Props {
     var doOnChange: (String) -> Unit
-    var list: List<String>
+    var set: Set<String>
     var name: String
     var inputType: InputType
     var disableAdd: Boolean
@@ -82,7 +82,7 @@ val DropList = FC<DropListProps> { props ->
         }
         datalist {
             id = "${props.name}List"
-            for (item in props.list) {
+            for (item in props.set) {
                 option {
                     key = item
                     value = item

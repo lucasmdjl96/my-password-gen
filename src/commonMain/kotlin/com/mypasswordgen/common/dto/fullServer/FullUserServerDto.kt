@@ -13,13 +13,26 @@ package com.mypasswordgen.common.dto.fullServer
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FullUserServerDto(val username: String, val emails: MutableList<FullEmailServerDto>) {
+data class FullUserServerDto(val username: String, val emails: MutableSet<FullEmailServerDto>) {
     constructor(username: String, builderBlock: Builder.() -> Unit = {}) : this(username, Builder().apply(builderBlock).emails)
     fun addEmail(email: FullEmailServerDto) = emails.add(email)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FullUserServerDto) return false
+
+        if (username != other.username) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return username.hashCode()
+    }
+
     class Builder {
-        val emails: MutableList<FullEmailServerDto> = mutableListOf()
-        val emailList: List<FullEmailServerDto>
-            get() = emails.toList()
+        val emails: MutableSet<FullEmailServerDto> = mutableSetOf()
+        val emailSet: Set<FullEmailServerDto>
+            get() = emails.toSet()
         operator fun FullEmailServerDto.unaryPlus() = emails.add(this)
     }
 }

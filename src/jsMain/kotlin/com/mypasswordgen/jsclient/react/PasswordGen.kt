@@ -47,7 +47,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
     DropList {
         this.name = "email"
         this.inputType = InputType.email
-        this.list = props.userClient.emailList
+        this.set = props.userClient.emailSet
         this.autoFocus = true
         this.doOnChange = { emailAddress ->
             if (props.online) {
@@ -63,7 +63,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
             } else {
                 password = null
                 emailClient = if (emailClient != null) {
-                    EmailClient(emailAddress, emailClient!!.siteList)
+                    EmailClient(emailAddress, emailClient!!.siteSet)
                 } else {
                     EmailClient(emailAddress)
                 }
@@ -113,7 +113,7 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         DropList {
             this.name = "site"
             this.inputType = InputType.text
-            this.list = emailClient!!.siteList
+            this.set = emailClient!!.siteSet
             this.autoFocus = false
             this.doOnChange = { siteName ->
                 siteClient = null
@@ -182,15 +182,15 @@ suspend fun checkEmail(emailAddress: String): EmailClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        val siteList = mutableListOf<String>()
+        val siteSet = mutableSetOf<String>()
         database.readTransaction<Site>() {
-            for (siteId in emailClientDto.siteIdList) {
+            for (siteId in emailClientDto.siteIdSet) {
                 get<Site>(siteId) { site ->
-                    if (site != null) siteList.add(site.siteName)
+                    if (site != null) siteSet.add(site.siteName)
                 }
             }
         }.awaitCompletion()
-        EmailClient(emailAddress, siteList)
+        EmailClient(emailAddress, siteSet)
     }
 }
 
@@ -205,7 +205,7 @@ suspend fun addEmail(emailAddress: String): EmailClient? {
         database.readWriteTransaction<Email>() {
             add<Email>(Email(emailClientDto.id, emailAddress))
         }.awaitCompletion()
-        EmailClient(emailAddress, mutableListOf())
+        EmailClient(emailAddress, mutableSetOf())
     }
 }
 
@@ -216,7 +216,7 @@ suspend fun removeEmail(emailAddress: String): Unit? {
         val emailClientDto = response.body<EmailClientDto>()
         database.biReadWriteTransaction<Email, Site>() {
             delete<Email>(emailClientDto.id)
-            for (siteId in emailClientDto.siteIdList) {
+            for (siteId in emailClientDto.siteIdSet) {
                 delete<Site>(siteId)
             }
         }.awaitCompletion()
