@@ -31,6 +31,7 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import org.w3c.files.FileReader
 import org.w3c.files.get
 import react.FC
@@ -82,20 +83,30 @@ val FileManager = FC<FileManagerProps> { props ->
                             val errorPopup = getHtmlElementById("errorPopup")
                             when (DownloadCode.fromText(text)) {
                                 SESSION -> run {
-                                    val session = DownloadSession.dataFromText(text)
-                                    scope.launch {
-                                        uploadData(session)
-                                        successPopup?.innerText = "Import successful."
-                                        ::click on successPopup
+                                    try {
+                                        val session = DownloadSession.dataFromText(text)
+                                        scope.launch {
+                                            uploadData(session)
+                                            successPopup?.innerText = "Import successful."
+                                            ::click on successPopup
+                                        }
+                                    } catch (e: SerializationException) {
+                                        errorPopup?.innerText = "Import failed. Malformed session data."
+                                        ::click on errorPopup
                                     }
                                 }
 
                                 USER -> run {
-                                    val user = DownloadUser.dataFromText(text)
-                                    scope.launch {
-                                        uploadData(user)
-                                        successPopup?.innerText = "Import successful."
-                                        ::click on successPopup
+                                    try {
+                                        val user = DownloadUser.dataFromText(text)
+                                        scope.launch {
+                                            uploadData(user)
+                                            successPopup?.innerText = "Import successful."
+                                            ::click on successPopup
+                                        }
+                                    } catch (e: SerializationException) {
+                                        errorPopup?.innerText = "Import failed. Malformed user data."
+                                        ::click on errorPopup
                                     }
                                 }
 
