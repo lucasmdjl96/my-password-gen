@@ -55,7 +55,7 @@ class UserMapperTest : MapperTestParent() {
         dummyEmailIdsList = mutableListOf("id1", "id2")
         dummyUserClientDto = UserClientDto(dummyUserId, listOf())
         dummyFullEmailClientList = listOf(FullEmailClientDto("email1"), FullEmailClientDto("email2"))
-        dummyFullUserClientDto = FullUserClientDto()
+        dummyFullUserClientDto = FullUserClientDto("user176")
     }
 
     @Nested
@@ -116,6 +116,7 @@ class UserMapperTest : MapperTestParent() {
         @Test
         fun `with argument`() {
             mockTransaction()
+            every { userMock.id.value.toString() } returns dummyUserId
             every { userMock.emails } returns SizedCollection(emailListMock)
             emailListMock.forEachIndexed { index, email ->
                 every {

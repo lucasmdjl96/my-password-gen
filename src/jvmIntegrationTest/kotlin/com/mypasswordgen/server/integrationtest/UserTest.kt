@@ -636,7 +636,7 @@ class UserTest : TestParent() {
             val initSiteId2 = UUID.fromString("a42836d0-a6ca-4973-a6f1-c90fc9c6a352")
             val initSiteName2 = "SiteXYZ"
             val initSiteNameEncoded2 = initSiteName2.encode()
-            val fullUserClientDto = FullUserClientDto {
+            val fullUserClientDto = FullUserClientDto(initUserId.toString()) {
                 +FullEmailClientDto(initEmailId.toString()) {
                     +FullSiteClientDto(initSiteId.toString())
                     +FullSiteClientDto(initSiteId2.toString())
@@ -676,7 +676,7 @@ class UserTest : TestParent() {
             val initUserId = UUID.fromString("56c7e9f2-fc75-4f1d-8c75-911a867a8811")
             val initUsername = "User123"
             val initUsernameEncoded = initUsername.encode()
-            val fullUserClientDto = FullUserClientDto()
+            val fullUserClientDto = FullUserClientDto(initUserId.toString())
             testTransaction {
                 exec(
                     """

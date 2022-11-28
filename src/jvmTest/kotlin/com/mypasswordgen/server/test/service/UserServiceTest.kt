@@ -73,7 +73,7 @@ class UserServiceTest : ServiceTestParent() {
             )
         )
         dummyEmailIDBDtoList = listOf(EmailIDBDto("id1", "email1x"), EmailIDBDto("id2", "email2x"))
-        dummyFullUserClientDto = FullUserClientDto()
+        dummyFullUserClientDto = FullUserClientDto("user746")
     }
 
     @Nested

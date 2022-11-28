@@ -45,7 +45,7 @@ class SessionMapperTest : MapperTestParent() {
 
     @BeforeEach
     override fun initDummies() {
-        dummyFullUserClientList = listOf(FullUserClientDto(), FullUserClientDto())
+        dummyFullUserClientList = listOf(FullUserClientDto("user132"), FullUserClientDto("user434"))
         dummySessionId = UUID.fromString("f2e0b5b3-cc9f-4c9e-8715-df4f51a342bf")
         dummySessionDto = SessionDto(dummySessionId)
         dummyFullSessionClientDto = FullSessionClientDto()

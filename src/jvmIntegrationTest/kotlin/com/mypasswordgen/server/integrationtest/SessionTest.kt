@@ -167,14 +167,14 @@ class SessionTest : TestParent() {
             val initSiteName2 = "SiteXYZ"
             val initSiteNameEncoded2 = initSiteName2.encode()
             val fullSessionClientDto = FullSessionClientDto {
-                +FullUserClientDto {
+                +FullUserClientDto(initUserId.toString()) {
                     +FullEmailClientDto(initEmailId.toString()) {
                         +FullSiteClientDto(initSiteId.toString())
                         +FullSiteClientDto(initSiteId2.toString())
                     }
                     +FullEmailClientDto(initEmailId2.toString())
                 }
-                +FullUserClientDto()
+                +FullUserClientDto(initUserId2.toString())
             }
             testTransaction {
                 exec(

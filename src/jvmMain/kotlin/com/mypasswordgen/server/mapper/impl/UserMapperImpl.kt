@@ -29,7 +29,7 @@ class UserMapperImpl(private val emailMapper: EmailMapper) : UserMapper {
 
     override fun userToFullUserClientDto(user: User) = transaction {
         logger.debug { "userToFullUserClientDto" }
-        FullUserClientDto {
+        FullUserClientDto(user.id.value.toString()) {
             user.emails.forEach { email ->
                 with(emailMapper) {
                     +email.toFullEmailClientDto()

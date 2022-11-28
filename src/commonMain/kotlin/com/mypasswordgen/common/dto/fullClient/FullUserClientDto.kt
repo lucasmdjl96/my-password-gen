@@ -13,8 +13,8 @@ package com.mypasswordgen.common.dto.fullClient
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FullUserClientDto(val emails: List<FullEmailClientDto>) {
-    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).emailList)
+data class FullUserClientDto(val id: String, val emails: List<FullEmailClientDto>) {
+    constructor(id: String, builderBlock: Builder.() -> Unit = {}) : this(id, Builder().apply(builderBlock).emailList)
     class Builder {
         private val emails: MutableList<FullEmailClientDto> = mutableListOf()
         val emailList: List<FullEmailClientDto>

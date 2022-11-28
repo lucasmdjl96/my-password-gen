@@ -12,6 +12,7 @@ package com.mypasswordgen.jsclient
 
 import com.mypasswordgen.common.dto.idb.EmailIDBDto
 import com.mypasswordgen.common.dto.idb.SiteIDBDto
+import com.mypasswordgen.common.dto.idb.UserIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.jsclient.dto.InitialState
 import com.mypasswordgen.jsclient.plugins.installContentNegotiation
@@ -75,11 +76,14 @@ fun registerServiceWorker() {
 
 fun openIndexedDB() {
     scope.launch {
-        database = openDatabase("database", 1) {
+        database = openDatabase("database", 2) {
             versionChangeLog {
                 version(1) {
                     createObjectStore<Email>(keyPath = "id")
                     createObjectStore<Site>(keyPath = "id")
+                }
+                version(2) {
+                    createObjectStore<User>(keyPath = "id")
                 }
             }
             onBlocked {
@@ -99,6 +103,10 @@ fun openIndexedDB() {
         }*/
     }
 }
+
+@Serializable
+data class User(val id: String, val username: String)
+fun UserIDBDto.toUser() = User(this.id, this.username)
 
 @Serializable
 data class Email(val id: String, val emailAddress: String)
