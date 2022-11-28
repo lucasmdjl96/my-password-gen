@@ -31,18 +31,15 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
-import org.w3c.dom.url.URL
 import org.w3c.files.FileReader
 import org.w3c.files.get
 import react.FC
 import react.Props
 import react.dom.html.InputType
-import react.dom.html.ReactHTML
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.useEffect
 import react.useState
-import kotlin.js.Promise
 
 external interface FileManagerProps : Props {
     var loggedIn: Boolean
@@ -53,10 +50,9 @@ val FileManager = FC<FileManagerProps> { props ->
     var sessionData by useState<FullSessionServerDto>()
     var userData by useState<FullUserServerDto>()
 
-    lateinit var exportPromise: Promise<Unit>
-
     useEffect(props.loggedIn) {
-        sessionData = null
+        if (props.loggedIn) sessionData = null
+        else userData = null
     }
 
     div {
@@ -87,14 +83,10 @@ val FileManager = FC<FileManagerProps> { props ->
                             when (DownloadCode.fromText(text)) {
                                 SESSION -> run {
                                     val session = DownloadSession.dataFromText(text)
-                                    val usernames = session.users.map(FullUserServerDto::username)
-                                    if (usernames.none { username -> username == "FILL_THIS_IN" }) scope.launch {
+                                    scope.launch {
                                         uploadData(session)
                                         successPopup?.innerText = "Import successful."
                                         ::click on successPopup
-                                    } else {
-                                        errorPopup?.innerText = "Import failed. Please fill in the correct usernames in the file."
-                                        ::click on errorPopup
                                     }
                                 }
 
@@ -127,32 +119,15 @@ val FileManager = FC<FileManagerProps> { props ->
                 } else if (userData == null && props.loggedIn) scope.launch {
                     userData = downloadUserData(props.username!!)
                 } else {
-                    exportPromise.then {
-                        ::click on getHtmlElementById("exportButton")!!
-                    }
+                    ::click on getHtmlElementById("exportButton")!!
                 }
             }
         }
-        ReactHTML.a {
-            id = "exportButton"
-            hidden = true
-            exportPromise = Promise { resolve, reject ->
-                if (sessionData != null && !props.loggedIn) {
-                    download = "my-password-gen-session.json"
-                    val file = DownloadSession(sessionData!!).toFile()
-                    href = URL.createObjectURL(file)
-                    resolve(Unit)
-                }
-                if (userData != null && props.loggedIn) {
-                    download = "my-password-gen-user.json"
-                    val file = DownloadUser(userData!!).toFile()
-                    href = URL.createObjectURL(file)
-                    resolve(Unit)
-                }
-            }.then {
-                ::click on getHtmlElementById("exportButton")!!
-                userData = null
-            }
+        ExportButton {
+            this.loggedIn = props.loggedIn
+            this.sessionData = sessionData
+            this.userData = userData
+            this.unsetUserData = { userData = null }
         }
     }
 }
