@@ -13,7 +13,7 @@ package com.mypasswordgen.common.dto.fullServer
 import kotlinx.serialization.Serializable
 
 @Serializable
-class FullSessionServerDto(val users: MutableSet<FullUserServerDto>) {
+data class FullSessionServerDto(val users: MutableSet<FullUserServerDto>) {
     constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).users)
     fun addUser(user: FullUserServerDto) = users.add(user)
     class Builder {
