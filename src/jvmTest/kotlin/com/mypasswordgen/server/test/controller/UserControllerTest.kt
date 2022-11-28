@@ -58,8 +58,8 @@ class UserControllerTest : ControllerTestParent() {
         dummySessionDto = SessionDto(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
         dummyUserServerDto = UserServerDto("userServer123")
         dummyFullUserServerDto = FullUserServerDto("User123")
-        dummyUserIDBDto = UserIDBDto()
-        dummyFullUserClientDto = FullUserClientDto()
+        dummyUserIDBDto = UserIDBDto("b4d79165-7afa-4bd7-9ce6-444cb9d2fb0c", "UserXYz")
+        dummyFullUserClientDto = FullUserClientDto("userAbc")
     }
 
     @Nested

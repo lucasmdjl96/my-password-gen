@@ -183,7 +183,7 @@ suspend fun checkEmail(emailAddress: String): EmailClient? {
     else {
         val emailClientDto = response.body<EmailClientDto>()
         val siteSet = mutableSetOf<String>()
-        database.readTransaction<Site>() {
+        database.readTransaction<Site> {
             for (siteId in emailClientDto.siteIdSet) {
                 get<Site>(siteId) { site ->
                     if (site != null) siteSet.add(site.siteName)
@@ -202,7 +202,7 @@ suspend fun addEmail(emailAddress: String): EmailClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        database.readWriteTransaction<Email>() {
+        database.readWriteTransaction<Email> {
             add<Email>(Email(emailClientDto.id, emailAddress))
         }.awaitCompletion()
         EmailClient(emailAddress, mutableSetOf())
@@ -214,7 +214,7 @@ suspend fun removeEmail(emailAddress: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val emailClientDto = response.body<EmailClientDto>()
-        database.biReadWriteTransaction<Email, Site>() {
+        database.biReadWriteTransaction<Email, Site> {
             delete<Email>(emailClientDto.id)
             for (siteId in emailClientDto.siteIdSet) {
                 delete<Site>(siteId)
@@ -237,7 +237,7 @@ suspend fun addSite(siteName: String): SiteClient? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val siteClientDto = response.body<SiteClientDto>()
-        database.readWriteTransaction<Site>() {
+        database.readWriteTransaction<Site> {
             add<Site>(Site(siteClientDto.id, siteName))
         }.awaitCompletion()
         SiteClient(siteName)
@@ -249,7 +249,7 @@ suspend fun removeSite(siteName: String): Unit? {
     return if (response.status != HttpStatusCode.OK) null
     else {
         val siteClientDto = response.body<SiteClientDto>()
-        database.readWriteTransaction<Site>() {
+        database.readWriteTransaction<Site> {
             delete<Site>(siteClientDto.id)
         }.awaitCompletion()
     }

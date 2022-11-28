@@ -88,7 +88,7 @@ val FileManager = FC<FileManagerProps> { props ->
                                 SESSION -> run {
                                     val session = DownloadSession.dataFromText(text)
                                     val usernames = session.users.map(FullUserServerDto::username)
-                                    if (usernames.none { username -> username.startsWith("FILL_THIS_IN_") }) scope.launch {
+                                    if (usernames.none { username -> username == "FILL_THIS_IN" }) scope.launch {
                                         uploadData(session)
                                         successPopup?.innerText = "Import successful."
                                         ::click on successPopup
@@ -162,18 +162,30 @@ suspend fun downloadSessionData(): FullSessionServerDto? {
     val response = jsonClient.get(SessionRoute.Export())
     if (response.status != HttpStatusCode.OK) return null
     val fullSessionClient = response.body<FullSessionClientDto>()
-    console.log("fullSessionClient", fullSessionClient.users.size)
     val fullSessionServer = FullSessionServerDto()
-    database.biReadTransaction<Email, Site> {
-        var i = 1
+    database.triReadTransaction<User, Email, Site> {
         for (fullUserClient in fullSessionClient.users) {
-            val fullUserServer = FullUserServerDto("FILL_THIS_IN_${i++}")
-            fullSessionServer.addUser(fullUserServer)
-            loadUserData(fullUserClient, fullUserServer)
+            get<User>(fullUserClient.id) { user ->
+                if (user != null) {
+                    val fullUserServer = FullUserServerDto(user.username)
+                    fullSessionServer.addUser(fullUserServer)
+                    loadUserData(fullUserClient, fullUserServer)
+                }
+            }
         }
     }.awaitCompletion()
-    console.log("fullSessionServer", fullSessionServer.users.size)
     return fullSessionServer
+}
+
+suspend fun downloadUserData(username: String): FullUserServerDto? {
+    val response = jsonClient.get(UserRoute.Export(username))
+    if (response.status != HttpStatusCode.OK) return null
+    val fullUserClient = response.body<FullUserClientDto>()
+    val fullUserServer = FullUserServerDto(username)
+    database.biReadTransaction<Email, Site> {
+        loadUserData(fullUserClient, fullUserServer)
+    }.awaitCompletion()
+    return fullUserServer
 }
 
 private inline fun IDBTransaction.loadUserData(
@@ -198,17 +210,6 @@ private inline fun IDBTransaction.loadUserData(
     }
 }
 
-suspend fun downloadUserData(username: String): FullUserServerDto? {
-    val response = jsonClient.get(UserRoute.Export(username))
-    if (response.status != HttpStatusCode.OK) return null
-    val fullUserClient = response.body<FullUserClientDto>()
-    val fullUserServer = FullUserServerDto(username)
-    database.biReadTransaction<Email, Site> {
-        loadUserData(fullUserClient, fullUserServer)
-    }.awaitCompletion()
-    return fullUserServer
-}
-
 suspend fun uploadData(fullSessionServerDto: FullSessionServerDto) {
     val result = jsonClient.post(SessionRoute.Import()) {
         setBody(fullSessionServerDto)
@@ -216,15 +217,10 @@ suspend fun uploadData(fullSessionServerDto: FullSessionServerDto) {
     }
     if (result.status != HttpStatusCode.OK) return
     val session = result.body<SessionIDBDto>()
-    database.biReadWriteTransaction<Email, Site> {
-        onSuccessOf(clear<Email>(), clear<Site>()) {
+    database.triReadWriteTransaction<User, Email, Site> {
+        onSuccessOf(clear<User>(), clear<Email>(), clear<Site>()) {
             for (user in session.users) {
-                for (email in user.emails) {
-                    add<Email>(email.toEmail())
-                    for (site in email.sites) {
-                        add<Site>(site.toSite())
-                    }
-                }
+                storeUserData(user)
             }
         }
     }.awaitCompletion()
@@ -237,12 +233,17 @@ suspend fun uploadData(fullUserServerDto: FullUserServerDto) {
     }
     if (result.status != HttpStatusCode.OK) return
     val user = result.body<UserIDBDto>()
-    database.biReadWriteTransaction<Email, Site> {
-        for (email in user.emails) {
-            add<Email>(email.toEmail())
-            for (site in email.sites) {
-                add<Site>(site.toSite())
-            }
-        }
+    database.triReadWriteTransaction<User, Email, Site> {
+        storeUserData(user)
     }.awaitCompletion()
+}
+
+inline fun IDBTransaction.storeUserData(user: UserIDBDto) {
+    add<User>(user.toUser())
+    for (email in user.emails) {
+        add<Email>(email.toEmail())
+        for (site in email.sites) {
+            add<Site>(site.toSite())
+        }
+    }
 }

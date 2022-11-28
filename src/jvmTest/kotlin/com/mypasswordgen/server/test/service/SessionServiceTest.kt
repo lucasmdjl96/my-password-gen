@@ -89,8 +89,8 @@ class SessionServiceTest : ServiceTestParent() {
             FullUserServerDto("userAbc")
         ))
         dummyUserIDBDtoList = listOf(
-            UserIDBDto(),
-            UserIDBDto()
+            UserIDBDto("75e218a6-f854-4a23-812b-dcfc2aad05eb", "user089"),
+            UserIDBDto("bec73a0a-9fbf-44ec-bf08-b310b969fa7b", "user645")
         )
         dummyFullSessionClientDto = FullSessionClientDto()
     }

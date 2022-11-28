@@ -272,6 +272,12 @@ inline fun <reified T/* : StoreType<T>*/, reified S/* : StoreType<S>*/> IDBDatab
 inline fun <reified T/* : StoreType<T>*/, reified S/* : StoreType<S>*/> IDBDatabase.biReadTransaction(block: IDBTransaction.() -> Unit = {}) =
     readTransaction(T::class.simpleName!!, S::class.simpleName!!).apply(block)
 
+inline fun <reified T/* : StoreType<T>*/, reified S/* : StoreType<S>*/, reified R> IDBDatabase.triReadWriteTransaction(block: IDBTransaction.() -> Unit = {}) =
+    readWriteTransaction(T::class.simpleName!!, S::class.simpleName!!, R::class.simpleName!!).apply(block)
+
+inline fun <reified T/* : StoreType<T>*/, reified S/* : StoreType<S>*/, reified R> IDBDatabase.triReadTransaction(block: IDBTransaction.() -> Unit = {}) =
+    readTransaction(T::class.simpleName!!, S::class.simpleName!!, R::class.simpleName!!).apply(block)
+
 inline fun DOMStringList.toList() = buildList {
     var i = 0
     while (i < this@toList.length) {

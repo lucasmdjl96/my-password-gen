@@ -68,7 +68,7 @@ class UserServiceImpl(
         val username = fullUser.username
         if (userRepository.getByNameAndSession(username, sessionId) != null) throw DataConflictException("Import failed. Username already exists.")
         val id = userRepository.createAndGetId(username, sessionId)
-        UserIDBDto {
+        UserIDBDto(username = username, id = id.toString()) {
             for (fullEmail in fullUser.emails) {
                 +emailService.createFullEmail(fullEmail, id)
             }
