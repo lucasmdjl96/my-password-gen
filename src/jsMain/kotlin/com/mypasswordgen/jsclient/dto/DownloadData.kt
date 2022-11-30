@@ -17,19 +17,24 @@ import kotlinx.serialization.json.Json
 import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 
-val jsonFormatter = Json {
+val prettyJsonFormatter = Json {
     prettyPrint = true
 }
 
 private const val codeName = "code"
 
 @Serializable
-enum class DownloadCode {
-    SESSION,
-    USER,
+enum class DownloadCode(val short: String) {
+    SESSION("S"),
+    USER("U"),
     ;
 
     companion object {
+        private val fromShort = buildMap {
+            for (code in DownloadCode.values()) {
+                put(code.short, code)
+            }
+        }
         fun fromText(text: String): DownloadCode? {
             val codes = DownloadCode.values().joinToString("|", "(", ")")
             val regex = Regex(
@@ -39,6 +44,13 @@ enum class DownloadCode {
             )
             val (code) = regex.find(text)?.destructured ?: return null
             return DownloadCode.valueOf(code)
+        }
+
+        fun fromShortText(text: String): DownloadCode? {
+            val shortCodes = DownloadCode.values().joinToString("|", "^(", ")") { it.short }
+            val regex = Regex(shortCodes)
+            val (shortCode) = regex.find(text)?.destructured ?: return null
+            return fromShort[shortCode]
         }
     }
 
@@ -50,12 +62,17 @@ class DownloadSession(override val data: FullSessionServerDto) : DownloadFile<Fu
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     @SerialName(codeName)
     override val downloadCode: DownloadCode = DownloadCode.SESSION
+    override fun toText(pretty: Boolean) =
+        if (pretty) prettyJsonFormatter.encodeToString(this)
+        else UglySerializer.serialize(this)
     override fun toFile() = Blob(
-        arrayOf(jsonFormatter.encodeToString(this)),
+        arrayOf(toText()),
         BlobPropertyBag(type = "application/json")
     )
     companion object {
-        fun fromText(text: String): DownloadSession = jsonFormatter.decodeFromString(text)
+        fun fromText(text: String, pretty: Boolean = true): DownloadSession =
+            if (pretty) prettyJsonFormatter.decodeFromString(text)
+            else UglySerializer.deserializeSession(text)
         fun dataFromText(text: String) = fromText(text).data
     }
 }
@@ -66,12 +83,17 @@ class DownloadUser(override val data: FullUserServerDto) : DownloadFile<FullUser
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     @SerialName(codeName)
     override val downloadCode: DownloadCode = DownloadCode.USER
+    override fun toText(pretty: Boolean) =
+        if (pretty) prettyJsonFormatter.encodeToString(this)
+        else UglySerializer.serialize(this)
     override fun toFile() = Blob(
-        arrayOf(jsonFormatter.encodeToString(this)),
+        arrayOf(toText()),
         BlobPropertyBag(type = "application/json")
     )
     companion object {
-        fun fromText(text: String): DownloadUser = jsonFormatter.decodeFromString(text)
+        fun fromText(text: String, pretty: Boolean = true): DownloadUser =
+            if (pretty) prettyJsonFormatter.decodeFromString(text)
+            else UglySerializer.deserializeUser(text)
         fun dataFromText(text: String) = fromText(text).data
     }
 }
@@ -81,6 +103,7 @@ sealed interface DownloadFile<T> {
     val data: T
     val downloadCode: DownloadCode
 
+    fun toText(pretty: Boolean = true): String
     fun toFile(): Blob/* = Blob(
         arrayOf(jsonFormatter.encodeToString(this)),
         BlobPropertyBag(type = "application/json")
