@@ -50,6 +50,7 @@ external interface FileManagerProps : Props {
 val FileManager = FC<FileManagerProps> { props ->
     var sessionData by useState<FullSessionServerDto>()
     var userData by useState<FullUserServerDto>()
+    var exportType: ExportType by useState(ExportType.FILE)
 
     useEffect(props.loggedIn) {
         if (props.loggedIn) sessionData = null
@@ -124,7 +125,8 @@ val FileManager = FC<FileManagerProps> { props ->
         div {
             +"Export"
             id = "export"
-            onClick = {
+            onClick = { event ->
+                event.stopPropagation()
                 if (sessionData == null && !props.loggedIn) scope.launch {
                     sessionData = downloadSessionData()
                 } else if (userData == null && props.loggedIn) scope.launch {
@@ -139,6 +141,14 @@ val FileManager = FC<FileManagerProps> { props ->
             this.sessionData = sessionData
             this.userData = userData
             this.unsetUserData = { userData = null }
+            this.exportType = exportType
+        }
+        div {
+            className = CssClasses.materialIconOutlined
+            +if (exportType == ExportType.FILE) "radio_button_unchecked" else "radio_button_checked"
+            onClick = {
+                exportType = if (exportType == ExportType.FILE) ExportType.QR else ExportType.FILE
+            }
         }
     }
 }

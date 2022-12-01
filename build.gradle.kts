@@ -108,6 +108,7 @@ kotlin {
                 implementation(libs.bundles.ktor.client)
                 implementation(project.dependencies.enforcedPlatform(libs.libraries.wrappers))
                 implementation(libs.bundles.wrappers)
+                implementation(npm("qrcode.react", "3.1.0"))
             }
         }
         val jsTest by getting {
