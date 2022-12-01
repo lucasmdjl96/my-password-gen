@@ -69,9 +69,11 @@ val App = { initialState: InitialState ->
                 this.background = background
                 this.updateBackground = { color -> background = color }
             }
-            if (!keyboardUp && online) FileManager {
-                this.loggedIn = userClient != null
-                this.username = userClient?.username
+            div {//to fix infinite autofocus on mobile
+                if (!keyboardUp && online) FileManager {
+                    this.loggedIn = userClient != null
+                    this.username = userClient?.username
+                }
             }
             MainPopup {
                 this.showErrorPopup = showErrorPopup
