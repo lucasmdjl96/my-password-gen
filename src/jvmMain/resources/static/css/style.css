@@ -46,10 +46,11 @@ body {
     font-size: 1.6rem;
     color: hsl(0, 100%, 100%);
     margin: 2rem;
-    gap: 4rem
+    gap: 4rem;
+    z-index: 1;
 }
 
-.fileManagerContainer div {
+.fileManagerContainer > div {
     cursor: pointer;
     text-decoration: underline;
 }
@@ -287,6 +288,7 @@ input + .material-icons {
     color: grey;
     cursor: pointer;
     width: 0;
+    z-index: inherit;
 }
 
 .cookieBanner {
@@ -394,6 +396,33 @@ input + .material-icons {
     top: 50px;
     text-align: center;
 }
+
+.qrContainerOuter {
+    width: 0;
+    height: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.qrContainerMid {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsla(0, 0%, 50%, 0.5);
+    cursor: default;
+}
+
+.qrContainerInner {
+    border-radius: 10px;
+    padding: 40px;
+    background: hsl(0, 0%, 95%);
+    cursor: none;
+}
+
+
 
 @media (hover: none) {
     .buttonContainer button:hover {

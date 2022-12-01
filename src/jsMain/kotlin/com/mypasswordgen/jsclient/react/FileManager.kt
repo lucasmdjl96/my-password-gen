@@ -125,8 +125,7 @@ val FileManager = FC<FileManagerProps> { props ->
         div {
             +"Export"
             id = "export"
-            onClick = { event ->
-                event.stopPropagation()
+            onClick = {
                 if (sessionData == null && !props.loggedIn) scope.launch {
                     sessionData = downloadSessionData()
                 } else if (userData == null && props.loggedIn) scope.launch {

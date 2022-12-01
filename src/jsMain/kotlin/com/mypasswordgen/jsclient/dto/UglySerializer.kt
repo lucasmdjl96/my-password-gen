@@ -54,9 +54,9 @@ object UglySerializer {
     }
 
     private fun serialize(fullSessionServerDto: FullSessionServerDto): String {
-        return fullSessionServerDto.users.joinToString("", "[", "]") {
+        return "[" + fullSessionServerDto.users.joinToString("") {
             serialize(it)
-        }.replace("[]", ",").replace(",]", "]")
+        }.replace("[]", ",").replace(",]", "]") + "]"
     }
 
     fun serialize(downloadSession: DownloadSession): String {
@@ -64,13 +64,13 @@ object UglySerializer {
     }
 
     fun serialize(downloadUser: DownloadUser): String {
-        return "${downloadUser.downloadCode.short}{${serialize(downloadUser.data)}}"
+        return "${downloadUser.downloadCode.short}[${serialize(downloadUser.data)}]".replace(",]", "]")
     }
 
     fun deserializeUser(downloadUser: String): DownloadUser {
-        if (!downloadUser.startsWith("${DownloadCode.USER.short}{")
-            || !downloadUser.endsWith("}")) throw SerializationException()
-        val str = downloadUser.substringBetween("${DownloadCode.USER.short}{", "}")
+        if (!downloadUser.startsWith("${DownloadCode.USER.short}[")
+            || !downloadUser.endsWith("]")) throw SerializationException()
+        val str = downloadUser.substringBetween("${DownloadCode.USER.short}[", "]")
         val tree = deserializeBase(str).groupBy { node -> node.parent }
         if (tree[null]?.size != 1) throw SerializationException()
         val user = tree[null]!![0]

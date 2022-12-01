@@ -12,10 +12,10 @@ package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
 import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
+import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.QRCodeSVG
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
-import kotlinx.browser.window
 import kotlinx.js.jso
 import org.w3c.dom.url.URL
 import react.FC
@@ -40,13 +40,13 @@ val ExportButton = FC<ExportButtonProps> { props ->
     val userAvailable = props.loggedIn && props.userData != null
 
     useEffect(props.sessionData, props.userData) {
-            if (sessionAvailable) {
-                ::click on getHtmlElementById("exportButton")!!
-            }
-            if (userAvailable) {
-                ::click on getHtmlElementById("exportButton")!!
-                if (props.exportType == ExportType.FILE) props.unsetUserData()
-            }
+        if (sessionAvailable) {
+            ::click on getHtmlElementById("exportButton")!!
+        }
+        if (userAvailable) {
+            ::click on getHtmlElementById("exportButton")!!
+            if (props.exportType == ExportType.FILE) props.unsetUserData()
+        }
     }
     if (props.exportType == ExportType.FILE) a {
         id = "exportButton"
@@ -63,21 +63,38 @@ val ExportButton = FC<ExportButtonProps> { props ->
         }
     }
     if (props.exportType == ExportType.QR) div {
+        id = "qrContainer"
         hidden = !sessionAvailable && !userAvailable || !showQR
-        id = "exportButton"
-        onClick = { event ->
-            event.stopPropagation()
-            if (showQR) showQR = false
-            else {
-                showQR = true
-                window.document.addEventListener("click", {
-                    showQR = false
-                }, jso { once = true })
+        className = CssClasses.qrContainerOuter
+        if (sessionAvailable || userAvailable) div {
+            className = CssClasses.qrContainerMid
+            div {
+                className = CssClasses.qrContainerInner
+                id = "exportButton"
+                onClick = { event ->
+                    event.stopPropagation()
+                    if (showQR) showQR = false
+                    else {
+                        showQR = true
+                        getHtmlElementById("qrContainer")!!.addEventListener("click", {
+                            showQR = false
+                        }, jso { once = true })
+                    }
+                }
+                QRCodeSVG {
+                    value =
+                        if (sessionAvailable) DownloadSession(props.sessionData!!).toText(pretty = false)
+                        else DownloadUser(props.userData!!).toText(pretty = false)
+                    size = 256
+                    includeMargin = true
+                    /*imageSettings = object : ImageSettings {
+                    override var src = "/static/icons/icon.svg"
+                    override var height = 50
+                    override var width = 50
+                    override var excavate = false
+                }*/
+                }
             }
-        }
-        if (sessionAvailable || userAvailable) QRCodeSVG {
-            value = if (sessionAvailable) DownloadSession(props.sessionData!!).toText(pretty = false)
-            else DownloadUser(props.userData!!).toText(pretty = false)
         }
     }
 }

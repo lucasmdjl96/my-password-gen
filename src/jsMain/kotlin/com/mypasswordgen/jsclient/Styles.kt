@@ -71,6 +71,10 @@ object CssClasses {
     val successPopup = ClassName("successPopup")
 
     val mainPopupContainer = ClassName("mainPopupContainer")
+
+    val qrContainerOuter = ClassName("qrContainerOuter")
+    val qrContainerMid = ClassName("qrContainerMid")
+    val qrContainerInner = ClassName("qrContainerInner")
 }
 
 @Suppress("NOTHING_TO_INLINE")
