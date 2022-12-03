@@ -24,7 +24,6 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.browser.document
-import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
@@ -78,7 +77,6 @@ val App = { initialState: InitialState ->
                     this.importExportType = importExportType
                     this.updateImportExportType = {
                         importExportType = it
-                        localStorage.setItem("importExportType", it.code)
                     }
                 }
             }

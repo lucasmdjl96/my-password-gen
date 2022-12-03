@@ -50,7 +50,6 @@ val ImportButton = FC<ImportButtonProps> { props ->
     fun showScanner() {
         hideScanner = false
     }
-
     fun hideScanner() {
         hideScanner = true
     }

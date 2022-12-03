@@ -294,7 +294,6 @@ input + .material-icons {
     color: grey;
     cursor: pointer;
     width: 0;
-    z-index: inherit;
 }
 
 .cookieBanner {

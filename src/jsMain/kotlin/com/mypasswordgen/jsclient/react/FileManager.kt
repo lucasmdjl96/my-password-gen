@@ -25,6 +25,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.browser.localStorage
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.Event
@@ -92,10 +93,11 @@ val FileManager = FC<FileManagerProps> { props ->
             className = CssClasses.materialIconOutlined
             +if (props.importExportType == ImportExportType.FILE) "description" else "qr_code"
             onClick = {
-                props.updateImportExportType(
+                val newImportExportType =
                     if (props.importExportType == ImportExportType.FILE) ImportExportType.QR
                     else ImportExportType.FILE
-                )
+                props.updateImportExportType(newImportExportType)
+                localStorage.setItem("importExportType", newImportExportType.code)
             }
         }
     }
