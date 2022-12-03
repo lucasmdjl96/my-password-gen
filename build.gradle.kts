@@ -109,6 +109,7 @@ kotlin {
                 implementation(project.dependencies.enforcedPlatform(libs.libraries.wrappers))
                 implementation(libs.bundles.wrappers)
                 implementation(npm("qrcode.react", "3.1.0"))
+                implementation(npm("react-qr-reader", "3.0.0-beta-1"))
             }
         }
         val jsTest by getting {

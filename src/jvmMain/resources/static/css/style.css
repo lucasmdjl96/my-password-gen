@@ -55,6 +55,12 @@ body {
     text-decoration: underline;
 }
 
+.fileManagerContainer > div.material-icons-outlined {
+    position: relative;
+    bottom: 0.2rem;
+    text-decoration: none;
+    z-index: -1;
+}
 .container {
     display: flex;
     flex-direction: column;

@@ -16,7 +16,9 @@ import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.QRCodeSVG
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
-import kotlinx.js.jso
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.EventTarget
 import org.w3c.dom.url.URL
 import react.FC
 import react.Props
@@ -25,29 +27,37 @@ import react.dom.html.ReactHTML.div
 import react.useEffect
 import react.useState
 
+private val qrCodeContainer: HTMLElement?
+    get() = getHtmlElementById("qrCodeContainer")
+private val exportButton: HTMLElement?
+    get() = getHtmlElementById("exportButton")
+
 external interface ExportButtonProps : Props {
     var loggedIn: Boolean
     var sessionData: FullSessionServerDto?
     var userData: FullUserServerDto?
     var unsetUserData: () -> Unit
-    var exportType: ExportType?
+    var exportType: ExportType
 }
 
 val ExportButton = FC<ExportButtonProps> { props ->
-    var showQR by useState(false)
+    var hideQR by useState(true)
+    fun showQR() { hideQR = false }
+    fun hideQR() { hideQR = true }
 
     val sessionAvailable = !props.loggedIn && props.sessionData != null
     val userAvailable = props.loggedIn && props.userData != null
 
     useEffect(props.sessionData, props.userData) {
         if (sessionAvailable) {
-            ::click on getHtmlElementById("exportButton")!!
+            ::click on exportButton!!
         }
         if (userAvailable) {
-            ::click on getHtmlElementById("exportButton")!!
+            ::click on exportButton!!
             if (props.exportType == ExportType.FILE) props.unsetUserData()
         }
     }
+
     if (props.exportType == ExportType.FILE) a {
         id = "exportButton"
         hidden = true
@@ -63,22 +73,20 @@ val ExportButton = FC<ExportButtonProps> { props ->
         }
     }
     if (props.exportType == ExportType.QR) div {
-        id = "qrContainer"
-        hidden = !sessionAvailable && !userAvailable || !showQR
+        hidden = !sessionAvailable && !userAvailable || hideQR
         className = CssClasses.qrContainerOuter
         if (sessionAvailable || userAvailable) div {
+            id = "qrCodeContainer"
             className = CssClasses.qrContainerMid
             div {
                 className = CssClasses.qrContainerInner
                 id = "exportButton"
-                onClick = { event ->
-                    event.stopPropagation()
-                    if (showQR) showQR = false
-                    else {
-                        showQR = true
-                        getHtmlElementById("qrContainer")!!.addEventListener("click", {
-                            showQR = false
-                        }, jso { once = true })
+                onClick = {
+                    if (hideQR) {
+                        showQR()
+                        qrCodeContainer!!.addEventListenerOnceWhen("click", Event::wasFiredHere) {
+                            hideQR()
+                        }
                     }
                 }
                 QRCodeSVG {
@@ -102,3 +110,15 @@ val ExportButton = FC<ExportButtonProps> { props ->
 enum class ExportType {
     FILE, QR;
 }
+
+fun EventTarget.addEventListenerOnceWhen(type: String, predicate: (Event) -> Boolean, callback: (Event) -> Unit) {
+    fun selfRemovingCallback(event: Event) {
+        if (predicate(event)) {
+            callback(event)
+            removeEventListener(type, ::selfRemovingCallback)
+        }
+    }
+    addEventListener(type, ::selfRemovingCallback)
+}
+
+fun Event.wasFiredHere(): Boolean = this.target == this.currentTarget

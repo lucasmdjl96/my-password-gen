@@ -73,7 +73,7 @@ class DownloadSession(override val data: FullSessionServerDto) : DownloadFile<Fu
         fun fromText(text: String, pretty: Boolean = true): DownloadSession =
             if (pretty) prettyJsonFormatter.decodeFromString(text)
             else UglySerializer.deserializeSession(text)
-        fun dataFromText(text: String) = fromText(text).data
+        fun dataFromText(text: String, pretty: Boolean = true) = fromText(text, pretty).data
     }
 }
 
@@ -94,7 +94,7 @@ class DownloadUser(override val data: FullUserServerDto) : DownloadFile<FullUser
         fun fromText(text: String, pretty: Boolean = true): DownloadUser =
             if (pretty) prettyJsonFormatter.decodeFromString(text)
             else UglySerializer.deserializeUser(text)
-        fun dataFromText(text: String) = fromText(text).data
+        fun dataFromText(text: String, pretty: Boolean = true) = fromText(text, pretty).data
     }
 }
 

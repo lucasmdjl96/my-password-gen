@@ -21,26 +21,22 @@ import com.mypasswordgen.common.dto.idb.UserIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.common.routes.UserRoute
 import com.mypasswordgen.jsclient.*
-import com.mypasswordgen.jsclient.dto.DownloadCode
-import com.mypasswordgen.jsclient.dto.DownloadCode.SESSION
-import com.mypasswordgen.jsclient.dto.DownloadCode.USER
-import com.mypasswordgen.jsclient.dto.DownloadSession
-import com.mypasswordgen.jsclient.dto.DownloadUser
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.SerializationException
-import org.w3c.files.FileReader
-import org.w3c.files.get
+import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
-import react.dom.html.InputType
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.input
 import react.useEffect
 import react.useState
+
+private val importButton: HTMLElement?
+    get() = getHtmlElementById("importButton")
+private val exportButton: HTMLElement?
+    get() = getHtmlElementById("exportButton")
 
 external interface FileManagerProps : Props {
     var loggedIn: Boolean
@@ -63,64 +59,11 @@ val FileManager = FC<FileManagerProps> { props ->
             +"Import"
             id = "import"
             onClick = {
-                ::click on getHtmlElementById("importButton")!!
+                ::click on importButton!!
             }
         }
-        if (!props.loggedIn) input {
-            id = "importButton"
-            hidden = true
-            type = InputType.file
-            accept = ".json,application/json"
-            multiple = false
-            value = ""
-            onChange = { event ->
-                if (event.target.files != null && event.target.files!!.length == 1) {
-                    val file = event.target.files!![0]!!
-                    if (file.type == "application/json") {
-                        val reader = FileReader()
-                        reader.onload = {
-                            val text = reader.result as String
-                            val successPopup = getHtmlElementById("successPopup")
-                            val errorPopup = getHtmlElementById("errorPopup")
-                            when (DownloadCode.fromText(text)) {
-                                SESSION -> run {
-                                    try {
-                                        val session = DownloadSession.dataFromText(text)
-                                        scope.launch {
-                                            uploadData(session)
-                                            successPopup?.innerText = "Import successful."
-                                            ::click on successPopup
-                                        }
-                                    } catch (e: SerializationException) {
-                                        errorPopup?.innerText = "Import failed. Malformed session data."
-                                        ::click on errorPopup
-                                    }
-                                }
-
-                                USER -> run {
-                                    try {
-                                        val user = DownloadUser.dataFromText(text)
-                                        scope.launch {
-                                            uploadData(user)
-                                            successPopup?.innerText = "Import successful."
-                                            ::click on successPopup
-                                        }
-                                    } catch (e: SerializationException) {
-                                        errorPopup?.innerText = "Import failed. Malformed user data."
-                                        ::click on errorPopup
-                                    }
-                                }
-
-                                null -> run {
-                                    errorPopup?.innerText = "Import failed. Message code not recognized."
-                                    ::click on errorPopup
-                                }
-                            }
-                        }
-                        reader.readAsText(file)
-                    }
-                }
-            }
+        if (!props.loggedIn) ImportButton {
+            this.exportType = exportType
         }
         div {
             +"Export"
@@ -131,7 +74,7 @@ val FileManager = FC<FileManagerProps> { props ->
                 } else if (userData == null && props.loggedIn) scope.launch {
                     userData = downloadUserData(props.username!!)
                 } else {
-                    ::click on getHtmlElementById("exportButton")!!
+                    ::click on exportButton!!
                 }
             }
         }
@@ -144,7 +87,7 @@ val FileManager = FC<FileManagerProps> { props ->
         }
         div {
             className = CssClasses.materialIconOutlined
-            +if (exportType == ExportType.FILE) "radio_button_unchecked" else "radio_button_checked"
+            +if (exportType == ExportType.FILE) "description" else "qr_code"
             onClick = {
                 exportType = if (exportType == ExportType.FILE) ExportType.QR else ExportType.FILE
             }
