@@ -18,7 +18,6 @@ import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.Event
-import org.w3c.dom.events.EventTarget
 import org.w3c.dom.url.URL
 import react.FC
 import react.Props
@@ -37,7 +36,7 @@ external interface ExportButtonProps : Props {
     var sessionData: FullSessionServerDto?
     var userData: FullUserServerDto?
     var unsetUserData: () -> Unit
-    var exportType: ExportType
+    var exportType: ImportExportType
 }
 
 val ExportButton = FC<ExportButtonProps> { props ->
@@ -54,11 +53,11 @@ val ExportButton = FC<ExportButtonProps> { props ->
         }
         if (userAvailable) {
             ::click on exportButton!!
-            if (props.exportType == ExportType.FILE) props.unsetUserData()
+            if (props.exportType == ImportExportType.FILE) props.unsetUserData()
         }
     }
 
-    if (props.exportType == ExportType.FILE) a {
+    if (props.exportType == ImportExportType.FILE) a {
         id = "exportButton"
         hidden = true
         if (sessionAvailable) {
@@ -72,7 +71,7 @@ val ExportButton = FC<ExportButtonProps> { props ->
             href = URL.createObjectURL(file)
         }
     }
-    if (props.exportType == ExportType.QR) div {
+    if (props.exportType == ImportExportType.QR) div {
         hidden = !sessionAvailable && !userAvailable || hideQR
         className = CssClasses.qrContainerOuter
         if (sessionAvailable || userAvailable) div {
@@ -95,30 +94,8 @@ val ExportButton = FC<ExportButtonProps> { props ->
                         else DownloadUser(props.userData!!).toText(pretty = false)
                     size = 256
                     includeMargin = true
-                    /*imageSettings = object : ImageSettings {
-                    override var src = "/static/icons/icon.svg"
-                    override var height = 50
-                    override var width = 50
-                    override var excavate = false
-                }*/
                 }
             }
         }
     }
 }
-
-enum class ExportType {
-    FILE, QR;
-}
-
-fun EventTarget.addEventListenerOnceWhen(type: String, predicate: (Event) -> Boolean, callback: (Event) -> Unit) {
-    fun selfRemovingCallback(event: Event) {
-        if (predicate(event)) {
-            callback(event)
-            removeEventListener(type, ::selfRemovingCallback)
-        }
-    }
-    addEventListener(type, ::selfRemovingCallback)
-}
-
-fun Event.wasFiredHere(): Boolean = this.target == this.currentTarget

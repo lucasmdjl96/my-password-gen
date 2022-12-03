@@ -12,30 +12,30 @@ package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.DOMException
-import com.mypasswordgen.jsclient.QrReader
 import com.mypasswordgen.jsclient.QrReaderProps
 import com.mypasswordgen.jsclient.dto.DownloadCode
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
 import kotlinx.coroutines.launch
+import kotlinx.js.import
 import kotlinx.js.jso
 import kotlinx.serialization.SerializationException
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.mediacapture.MediaTrackConstraints
 import org.w3c.files.FileReader
 import org.w3c.files.get
-import react.FC
-import react.Props
-import react.dom.events.ChangeEvent
+import react.*
 import react.dom.html.InputType
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
-import react.useState
+
+private val qrReader = lazy<QrReaderProps> {
+    import("./QrReader.js")
+}
 
 external interface ImportButtonProps : Props {
-    var exportType: ExportType
+    var importType: ImportExportType
 }
 
 private val successPopup: HTMLElement?
@@ -55,16 +55,28 @@ val ImportButton = FC<ImportButtonProps> { props ->
         hideScanner = true
     }
 
-    if (props.exportType == ExportType.FILE) input {
+    if (props.importType == ImportExportType.FILE) input {
         id = "importButton"
         hidden = true
         type = InputType.file
         accept = ".json,application/json"
         multiple = false
         value = ""
-        onChange = ::handleFileChangeEvent
+        onChange = { event ->
+            if (event.target.files != null && event.target.files!!.length == 1) {
+                val file = event.target.files!![0]!!
+                if (file.type == "application/json") {
+                    val reader = FileReader()
+                    reader.onload = {
+                        val text = reader.result as String
+                        importFromText(ImportExportType.FILE, text)
+                    }
+                    reader.readAsText(file)
+                }
+            }
+        }
     }
-    if (props.exportType == ExportType.QR) {
+    if (props.importType == ImportExportType.QR) {
         div {
             hidden = hideScanner
             className = CssClasses.qrContainerOuter
@@ -74,8 +86,13 @@ val ImportButton = FC<ImportButtonProps> { props ->
                 div {
                     className = CssClasses.qrContainerInner
                     id = "importButton"
-                    if (!hideScanner) QrReader {
-                        apply(initQrReader())
+                    if (!hideScanner) {
+                        Suspense {
+                            this.fallback = ReactNode("Starting QR Scanner...")
+                            qrReader {
+                                apply(initQrReader())
+                            }
+                        }
                     }
                     onClick = {
                         if (hideScanner) {
@@ -87,53 +104,6 @@ val ImportButton = FC<ImportButtonProps> { props ->
                     }
                 }
             }
-        }
-    }
-}
-
-fun handleFileChangeEvent(event: ChangeEvent<HTMLInputElement>) {
-    if (event.target.files != null && event.target.files!!.length == 1) {
-        val file = event.target.files!![0]!!
-        if (file.type == "application/json") {
-            val reader = FileReader()
-            reader.onload = {
-                val text = reader.result as String
-                when (DownloadCode.fromText(text)) {
-                    DownloadCode.SESSION -> run {
-                        try {
-                            val session = DownloadSession.dataFromText(text)
-                            scope.launch {
-                                uploadData(session)
-                                successPopup?.innerText = "Import successful."
-                                ::click on successPopup
-                            }
-                        } catch (e: SerializationException) {
-                            errorPopup?.innerText = "Import failed. Malformed session data."
-                            ::click on errorPopup
-                        }
-                    }
-
-                    DownloadCode.USER -> run {
-                        try {
-                            val user = DownloadUser.dataFromText(text)
-                            scope.launch {
-                                uploadData(user)
-                                successPopup?.innerText = "Import successful."
-                                ::click on successPopup
-                            }
-                        } catch (e: SerializationException) {
-                            errorPopup?.innerText = "Import failed. Malformed user data."
-                            ::click on errorPopup
-                        }
-                    }
-
-                    null -> run {
-                        errorPopup?.innerText = "Import failed. Message code not recognized."
-                        ::click on errorPopup
-                    }
-                }
-            }
-            reader.readAsText(file)
         }
     }
 }
@@ -153,50 +123,52 @@ fun initQrReader(): QrReaderProps.() -> Unit = {
             ::click on errorPopup
             ::click on qrScannerContainer
         } else if (resultObj != null) {
-            val result = resultObj.text
-            console.log(result)
-            if (result != null) when (DownloadCode.fromShortText(result)) {
-                DownloadCode.SESSION -> run {
-                    try {
-                        val session =
-                            DownloadSession.dataFromText(result, pretty = false)
-                        scope.launch {
-                            uploadData(session)
-                            successPopup?.innerText = "Import successful."
-                            ::click on successPopup
-                        }
-                    } catch (e: SerializationException) {
-                        errorPopup?.innerText =
-                            "Import failed. Malformed session data."
-                        ::click on errorPopup
-                    } finally {
-                        ::click on qrScannerContainer
-                    }
-                }
+            val text = resultObj.text
+            if (text != null) importFromText(ImportExportType.QR, text)
+        }
+    }
+}
 
-                DownloadCode.USER -> run {
-                    try {
-                        val user = DownloadUser.dataFromText(result, pretty = false)
-                        scope.launch {
-                            uploadData(user)
-                            successPopup?.innerText = "Import successful."
-                            ::click on successPopup
-                        }
-                    } catch (e: SerializationException) {
-                        errorPopup?.innerText = "Import failed. Malformed user data."
-                        ::click on errorPopup
-                    } finally {
-                        ::click on qrScannerContainer
-                    }
+fun importFromText(type: ImportExportType, text: String) {
+    val code = if (type == ImportExportType.FILE) DownloadCode.fromText(text)
+    else DownloadCode.fromShortText(text)
+    when (code) {
+        DownloadCode.SESSION -> run {
+            try {
+                val session = DownloadSession.dataFromText(text, pretty = type == ImportExportType.FILE)
+                scope.launch {
+                    uploadData(session)
+                    successPopup?.innerText = "Import successful."
+                    ::click on successPopup
                 }
-
-                null -> run {
-                    errorPopup?.innerText =
-                        "Import failed. Message code not recognized."
-                    ::click on errorPopup
-                    ::click on qrScannerContainer
-                }
+            } catch (e: SerializationException) {
+                errorPopup?.innerText = "Import failed. Malformed session data."
+                ::click on errorPopup
+            } finally {
+                if (type == ImportExportType.QR) ::click on qrScannerContainer
             }
+        }
+
+        DownloadCode.USER -> run {
+            try {
+                val user = DownloadUser.dataFromText(text, pretty = type == ImportExportType.FILE)
+                scope.launch {
+                    uploadData(user)
+                    successPopup?.innerText = "Import successful."
+                    ::click on successPopup
+                }
+            } catch (e: SerializationException) {
+                errorPopup?.innerText = "Import failed. Malformed user data."
+                ::click on errorPopup
+            } finally {
+                if (type == ImportExportType.QR) ::click on qrScannerContainer
+            }
+        }
+
+        null -> run {
+            errorPopup?.innerText = "Import failed. Message code not recognized."
+            ::click on errorPopup
+            if (type == ImportExportType.QR) ::click on qrScannerContainer
         }
     }
 }

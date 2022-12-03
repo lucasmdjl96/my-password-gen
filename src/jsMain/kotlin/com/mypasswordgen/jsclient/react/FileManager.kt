@@ -27,6 +27,8 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.Event
+import org.w3c.dom.events.EventTarget
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.div
@@ -46,7 +48,7 @@ external interface FileManagerProps : Props {
 val FileManager = FC<FileManagerProps> { props ->
     var sessionData by useState<FullSessionServerDto>()
     var userData by useState<FullUserServerDto>()
-    var exportType: ExportType by useState(ExportType.FILE)
+    var importExportType: ImportExportType by useState(ImportExportType.FILE)
 
     useEffect(props.loggedIn) {
         if (props.loggedIn) sessionData = null
@@ -63,7 +65,7 @@ val FileManager = FC<FileManagerProps> { props ->
             }
         }
         if (!props.loggedIn) ImportButton {
-            this.exportType = exportType
+            this.importType = importExportType
         }
         div {
             +"Export"
@@ -83,13 +85,13 @@ val FileManager = FC<FileManagerProps> { props ->
             this.sessionData = sessionData
             this.userData = userData
             this.unsetUserData = { userData = null }
-            this.exportType = exportType
+            this.exportType = importExportType
         }
         div {
             className = CssClasses.materialIconOutlined
-            +if (exportType == ExportType.FILE) "description" else "qr_code"
+            +if (importExportType == ImportExportType.FILE) "description" else "qr_code"
             onClick = {
-                exportType = if (exportType == ExportType.FILE) ExportType.QR else ExportType.FILE
+                importExportType = if (importExportType == ImportExportType.FILE) ImportExportType.QR else ImportExportType.FILE
             }
         }
     }
@@ -185,3 +187,20 @@ inline fun IDBTransaction.storeUserData(user: UserIDBDto) {
         }
     }
 }
+
+
+enum class ImportExportType {
+    FILE, QR;
+}
+
+fun EventTarget.addEventListenerOnceWhen(type: String, predicate: (Event) -> Boolean, callback: (Event) -> Unit) {
+    fun selfRemovingCallback(event: Event) {
+        if (predicate(event)) {
+            callback(event)
+            removeEventListener(type, ::selfRemovingCallback)
+        }
+    }
+    addEventListener(type, ::selfRemovingCallback)
+}
+
+fun Event.wasFiredHere(): Boolean = this.target == this.currentTarget

@@ -5,7 +5,6 @@
 package com.mypasswordgen.jsclient
 
 import org.w3c.dom.mediacapture.MediaTrackConstraints
-import react.FC
 import react.Props
 import react.ReactElement
 
@@ -42,22 +41,3 @@ external interface QrReaderProps : Props {
         get() = definedExternally
         set(value) = definedExternally
 }
-
-external interface UseQrReaderHookProps {
-    var constraints: MediaTrackConstraints?
-        get() = definedExternally
-        set(value) = definedExternally
-    var onResult: ((result: Result?, error: Error?) -> Unit)?
-        get() = definedExternally
-        set(value) = definedExternally
-    var scanDelay: Number?
-        get() = definedExternally
-        set(value) = definedExternally
-    var videoId: String?
-        get() = definedExternally
-        set(value) = definedExternally
-}
-
-external var useQrReader: (UseQrReaderHookProps) -> Unit
-
-external val QrReader: FC<QrReaderProps>

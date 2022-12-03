@@ -53,4 +53,3 @@ external interface QRProps : Props {
 }
 
 external val QRCodeSVG: FC<QRProps>
-external val QRCodeCanvas: FC<QRProps>

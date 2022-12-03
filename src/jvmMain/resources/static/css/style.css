@@ -426,6 +426,7 @@ input + .material-icons {
     padding: 40px;
     background: hsl(0, 0%, 95%);
     cursor: none;
+    color: hsl(0, 0%, 5%)
 }
 
 
