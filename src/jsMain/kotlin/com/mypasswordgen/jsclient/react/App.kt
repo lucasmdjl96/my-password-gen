@@ -24,6 +24,7 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.browser.document
+import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
@@ -40,6 +41,7 @@ val App = { initialState: InitialState ->
         var online by useState(initialState.online && window.navigator.onLine)
         var background by useState(initialState.initialBackgroundColor)
         var cookiesAccepted by useState(initialState.cookiesAccepted)
+        var importExportType by useState(initialState.importExportType)
         var showCookieBanner by useState(initialState.cookiesAccepted == null)
         var keyboardUp by useState(false)
         var connectionOn by useState(window.navigator.onLine)
@@ -73,6 +75,11 @@ val App = { initialState: InitialState ->
                 if (!keyboardUp && online) FileManager {
                     this.loggedIn = userClient != null
                     this.username = userClient?.username
+                    this.importExportType = importExportType
+                    this.updateImportExportType = {
+                        importExportType = it
+                        localStorage.setItem("importExportType", it.code)
+                    }
                 }
             }
             MainPopup {

@@ -20,6 +20,8 @@ import com.mypasswordgen.jsclient.plugins.installDefaultRequest
 import com.mypasswordgen.jsclient.plugins.installHttpResponseValidator
 import com.mypasswordgen.jsclient.plugins.installResources
 import com.mypasswordgen.jsclient.react.App
+import com.mypasswordgen.jsclient.react.ImportExportType
+import com.mypasswordgen.jsclient.react.ImportExportType.Companion.toImportExportType
 import com.mypasswordgen.jsclient.react.scope
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -42,7 +44,8 @@ fun main() {
     val backgroundColor = localStorage.getItem("backgroundColor") ?: defaultBackgroundColor
     val cookiesAccepted = localStorage.getItem("cookiesAccepted")?.toBooleanStrict()
     val online = localStorage.getItem("online").toBoolean()
-    val initialState = InitialState(cookiesAccepted, online, backgroundColor)
+    val importExportType = localStorage.getItem("importExportType")?.toImportExportType() ?: ImportExportType.FILE
+    val initialState = InitialState(cookiesAccepted, online, backgroundColor, importExportType)
     if (cookiesAccepted == true && online) scope.launch {
         updateSession()
     }

@@ -70,6 +70,7 @@ val CookieBanner = FC<CookieBannerProps> { props ->
                         localStorage.setItem("cookiesAccepted", "true")
                         localStorage.setItem("backgroundColor", props.background)
                         localStorage.setItem("online", "false")
+                        localStorage.setItem("importExportType", ImportExportType.FILE.code)
                         registerServiceWorker()
                         openIndexedDB()
                     }

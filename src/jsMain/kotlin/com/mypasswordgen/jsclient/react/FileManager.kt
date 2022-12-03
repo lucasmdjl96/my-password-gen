@@ -43,12 +43,13 @@ private val exportButton: HTMLElement?
 external interface FileManagerProps : Props {
     var loggedIn: Boolean
     var username: String?
+    var importExportType: ImportExportType
+    var updateImportExportType: (ImportExportType) -> Unit
 }
 
 val FileManager = FC<FileManagerProps> { props ->
     var sessionData by useState<FullSessionServerDto>()
     var userData by useState<FullUserServerDto>()
-    var importExportType: ImportExportType by useState(ImportExportType.FILE)
 
     useEffect(props.loggedIn) {
         if (props.loggedIn) sessionData = null
@@ -65,7 +66,7 @@ val FileManager = FC<FileManagerProps> { props ->
             }
         }
         if (!props.loggedIn) ImportButton {
-            this.importType = importExportType
+            this.importType = props.importExportType
         }
         div {
             +"Export"
@@ -85,13 +86,16 @@ val FileManager = FC<FileManagerProps> { props ->
             this.sessionData = sessionData
             this.userData = userData
             this.unsetUserData = { userData = null }
-            this.exportType = importExportType
+            this.exportType = props.importExportType
         }
         div {
             className = CssClasses.materialIconOutlined
-            +if (importExportType == ImportExportType.FILE) "description" else "qr_code"
+            +if (props.importExportType == ImportExportType.FILE) "description" else "qr_code"
             onClick = {
-                importExportType = if (importExportType == ImportExportType.FILE) ImportExportType.QR else ImportExportType.FILE
+                props.updateImportExportType(
+                    if (props.importExportType == ImportExportType.FILE) ImportExportType.QR
+                    else ImportExportType.FILE
+                )
             }
         }
     }
@@ -129,8 +133,7 @@ suspend fun downloadUserData(username: String): FullUserServerDto? {
 }
 
 private inline fun IDBTransaction.loadUserData(
-    fromFullUserClient: FullUserClientDto,
-    intoFullUserServer: FullUserServerDto
+    fromFullUserClient: FullUserClientDto, intoFullUserServer: FullUserServerDto
 ) {
     for (fullEmailClient in fromFullUserClient.emails) {
         get<Email>(fullEmailClient.id) { email ->
@@ -189,11 +192,24 @@ inline fun IDBTransaction.storeUserData(user: UserIDBDto) {
 }
 
 
-enum class ImportExportType {
-    FILE, QR;
+enum class ImportExportType(val code: String) {
+    FILE("file"), QR("qrCode");
+
+    companion object {
+        private val fromCode = buildMap {
+            for (type in ImportExportType.values()) {
+                put(type.code, type)
+            }
+        }
+
+        fun String.toImportExportType() = fromCode[this]
+    }
+
 }
 
-fun EventTarget.addEventListenerOnceWhen(type: String, predicate: (Event) -> Boolean, callback: (Event) -> Unit) {
+fun EventTarget.addEventListenerOnceWhen(
+    type: String, predicate: (Event) -> Boolean, callback: (Event) -> Unit
+) {
     fun selfRemovingCallback(event: Event) {
         if (predicate(event)) {
             callback(event)

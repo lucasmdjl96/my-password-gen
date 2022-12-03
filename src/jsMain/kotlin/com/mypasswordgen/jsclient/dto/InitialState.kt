@@ -10,4 +10,6 @@
 
 package com.mypasswordgen.jsclient.dto
 
-class InitialState(val cookiesAccepted: Boolean?, val online: Boolean, val initialBackgroundColor: String)
+import com.mypasswordgen.jsclient.react.ImportExportType
+
+class InitialState(val cookiesAccepted: Boolean?, val online: Boolean, val initialBackgroundColor: String, val importExportType: ImportExportType)
