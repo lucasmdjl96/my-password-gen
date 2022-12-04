@@ -90,6 +90,7 @@ val FileManager = FC<FileManagerProps> { props ->
             this.exportType = props.importExportType
         }
         div {
+            id = "importExportTypeToggle"
             className = CssClasses.materialIconOutlined
             +if (props.importExportType == ImportExportType.FILE) "description" else "qr_code"
             onClick = {

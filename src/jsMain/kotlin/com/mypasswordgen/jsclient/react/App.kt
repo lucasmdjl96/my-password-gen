@@ -105,6 +105,14 @@ val App = { initialState: InitialState ->
                             preventDefault()
                             ::click on getHtmlElementById("export")
                         }
+                        if (ctrlKey && key == "m") {
+                            preventDefault()
+                            ::click on getHtmlElementById("importExportTypeToggle")
+                        }
+                        if (key == "Escape") {
+                            ::click on getHtmlElementById("qrScannerContainer")
+                            ::click on getHtmlElementById("qrCodeContainer")
+                        }
                     }
                     OnlineToggle {
                         this.cookiesAccepted = cookiesAccepted
@@ -140,6 +148,14 @@ val App = { initialState: InitialState ->
                         if (ctrlKey && key == "e") {
                             preventDefault()
                             ::click on getHtmlElementById("export")
+                        }
+                        if (ctrlKey && key == "m") {
+                            preventDefault()
+                            ::click on getHtmlElementById("importExportTypeToggle")
+                        }
+                        if (key == "Escape") {
+                            ::click on getHtmlElementById("qrScannerContainer")
+                            ::click on getHtmlElementById("qrCodeContainer")
                         }
                     }
                     LogoutButton {
