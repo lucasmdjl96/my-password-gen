@@ -13,6 +13,7 @@ package com.mypasswordgen.jsclient.react
 import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.DOMException
 import com.mypasswordgen.jsclient.QrReaderProps
+import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import com.mypasswordgen.jsclient.dto.DownloadCode
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
@@ -21,7 +22,6 @@ import kotlinx.js.import
 import kotlinx.js.jso
 import kotlinx.serialization.SerializationException
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
 import org.w3c.dom.mediacapture.MediaTrackConstraints
 import org.w3c.files.FileReader
 import org.w3c.files.get
@@ -42,8 +42,8 @@ private val successPopup: HTMLElement?
     get() = getHtmlElementById("successPopup")
 private val errorPopup: HTMLElement?
     get() = getHtmlElementById("errorPopup")
-private val qrScannerContainer: HTMLElement?
-    get() = getHtmlElementById("qrScannerContainer")
+private val importButton: HTMLElement?
+    get() = getHtmlElementById("importButton")
 
 val ImportButton = FC<ImportButtonProps> { props ->
     var hideScanner by useState(true)
@@ -77,29 +77,25 @@ val ImportButton = FC<ImportButtonProps> { props ->
     }
     if (props.importType == ImportExportType.QR) {
         div {
-            hidden = hideScanner
             className = CssClasses.qrContainerOuter
             div {
-                id = "qrScannerContainer"
-                className = CssClasses.qrContainerMid
-                div {
+                id = "importButton"
+                className = if (hideScanner) CssClasses.qrContainerOuter else CssClasses.qrContainerMid
+                ref = autoAnimateRefCallBack()
+                if (!hideScanner) div {
                     className = CssClasses.qrContainerInner
-                    id = "importButton"
-                    if (!hideScanner) {
-                        Suspense {
-                            this.fallback = ReactNode("Starting QR Scanner...")
-                            qrReader {
-                                apply(initQrReader())
-                            }
+                    Suspense {
+                        this.fallback = ReactNode("Starting QR Scanner...")
+                        qrReader {
+                            apply(initQrReader())
                         }
                     }
-                    onClick = {
-                        if (hideScanner) {
-                            showScanner()
-                            qrScannerContainer!!.addEventListenerOnceWhen("click", Event::wasFiredHere) {
-                                hideScanner()
-                            }
-                        }
+                }
+                onClick = {
+                    if (hideScanner) {
+                        showScanner()
+                    } else {
+                        hideScanner()
                     }
                 }
             }
@@ -120,7 +116,7 @@ fun initQrReader(): QrReaderProps.() -> Unit = {
         if (error != null && error is DOMException) {
             errorPopup?.innerText = "Import failed. ${error.message}."
             ::click on errorPopup
-            ::click on qrScannerContainer
+            ::click on importButton
         } else if (resultObj != null) {
             val text = resultObj.text
             if (text != null) importFromText(ImportExportType.QR, text)
@@ -144,7 +140,7 @@ fun importFromText(type: ImportExportType, text: String) {
                 errorPopup?.innerText = "Import failed. Malformed session data."
                 ::click on errorPopup
             } finally {
-                if (type == ImportExportType.QR) ::click on qrScannerContainer
+                if (type == ImportExportType.QR) ::click on importButton
             }
         }
 
@@ -160,14 +156,14 @@ fun importFromText(type: ImportExportType, text: String) {
                 errorPopup?.innerText = "Import failed. Malformed user data."
                 ::click on errorPopup
             } finally {
-                if (type == ImportExportType.QR) ::click on qrScannerContainer
+                if (type == ImportExportType.QR) ::click on importButton
             }
         }
 
         null -> run {
             errorPopup?.innerText = "Import failed. Message code not recognized."
             ::click on errorPopup
-            if (type == ImportExportType.QR) ::click on qrScannerContainer
+            if (type == ImportExportType.QR) ::click on importButton
         }
     }
 }

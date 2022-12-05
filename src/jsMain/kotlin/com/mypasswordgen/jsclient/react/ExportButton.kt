@@ -14,10 +14,10 @@ import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
 import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
 import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.QRCodeSVG
+import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
 import org.w3c.dom.url.URL
 import react.FC
 import react.Props
@@ -26,8 +26,6 @@ import react.dom.html.ReactHTML.div
 import react.useEffect
 import react.useState
 
-private val qrCodeContainer: HTMLElement?
-    get() = getHtmlElementById("qrCodeContainer")
 private val exportButton: HTMLElement?
     get() = getHtmlElementById("exportButton")
 
@@ -72,22 +70,20 @@ val ExportButton = FC<ExportButtonProps> { props ->
         }
     }
     if (props.exportType == ImportExportType.QR) div {
-        hidden = !sessionAvailable && !userAvailable || hideQR
         className = CssClasses.qrContainerOuter
-        if (sessionAvailable || userAvailable) div {
-            id = "qrCodeContainer"
-            className = CssClasses.qrContainerMid
-            div {
-                className = CssClasses.qrContainerInner
-                id = "exportButton"
-                onClick = {
-                    if (hideQR) {
-                        showQR()
-                        qrCodeContainer!!.addEventListenerOnceWhen("click", Event::wasFiredHere) {
-                            hideQR()
-                        }
-                    }
+        div {
+            id = "exportButton"
+            className = if (hideQR) CssClasses.qrContainerOuter else CssClasses.qrContainerMid
+            onClick = {
+                if (hideQR) {
+                    showQR()
+                } else {
+                    hideQR()
                 }
+            }
+            ref = autoAnimateRefCallBack()
+            if (!hideQR) div {
+                className = CssClasses.qrContainerInner
                 QRCodeSVG {
                     value =
                         if (sessionAvailable) DownloadSession(props.sessionData!!).toText(pretty = false)

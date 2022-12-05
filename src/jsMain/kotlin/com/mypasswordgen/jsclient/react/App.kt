@@ -71,6 +71,7 @@ val App = { initialState: InitialState ->
                 this.updateBackground = { color -> background = color }
             }
             div {//to fix infinite autofocus on mobile
+                ref = autoAnimateRefCallBack()
                 if (!keyboardUp && online) FileManager {
                     this.loggedIn = userClient != null
                     this.username = userClient?.username
@@ -87,6 +88,7 @@ val App = { initialState: InitialState ->
                 this.changeSuccessPopup = { showSuccessPopup = it }
             }
             main {
+                ref = autoAnimateRefCallBack()
                 className = CssClasses.container
                 TitleContainer {
                     this.loggedIn = userClient != null
@@ -105,13 +107,9 @@ val App = { initialState: InitialState ->
                             preventDefault()
                             ::click on getHtmlElementById("export")
                         }
-                        if (ctrlKey && key == "m") {
+                        if (ctrlKey && key == "q") {
                             preventDefault()
                             ::click on getHtmlElementById("importExportTypeToggle")
-                        }
-                        if (key == "Escape") {
-                            ::click on getHtmlElementById("qrScannerContainer")
-                            ::click on getHtmlElementById("qrCodeContainer")
                         }
                     }
                     OnlineToggle {
@@ -149,13 +147,9 @@ val App = { initialState: InitialState ->
                             preventDefault()
                             ::click on getHtmlElementById("export")
                         }
-                        if (ctrlKey && key == "m") {
+                        if (ctrlKey && key == "q") {
                             preventDefault()
                             ::click on getHtmlElementById("importExportTypeToggle")
-                        }
-                        if (key == "Escape") {
-                            ::click on getHtmlElementById("qrScannerContainer")
-                            ::click on getHtmlElementById("qrCodeContainer")
                         }
                     }
                     LogoutButton {
@@ -180,6 +174,7 @@ val App = { initialState: InitialState ->
                     }
                 }
             }
+            ref = autoAnimateRefCallBack()
             if (showCookieBanner) {
                 CookieBanner {
                     this.background = background

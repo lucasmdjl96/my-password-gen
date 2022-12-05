@@ -28,8 +28,6 @@ import io.ktor.http.*
 import kotlinx.browser.localStorage
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.EventTarget
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.div
@@ -209,17 +207,3 @@ enum class ImportExportType(val code: String) {
     }
 
 }
-
-fun EventTarget.addEventListenerOnceWhen(
-    type: String, predicate: (Event) -> Boolean, callback: (Event) -> Unit
-) {
-    fun selfRemovingCallback(event: Event) {
-        if (predicate(event)) {
-            callback(event)
-            removeEventListener(type, ::selfRemovingCallback)
-        }
-    }
-    addEventListener(type, ::selfRemovingCallback)
-}
-
-fun Event.wasFiredHere(): Boolean = this.target == this.currentTarget
