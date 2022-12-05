@@ -71,6 +71,7 @@ object CssClasses {
     val successPopup = ClassName("successPopup")
 
     val mainPopupContainer = ClassName("mainPopupContainer")
+    val mainPopupSubContainer = ClassName("mainPopupSubContainer")
 
     val qrContainerOuter = ClassName("qrContainerOuter")
     val qrContainerMid = ClassName("qrContainerMid")

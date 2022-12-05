@@ -96,6 +96,7 @@ val DropList = FC<DropListProps> { props ->
             +"Add"
             onClick = {
                 if (inputValue != "") props.doOnAdd(inputValue)
+                ::focus on getHtmlElementById(props.name)
             }
         }
     }

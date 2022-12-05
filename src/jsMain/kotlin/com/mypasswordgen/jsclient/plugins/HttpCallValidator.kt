@@ -10,9 +10,9 @@
 
 package com.mypasswordgen.jsclient.plugins
 
-import com.mypasswordgen.jsclient.react.click
+import com.mypasswordgen.jsclient.react.PopupType
 import com.mypasswordgen.jsclient.react.getHtmlElementById
-import com.mypasswordgen.jsclient.react.on
+import com.mypasswordgen.jsclient.react.popupEvent
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.http.*
@@ -27,13 +27,12 @@ fun HttpClientConfig<*>.installHttpResponseValidator() {
             if (exceptionResponse.status == HttpStatusCode.Unauthorized) {
                 window.location.reload()
             } else {
-                val errorPopup = getHtmlElementById("errorPopup")
+                val mainPopup = getHtmlElementById("mainPopup")
                 val regex = Regex("""
                     Text: "(.*)"
                 """.trimIndent())
                 val (message) = regex.find(clientException.message)?.destructured ?: return@handleResponseExceptionWithRequest
-                errorPopup?.innerText = message
-                ::click on errorPopup
+                mainPopup?.dispatchEvent(popupEvent(message, PopupType.ERROR))
             }
         }
     }

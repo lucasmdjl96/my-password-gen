@@ -81,12 +81,7 @@ val App = { initialState: InitialState ->
                     }
                 }
             }
-            MainPopup {
-                this.showErrorPopup = showErrorPopup
-                this.changeErrorPopup = { showErrorPopup = it }
-                this.showSuccessPopup = showSuccessPopup
-                this.changeSuccessPopup = { showSuccessPopup = it }
-            }
+            MainPopup { }
             main {
                 ref = autoAnimateRefCallBack()
                 className = CssClasses.container

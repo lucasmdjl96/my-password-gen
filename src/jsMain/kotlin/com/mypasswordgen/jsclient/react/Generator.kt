@@ -11,6 +11,7 @@
 package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
+import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import com.mypasswordgen.jsclient.clipboard
 import com.mypasswordgen.jsclient.crypto.sha256
 import kotlinx.coroutines.launch
@@ -71,7 +72,7 @@ val Generator = FC<GeneratorProps> { props ->
                     clipboard.writeText(props.password!!)
                     showPopup = true
                     if (timeout != null) clearTimeout(timeout!!)
-                    timeout = setTimeout(0.6.seconds) {
+                    timeout = setTimeout(1.2.seconds) {
                         showPopup = false
                         timeout = null
                     }
@@ -79,10 +80,10 @@ val Generator = FC<GeneratorProps> { props ->
             }
             div {
                 className = CssClasses.popupContainer
-                span {
+                ref = autoAnimateRefCallBack()
+                if (showPopup) span {
                     className = CssClasses.popup
                     +"text copied"
-                    hidden = !showPopup
                 }
             }
         }

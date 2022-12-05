@@ -11,51 +11,62 @@
 package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
-import kotlinx.js.timers.Timeout
+import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import kotlinx.js.timers.clearTimeout
 import kotlinx.js.timers.setTimeout
-import react.FC
-import react.Props
+import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.events.CustomEvent
+import org.w3c.dom.events.CustomEventInit
+import react.*
 import react.dom.html.ReactHTML.div
 import kotlin.time.Duration.Companion.seconds
 
-external interface MainPopupProps : Props {
-    var showErrorPopup: Boolean
-    var changeErrorPopup: (Boolean) -> Unit
-    var showSuccessPopup: Boolean
-    var changeSuccessPopup: (Boolean) -> Unit
-}
+external interface MainPopupProps : Props
 
-val MainPopup = FC<MainPopupProps> { props ->
+val MainPopup = FC<MainPopupProps> {
+    val parent = useRef<HTMLDivElement>(null)
+    var message by useState<String?>(null)
+    var type by useState<PopupType>()
+    useEffect(parent.current) {
+        if (parent.current != null) parent.current!!.addEventListener("popup", { event ->
+            val customEvent = event.unsafeCast<CustomEvent<PopupInfo>>()
+            message = customEvent.detail.message
+            type = customEvent.detail.type
+        })
+    }
+    rawUseEffect(dependencies = Dependencies(1) { message }, effect = {
+        val timeout = if (message != null) setTimeout(2.0.seconds) {
+            message = null
+        } else null
+        return@rawUseEffect {
+            if (timeout != null) clearTimeout(timeout)
+        }
+    })
     div {
+        ref = parent
+        id = "mainPopup"
         className = CssClasses.mainPopupContainer
         div {
-            id = "errorPopup"
-            hidden = !props.showErrorPopup
-            className = CssClasses.errorPopup
-            var timeout: Timeout? = null
-            onClick = {
-                props.changeErrorPopup(true)
-                if (timeout != null) clearTimeout(timeout!!)
-                timeout = setTimeout(2.0.seconds) {
-                    props.changeErrorPopup(false)
-                    timeout = null
-                }
-            }
-        }
-        div {
-            id = "successPopup"
-            hidden = !props.showSuccessPopup
-            className = CssClasses.successPopup
-            var timeout: Timeout? = null
-            onClick = {
-                props.changeSuccessPopup(true)
-                if (timeout != null) clearTimeout(timeout!!)
-                timeout = setTimeout(2.0.seconds) {
-                    props.changeSuccessPopup(false)
-                    timeout = null
-                }
+            className = CssClasses.mainPopupSubContainer
+            ref = autoAnimateRefCallBack()
+            if (message != null) div {
+                className =
+                    if (type == PopupType.ERROR) CssClasses.errorPopup
+                    else if (type == PopupType.SUCCESS) CssClasses.successPopup
+                    else null
+                +message!!
             }
         }
     }
 }
+
+enum class PopupType {
+    ERROR, SUCCESS;
+}
+
+data class PopupInfo(val message: String, val type: PopupType)
+
+fun popupEvent(message: String, type: PopupType) = CustomEvent("popup", object:
+    CustomEventInit<PopupInfo> {
+    override var detail = PopupInfo(message, type)
+})

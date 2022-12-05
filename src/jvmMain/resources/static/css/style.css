@@ -399,6 +399,13 @@ input + .material-icons {
     height: 0;
     position: fixed;
     top: 50px;
+    left: 0;
+}
+
+.mainPopupSubContainer {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
     text-align: center;
 }
 

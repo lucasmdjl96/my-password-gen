@@ -38,10 +38,8 @@ external interface ImportButtonProps : Props {
     var importType: ImportExportType
 }
 
-private val successPopup: HTMLElement?
-    get() = getHtmlElementById("successPopup")
-private val errorPopup: HTMLElement?
-    get() = getHtmlElementById("errorPopup")
+private val mainPopup: HTMLElement?
+    get() = getHtmlElementById("mainPopup")
 private val importButton: HTMLElement?
     get() = getHtmlElementById("importButton")
 
@@ -114,8 +112,7 @@ fun initQrReader(): QrReaderProps.() -> Unit = {
     videoContainerStyle = jso<dynamic> { width = "100%"; height = "100%" }
     onResult = { resultObj, error ->
         if (error != null && error is DOMException) {
-            errorPopup?.innerText = "Import failed. ${error.message}."
-            ::click on errorPopup
+            mainPopup?.dispatchEvent(popupEvent("Import failed. ${error.message}.", PopupType.ERROR))
             ::click on importButton
         } else if (resultObj != null) {
             val text = resultObj.text
@@ -133,12 +130,10 @@ fun importFromText(type: ImportExportType, text: String) {
                 val session = DownloadSession.dataFromText(text, pretty = type == ImportExportType.FILE)
                 scope.launch {
                     uploadData(session)
-                    successPopup?.innerText = "Import successful."
-                    ::click on successPopup
+                    mainPopup?.dispatchEvent(popupEvent("Import successful.", PopupType.SUCCESS))
                 }
             } catch (e: SerializationException) {
-                errorPopup?.innerText = "Import failed. Malformed session data."
-                ::click on errorPopup
+                mainPopup?.dispatchEvent(popupEvent("Import failed. Malformed session data.", PopupType.ERROR))
             } finally {
                 if (type == ImportExportType.QR) ::click on importButton
             }
@@ -149,20 +144,17 @@ fun importFromText(type: ImportExportType, text: String) {
                 val user = DownloadUser.dataFromText(text, pretty = type == ImportExportType.FILE)
                 scope.launch {
                     uploadData(user)
-                    successPopup?.innerText = "Import successful."
-                    ::click on successPopup
+                    mainPopup?.dispatchEvent(popupEvent("Import successful.", PopupType.SUCCESS))
                 }
             } catch (e: SerializationException) {
-                errorPopup?.innerText = "Import failed. Malformed user data."
-                ::click on errorPopup
+                mainPopup?.dispatchEvent(popupEvent("Import failed. Malformed user data.", PopupType.ERROR))
             } finally {
                 if (type == ImportExportType.QR) ::click on importButton
             }
         }
 
         null -> run {
-            errorPopup?.innerText = "Import failed. Message code not recognized."
-            ::click on errorPopup
+            mainPopup?.dispatchEvent(popupEvent("Import failed. Message code not recognized.", PopupType.ERROR))
             if (type == ImportExportType.QR) ::click on importButton
         }
     }
