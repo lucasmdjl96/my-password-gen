@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FullUserServerDto(val username: String, val emails: MutableSet<FullEmailServerDto>) {
-    constructor(username: String, builderBlock: Builder.() -> Unit = {}) : this(username, Builder().apply(builderBlock).emails)
+    constructor(username: String, builderBlock: Builder.() -> Unit = {}) : this(username, Builder().apply(builderBlock).buildEmails())
     fun addEmail(email: FullEmailServerDto) = emails.add(email)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -30,9 +30,8 @@ data class FullUserServerDto(val username: String, val emails: MutableSet<FullEm
     }
 
     class Builder {
-        val emails: MutableSet<FullEmailServerDto> = mutableSetOf()
-        val emailSet: Set<FullEmailServerDto>
-            get() = emails.toSet()
+        private val emails: MutableSet<FullEmailServerDto> = mutableSetOf()
         operator fun FullEmailServerDto.unaryPlus() = emails.add(this)
+        fun buildEmails() = emails
     }
 }
