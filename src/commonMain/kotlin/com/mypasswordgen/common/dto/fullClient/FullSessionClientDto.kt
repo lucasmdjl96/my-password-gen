@@ -14,11 +14,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FullSessionClientDto(val users: Set<FullUserClientDto>) {
-    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).userSet)
+    constructor(builderBlock: Builder.() -> Unit = {}) : this(Builder().apply(builderBlock).buildUsers())
     class Builder {
         private val users: MutableSet<FullUserClientDto> = mutableSetOf()
-        val userSet: Set<FullUserClientDto>
-            get() = users.toSet()
         operator fun FullUserClientDto.unaryPlus() = users.add(this)
+        fun buildUsers() = users.toSet()
     }
 }

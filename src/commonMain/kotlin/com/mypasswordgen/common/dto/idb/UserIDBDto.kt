@@ -14,11 +14,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserIDBDto(val id: String, val username: String, val emails: Set<EmailIDBDto>) {
-    constructor(id: String, username: String, builderBlock: Builder.() -> Unit = {}) : this(id, username, Builder().apply(builderBlock).emailSet)
+    constructor(id: String, username: String, builderBlock: Builder.() -> Unit = {}) : this(id, username, Builder().apply(builderBlock).buildEmails())
     class Builder {
         private val emails: MutableSet<EmailIDBDto> = mutableSetOf()
-        val emailSet: Set<EmailIDBDto>
-            get() = emails.toSet()
         operator fun EmailIDBDto.unaryPlus() = emails.add(this)
+        fun buildEmails() = emails.toSet()
     }
 }

@@ -14,11 +14,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FullUserClientDto(val id: String, val emails: Set<FullEmailClientDto>) {
-    constructor(id: String, builderBlock: Builder.() -> Unit = {}) : this(id, Builder().apply(builderBlock).emailSet)
+    constructor(id: String, builderBlock: Builder.() -> Unit = {}) : this(id, Builder().apply(builderBlock).buildEmails())
     class Builder {
         private val emails: MutableSet<FullEmailClientDto> = mutableSetOf()
-        val emailSet: Set<FullEmailClientDto>
-            get() = emails.toSet()
         operator fun FullEmailClientDto.unaryPlus() = emails.add(this)
+        fun buildEmails() = emails.toSet()
     }
 }
