@@ -73,18 +73,17 @@ class UserControllerTest : ControllerTestParent() {
                     dummySessionDto.sessionId
                 )
             } returns dummyUserClientDto
-            mockCall(callMock, dummySessionDto, dummyUserServerDto)
+            mockCall(callMock, dummySessionDto)
 
             val userController = UserControllerImpl(userServiceMock)
 
-            userController.post(callMock, UserRoute.Login())
+            userController.get(callMock, UserRoute.Login(dummyUserServerDto.username))
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
                 userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
             }
             coVerifyOrder {
-                callMock.receive<UserServerDto>()
                 userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
                 callMock.respond(dummyUserClientDto)
             }
@@ -98,20 +97,19 @@ class UserControllerTest : ControllerTestParent() {
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
-            mockCall(callMock, dummySessionDto, dummyUserServerDto)
+            mockCall(callMock, dummySessionDto)
 
             val userController = UserControllerImpl(userServiceMock)
 
             assertThrows<DataNotFoundException> {
-                userController.post(callMock, UserRoute.Login())
+                userController.get(callMock, UserRoute.Login(dummyUserServerDto.username))
             }
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
                 userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
             }
-            coVerifyOrder {
-                callMock.receive<UserServerDto>()
+            coVerify {
                 userServiceMock.find(dummyUserServerDto, dummySessionDto.sessionId)
             }
         }

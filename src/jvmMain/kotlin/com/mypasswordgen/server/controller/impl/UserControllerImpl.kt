@@ -27,9 +27,9 @@ class UserControllerImpl(
     private val userService: UserService
 ) : UserController {
 
-    override suspend fun post(call: ApplicationCall, userRoute: UserRoute.Login) {
+    override suspend fun get(call: ApplicationCall, userRoute: UserRoute.Login) {
         val sessionId = call.sessions.get<SessionDto>()?.sessionId ?: throw NotAuthenticatedException()
-        val userServerDto = call.receive<UserServerDto>()
+        val userServerDto = UserServerDto(userRoute.username)
         val userClientDto = userService.find(userServerDto, sessionId)
         call.respond(userClientDto)
     }

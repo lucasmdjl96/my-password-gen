@@ -184,10 +184,7 @@ val App = { initialState: InitialState ->
 }
 
 suspend fun loginUser(username: String): UserClient? {
-    val response = jsonClient.post(UserRoute.Login()) {
-        contentType(ContentType.Application.Json)
-        setBody(UserServerDto(username))
-    }
+    val response = jsonClient.get(UserRoute.Login(username))
     return if (response.status != HttpStatusCode.OK) null
     else {
         val userClientDto = response.body<UserClientDto>()

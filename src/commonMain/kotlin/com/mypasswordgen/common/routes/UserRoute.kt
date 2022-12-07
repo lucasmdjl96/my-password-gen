@@ -18,8 +18,8 @@ import kotlinx.serialization.Serializable
 class UserRoute {
 
     @Serializable
-    @Resource("/login")
-    class Login(val parent: UserRoute = UserRoute())
+    @Resource("/login/{username}")
+    class Login(val username: String, val parent: UserRoute = UserRoute())
 
     @Serializable
     @Resource("/register")

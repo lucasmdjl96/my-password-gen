@@ -49,14 +49,11 @@ class UserRoutesTest : RoutesTestParent() {
         @Test
         fun `get old email route`() = testApplication {
             every { anyConstructed<SessionControllerImpl>().validate(any(), any()) } returns dummySessionDto
-            coEvery { anyConstructed<UserControllerImpl>().post(any(), any<UserRoute.Login>()) } just Runs
-            createAndConfigureClient().post(UserRoute.Login()) {
-                contentType(ContentType.Application.Json)
-                setBody(dummyUserServerDto)
-            }
+            coEvery { anyConstructed<UserControllerImpl>().get(any(), any<UserRoute.Login>()) } just Runs
+            createAndConfigureClient().get(UserRoute.Login(dummyUserServerDto.username))
             coVerifyOrder {
                 anyConstructed<SessionControllerImpl>().validate(any(), any())
-                anyConstructed<UserControllerImpl>().post(any(), any<UserRoute.Login>())
+                anyConstructed<UserControllerImpl>().get(any(), any<UserRoute.Login>())
             }
         }
 

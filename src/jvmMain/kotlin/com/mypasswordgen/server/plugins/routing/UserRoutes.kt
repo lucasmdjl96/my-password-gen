@@ -19,7 +19,7 @@ fun Route.userRoutes() {
 
     val userController by inject<UserController>()
 
-    post<UserRoute.Login>(userController::post)
+    get<UserRoute.Login>(userController::get)
     post<UserRoute.Register>(userController::post)
     patch<UserRoute.Logout>(userController::patch)
     get<UserRoute.Export>(userController::get)

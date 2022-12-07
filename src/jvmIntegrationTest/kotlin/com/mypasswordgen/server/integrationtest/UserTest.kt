@@ -61,10 +61,7 @@ class UserTest : TestParent() {
                     )
                 }
                 val client = createAndConfigureClientWithoutCookie()
-                val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto("UserXYZ"))
-                    contentType(ContentType.Application.Json)
-                }
+                val response = client.get(UserRoute.Login("UserXYZ"))
                 assertEquals(HttpStatusCode.Unauthorized, response.status)
             }
 
@@ -81,10 +78,7 @@ class UserTest : TestParent() {
                     )
                 }
                 val client = createAndConfigureClientWithCookie(initSessionId2)
-                val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto("UserXYZ"))
-                    contentType(ContentType.Application.Json)
-                }
+                val response = client.get(UserRoute.Login("UserXYZ"))
                 assertEquals(HttpStatusCode.Unauthorized, response.status)
             }
         }
@@ -110,10 +104,7 @@ class UserTest : TestParent() {
                     )
                 }
                 val client = createAndConfigureClientWithCookie(initSessionId)
-                val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto(initUsername2))
-                    contentType(ContentType.Application.Json)
-                }
+                val response = client.get(UserRoute.Login(initUsername2))
                 assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val session = Session.findById(initSessionId)
@@ -147,10 +138,7 @@ class UserTest : TestParent() {
                     )
                 }
                 val client = createAndConfigureClientWithCookie(initSessionId)
-                val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto(initUsername2))
-                    contentType(ContentType.Application.Json)
-                }
+                val response = client.get(UserRoute.Login(initUsername2))
                 assertEquals(HttpStatusCode.NotFound, response.status)
                 testTransaction {
                     val session = Session.findById(initSessionId)
@@ -184,10 +172,7 @@ class UserTest : TestParent() {
                     )
                 }
                 val client = createAndConfigureClientWithCookie(initSessionId)
-                val response = client.post(UserRoute.Login()) {
-                    setBody(UserServerDto(initUsername))
-                    contentType(ContentType.Application.Json)
-                }
+                val response = client.get(UserRoute.Login(initUsername))
                 assertEquals(HttpStatusCode.OK, response.status)
                 val responseBody = response.body<UserClientDto>()
                 assertNotNull(responseBody)
