@@ -107,7 +107,7 @@ class SessionControllerTest : ControllerTestParent() {
 
         @Test
         fun `validate with existing session`() {
-            every { sessionServiceMock.find(dummySessionDto) } returns dummySession
+            every { sessionServiceMock.find(dummySessionDto)?.equals(null) } returns false
 
             val sessionController = SessionControllerImpl(sessionServiceMock)
 

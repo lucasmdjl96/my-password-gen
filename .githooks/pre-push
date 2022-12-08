@@ -68,14 +68,19 @@ do
       exit 1
     fi
     git checkout "$local_sha"
-    ./gradlew clean check -q > /dev/null
+    if grep -q "release" <<< "$remote_ref"; then
+      test_count=1000
+    else
+      test_count=100
+    fi
+    ./gradlew clean check -DkotestCount="$test_count" -q > /dev/null
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
       echo >&2 "Some tests failed. Not pushing."
       restore
       exit 1
     fi
-    if [ "$remote_ref" = "release" ]; then
+    if grep -q "release" <<< "$remote_ref"; then
       if ! git tag --points-at "$local_sha" | grep -Eq '^[Vv][0-9]+(?\.[0-9]+){0,2}(?-[a-zA-Z0-9]+)?$'; then
         echo >&2 "Not pushing to release without version tags."
         restore

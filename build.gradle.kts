@@ -44,12 +44,26 @@ kotlin {
                     }
                 }
             }
+            val koTest by compilations.creating {
+                defaultSourceSet {
+                    dependencies {
+                        // Compile against the main compilation's compile classpath and outputs:
+                        implementation(main.compileDependencyFiles + main.output.classesDirs)
+                    }
+                }
+            }
         }
         testRuns.create("integrationTest") {
             executionTask.configure {
                 useJUnitPlatform()
             }
             setExecutionSourceFrom(compilations.getByName("integrationTest"))
+        }
+        testRuns.create("koTest") {
+            executionTask.configure {
+                useJUnitPlatform()
+            }
+            setExecutionSourceFrom(compilations.getByName("koTest"))
         }
         withJava()
     }
@@ -103,6 +117,18 @@ kotlin {
                 implementation(libs.libraries.kotlin.junit)
             }
         }
+        val jvmKoTest by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.bundles.ktor.server.test)
+                implementation(libs.bundles.testcontainers)
+                implementation(libs.libraries.kotlin.junit)
+                implementation(libs.libraries.mockk)
+                implementation(libs.bundles.kotest)
+                implementation(libs.libraries.kotest.extensions.testcontainers)
+                implementation(libs.libraries.kotest.extensions.ktor)
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation(libs.bundles.ktor.client)
@@ -138,6 +164,24 @@ tasks.register<Copy>("jvmIntegrationTestCopyResources") {
         exclude("application.conf")
     }
     into(tasks.named<Copy>("jvmIntegrationTestProcessResources").get().destinationDir)
+}
+
+tasks.named<Copy>("jvmKoTestProcessResources") {
+    dependsOn(tasks.named("jvmKoTestCopyResources"))
+}
+
+tasks.register<Copy>("jvmKoTestCopyResources") {
+    val jvmProcessResources = tasks.named<Copy>("jvmProcessResources")
+    dependsOn(jvmProcessResources)
+    from(jvmProcessResources) {
+        exclude("application.conf")
+    }
+    into(tasks.named<Copy>("jvmKoTestProcessResources").get().destinationDir)
+}
+
+tasks.named<Test>("jvmKoTest") {
+    systemProperty("kotestCount", System.getProperty("kotestCount"))
+    environment("LOG_LEVEL", "warn")
 }
 
 tasks.named<Copy>("jvmProcessResources") {

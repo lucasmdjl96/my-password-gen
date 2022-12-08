@@ -79,6 +79,8 @@ dependencyResolutionManagement {
                 "mockk" aliasOf "io.mockk:mockk:1.9.3"
                 "postgres" aliasOf "org.postgresql:postgresql:42.5.0"
                 "koin" aliasOf "io.insert-koin:koin-ktor:3.2.2"
+                "kotest-extensions-testcontainers" aliasOf "io.kotest.extensions:kotest-extensions-testcontainers:1.3.4"
+                "kotest-extensions-ktor" aliasOf "io.kotest.extensions:kotest-assertions-ktor:1.0.3"
             }
             noVersionLibraries {
                 "wrappers-react" aliasOf "org.jetbrains.kotlin-wrappers:kotlin-react"
