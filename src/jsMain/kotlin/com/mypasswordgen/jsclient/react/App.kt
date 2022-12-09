@@ -150,7 +150,7 @@ val App = { initialState: InitialState ->
                     LogoutButton {
                         this.reset = {
                             if (online) scope.launch {
-                                logoutUser(userClient!!.username)
+                                logoutUser()
                             }
                             userClient = null
                             masterPassword = null
@@ -216,11 +216,8 @@ suspend fun registerUser(username: String): UserClient? {
     }
 }
 
-suspend fun logoutUser(username: String) {
-    jsonClient.patch(UserRoute.Logout()) {
-        contentType(ContentType.Application.Json)
-        setBody(UserServerDto(username))
-    }
+suspend fun logoutUser() {
+    jsonClient.patch(UserRoute.Logout())
 }
 
 fun getHtmlElementById(id: String) = document.getElementById(id) as? HTMLElement

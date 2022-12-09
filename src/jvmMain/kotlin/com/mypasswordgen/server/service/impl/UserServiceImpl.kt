@@ -16,6 +16,7 @@ import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.server.mapper.UserMapper
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
+import com.mypasswordgen.server.plugins.NotEnoughInformationException
 import com.mypasswordgen.server.repository.SessionRepository
 import com.mypasswordgen.server.repository.UserRepository
 import com.mypasswordgen.server.service.EmailService
@@ -56,9 +57,9 @@ class UserServiceImpl(
         }
     }
 
-    override fun logout(userServerDto: UserServerDto, sessionId: UUID): Unit = transaction {
+    override fun logout(sessionId: UUID): Unit = transaction {
         logger.debug { "logout" }
-        val user = sessionRepository.getIfLastUser(sessionId, userServerDto.username) ?: throw DataNotFoundException("Username is not from last user.")
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
         userRepository.setLastEmail(user, null)
         sessionRepository.setLastUser(sessionId, null)
     }
@@ -76,10 +77,9 @@ class UserServiceImpl(
 
     }
 
-    override fun getFullUser(userServerDto: UserServerDto, sessionId: UUID) = transaction {
+    override fun getFullUser(sessionId: UUID) = transaction {
         logger.debug { "getFullUser" }
-        val username = userServerDto.username
-        val user = userRepository.getByNameAndSession(username, sessionId) ?: throw DataNotFoundException("No such username found.")
+        val user = sessionRepository.getLastUser(sessionId) ?: throw NotEnoughInformationException("No last user found.")
         with(userMapper) {
             user.toFullUserClientDto()
         }

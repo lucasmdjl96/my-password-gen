@@ -296,18 +296,14 @@ class UserTest : FunSpec({
             should("respond with status Unauthorized") {
                 testApplication {
                     checkAll(
-                        FullDatabaseDto.arb(0..maxSize),
-                        UserServerDto.arb()
-                    ) { fullDatabaseDto, userServerDto ->
+                        FullDatabaseDto.arb(0..maxSize)
+                    ) { fullDatabaseDto ->
                         testTransaction {
                             exec(fullDatabaseDto.insertStatement())
                         }
                         val databaseBefore = fullDatabaseDto.encode()
                         val client = createAndConfigureClientWithCookie(null)
-                        val response = client.patch(UserRoute.Logout()) {
-                            contentType(ContentType.Application.Json)
-                            setBody(userServerDto)
-                        }
+                        val response = client.patch(UserRoute.Logout())
                         response shouldHaveStatus HttpStatusCode.Unauthorized
                         testTransaction {
                             FullDatabaseDto.recoverFromDatabase() shouldBe databaseBefore
@@ -322,9 +318,8 @@ class UserTest : FunSpec({
                 testApplication {
                     checkAll(
                         FullDatabaseDto.arb(0..maxSize),
-                        Arb.uuid(),
-                        UserServerDto.arb()
-                    ) { fullDatabaseDto, badSessionId, userServerDto ->
+                        Arb.uuid()
+                    ) { fullDatabaseDto, badSessionId ->
                         fullDatabaseDto.sessionSet.find { it.id != badSessionId }
                             ?: return@checkAll // The session id does exist :(
                         testTransaction {
@@ -332,10 +327,7 @@ class UserTest : FunSpec({
                         }
                         val databaseBefore = fullDatabaseDto.encode()
                         val client = createAndConfigureClientWithCookie(badSessionId)
-                        val response = client.patch(UserRoute.Logout()) {
-                            contentType(ContentType.Application.Json)
-                            setBody(userServerDto)
-                        }
+                        val response = client.patch(UserRoute.Logout())
                         response shouldHaveStatus HttpStatusCode.Unauthorized
                         testTransaction {
                             FullDatabaseDto.recoverFromDatabase() shouldBe databaseBefore
@@ -347,23 +339,19 @@ class UserTest : FunSpec({
         }
         context("with good cookie") {
             context("without last user") {
-                should("respond with NotFound") {
+                should("respond with PreconditionFailed") {
                     testApplication {
                         checkAll(
-                            FullDatabaseDto.arb(1..maxSize, 0..maxSize),
-                            UserServerDto.arb()
-                        ) { fullDatabaseDto, userServerDto ->
+                            FullDatabaseDto.arb(1..maxSize, 0..maxSize)
+                        ) { fullDatabaseDto ->
                             testTransaction {
                                 exec(fullDatabaseDto.insertStatement())
                             }
                             val session = fullDatabaseDto.sessionSet.first()
                             val databaseBefore = fullDatabaseDto.encode()
                             val client = createAndConfigureClientWithCookie(session.id)
-                            val response = client.patch(UserRoute.Logout()) {
-                                setBody(userServerDto)
-                                contentType(ContentType.Application.Json)
-                            }
-                            response shouldHaveStatus HttpStatusCode.NotFound
+                            val response = client.patch(UserRoute.Logout())
+                            response shouldHaveStatus HttpStatusCode.PreconditionFailed
                             testTransaction {
                                 FullDatabaseDto.recoverFromDatabase() shouldBe databaseBefore
                                 cleanUp()
@@ -386,10 +374,7 @@ class UserTest : FunSpec({
                             }
                             val databaseBefore = fullDatabaseDto.encode()
                             val client = createAndConfigureClientWithCookie(session.id)
-                            val response = client.patch(UserRoute.Logout()) {
-                                setBody(user.toUserServerDto())
-                                contentType(ContentType.Application.Json)
-                            }
+                            val response = client.patch(UserRoute.Logout())
                             response shouldHaveStatus HttpStatusCode.OK
                             testTransaction {
                                 val session1 = Session.findById(session.id)
@@ -532,15 +517,14 @@ class UserTest : FunSpec({
             should("respond with status Unauthorized") {
                 testApplication {
                     checkAll(
-                        FullDatabaseDto.arb(0..maxSize),
-                        Arb.string(minSize = 1)
-                    ) { fullDatabaseDto, username ->
+                        FullDatabaseDto.arb(0..maxSize)
+                    ) { fullDatabaseDto ->
                         testTransaction {
                             exec(fullDatabaseDto.insertStatement())
                         }
                         val databaseBefore = fullDatabaseDto.encode()
                         val client = createAndConfigureClientWithCookie(null)
-                        val response = client.get(UserRoute.Export(username))
+                        val response = client.get(UserRoute.Export())
                         response shouldHaveStatus HttpStatusCode.Unauthorized
                         testTransaction {
                             FullDatabaseDto.recoverFromDatabase() shouldBe databaseBefore
@@ -555,9 +539,8 @@ class UserTest : FunSpec({
                 testApplication {
                     checkAll(
                         FullDatabaseDto.arb(0..maxSize),
-                        Arb.uuid(),
-                        Arb.string(minSize = 1)
-                    ) { fullDatabaseDto, badSessionId, username ->
+                        Arb.uuid()
+                    ) { fullDatabaseDto, badSessionId ->
                         fullDatabaseDto.sessionSet.find { it.id != badSessionId }
                             ?: return@checkAll
                         testTransaction {
@@ -565,7 +548,7 @@ class UserTest : FunSpec({
                         }
                         val databaseBefore = fullDatabaseDto.encode()
                         val client = createAndConfigureClientWithCookie(badSessionId)
-                        val response = client.get(UserRoute.Export(username))
+                        val response = client.get(UserRoute.Export())
                         response shouldHaveStatus HttpStatusCode.Unauthorized
                         testTransaction {
                             FullDatabaseDto.recoverFromDatabase() shouldBe databaseBefore
@@ -576,24 +559,20 @@ class UserTest : FunSpec({
             }
         }
         context("with good cookie") {
-            context("without existing username") {
-                should("respond with NotFound") {
+            context("without last user") {
+                should("respond with PreconditionFailed") {
                     testApplication {
                         checkAll(
-                            FullDatabaseDto.arb(1..maxSize, 0..maxSize),
-                            Arb.string(minSize = 1)
-                        ) { fullDatabaseDto, username ->
-                            val session = fullDatabaseDto.sessionSet.firstOrNull { fullSessionDto ->
-                                fullSessionDto.userSet.isNotEmpty() &&
-                                        !fullSessionDto.userSet.map { it.username }.contains(username)
-                            } ?: return@checkAll
-                            val databaseBefore = fullDatabaseDto.encode()
+                            FullDatabaseDto.arb(1..maxSize, 0..maxSize)
+                        ) { fullDatabaseDto ->
                             testTransaction {
                                 exec(fullDatabaseDto.insertStatement())
                             }
+                            val session = fullDatabaseDto.sessionSet.first()
+                            val databaseBefore = fullDatabaseDto.encode()
                             val client = createAndConfigureClientWithCookie(session.id)
-                            val response = client.get(UserRoute.Export(username))
-                            response shouldHaveStatus HttpStatusCode.NotFound
+                            val response = client.get(UserRoute.Export())
+                            response shouldHaveStatus HttpStatusCode.PreconditionFailed
                             testTransaction {
                                 FullDatabaseDto.recoverFromDatabase() shouldBe databaseBefore
                                 cleanUp()
@@ -602,7 +581,7 @@ class UserTest : FunSpec({
                     }
                 }
             }
-            context("with existing username") {
+            context("with last user") {
                 should("respond with OK" and "with a FullUserClientDto from stored data") {
                     testApplication {
                         checkAll(FullDatabaseDto.arb(1..maxSize, 0..maxSize)) { fullDatabaseDto ->
@@ -613,9 +592,10 @@ class UserTest : FunSpec({
                             val databaseBefore = fullDatabaseDto.encode()
                             testTransaction {
                                 exec(fullDatabaseDto.insertStatement())
+                                exec(session.makeLastUserStatement(user))
                             }
                             val client = createAndConfigureClientWithCookie(session.id)
-                            val response = client.get(UserRoute.Export(user.username))
+                            val response = client.get(UserRoute.Export())
                             response shouldHaveStatus HttpStatusCode.OK
                             val responseBody = response.body<FullUserClientDto>()
                             responseBody.shouldNotBeNull()

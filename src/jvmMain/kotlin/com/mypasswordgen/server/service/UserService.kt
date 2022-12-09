@@ -23,10 +23,10 @@ interface UserService {
 
     fun find(userServerDto: UserServerDto, sessionId: UUID): UserClientDto
 
-    fun logout(userServerDto: UserServerDto, sessionId: UUID)
+    fun logout(sessionId: UUID)
 
     fun createFullUser(fullUser: FullUserServerDto, sessionId: UUID): UserIDBDto
 
-    fun getFullUser(userServerDto: UserServerDto, sessionId: UUID): FullUserClientDto
+    fun getFullUser(sessionId: UUID): FullUserClientDto
 
 }

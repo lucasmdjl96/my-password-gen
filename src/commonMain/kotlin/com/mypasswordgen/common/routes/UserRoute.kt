@@ -34,7 +34,7 @@ class UserRoute {
     class Import(val parent: UserRoute = UserRoute())
 
     @Serializable
-    @Resource("/export/{username}")
-    class Export(val username: String, val parent: UserRoute = UserRoute())
+    @Resource("/export")
+    class Export(val parent: UserRoute = UserRoute())
 
 }

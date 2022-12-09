@@ -177,8 +177,8 @@ class UserControllerTest : ControllerTestParent() {
 
         @Test
         fun `logout user`() = runBlocking {
-            mockCall(callMock, dummySessionDto, dummyUserServerDto)
-            every { userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId) } just Runs
+            mockCall(callMock, dummySessionDto)
+            every { userServiceMock.logout(dummySessionDto.sessionId) } just Runs
 
             val userController = UserControllerImpl(userServiceMock)
 
@@ -186,11 +186,7 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
-            }
-            coVerifyOrder {
-                callMock.receive<UserServerDto>()
-                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummySessionDto.sessionId)
                 callMock.respond(HttpStatusCode.OK)
             }
 
@@ -198,10 +194,9 @@ class UserControllerTest : ControllerTestParent() {
 
         @Test
         fun `logout user when bad data`() = runBlocking {
-            mockCall(callMock, dummySessionDto, dummyUserServerDto)
+            mockCall(callMock, dummySessionDto)
             every {
                 userServiceMock.logout(
-                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -214,11 +209,7 @@ class UserControllerTest : ControllerTestParent() {
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
-            }
-            coVerifyOrder {
-                callMock.receive<UserServerDto>()
-                userServiceMock.logout(dummyUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.logout(dummySessionDto.sessionId)
             }
 
         }
@@ -277,7 +268,6 @@ class UserControllerTest : ControllerTestParent() {
         fun `export when user already exists`() = runBlocking {
             every {
                 userServiceMock.getFullUser(
-                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } returns dummyFullUserClientDto
@@ -285,11 +275,11 @@ class UserControllerTest : ControllerTestParent() {
 
             val userController = UserControllerImpl(userServiceMock)
 
-            userController.get(callMock, UserRoute.Export(dummyUserServerDto.username))
+            userController.get(callMock, UserRoute.Export())
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.getFullUser(dummyUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.getFullUser(dummySessionDto.sessionId)
                 callMock.respond(dummyFullUserClientDto)
             }
         }
@@ -298,7 +288,6 @@ class UserControllerTest : ControllerTestParent() {
         fun `export when user doesn't exist`() = runBlocking {
             every {
                 userServiceMock.getFullUser(
-                    dummyUserServerDto,
                     dummySessionDto.sessionId
                 )
             } throws DataNotFoundException()
@@ -307,15 +296,12 @@ class UserControllerTest : ControllerTestParent() {
             val userController = UserControllerImpl(userServiceMock)
 
             assertThrows<DataNotFoundException> {
-                userController.get(callMock, UserRoute.Export(dummyUserServerDto.username))
+                userController.get(callMock, UserRoute.Export())
             }
 
             coVerifyOrder {
                 callMock.sessions.get<SessionDto>()
-                userServiceMock.getFullUser(dummyUserServerDto, dummySessionDto.sessionId)
-            }
-            coVerifyOrder {
-                userServiceMock.getFullUser(dummyUserServerDto, dummySessionDto.sessionId)
+                userServiceMock.getFullUser(dummySessionDto.sessionId)
             }
         }
     }

@@ -123,7 +123,7 @@ suspend fun downloadSessionData(): FullSessionServerDto? {
 }
 
 suspend fun downloadUserData(username: String): FullUserServerDto? {
-    val response = jsonClient.get(UserRoute.Export(username))
+    val response = jsonClient.get(UserRoute.Export())
     if (response.status != HttpStatusCode.OK) return null
     val fullUserClient = response.body<FullUserClientDto>()
     val fullUserServer = FullUserServerDto(username)

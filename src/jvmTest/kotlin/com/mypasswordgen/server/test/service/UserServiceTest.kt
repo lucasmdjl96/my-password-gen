@@ -20,6 +20,7 @@ import com.mypasswordgen.server.mapper.UserMapper
 import com.mypasswordgen.server.model.User
 import com.mypasswordgen.server.plugins.DataConflictException
 import com.mypasswordgen.server.plugins.DataNotFoundException
+import com.mypasswordgen.server.plugins.NotEnoughInformationException
 import com.mypasswordgen.server.repository.SessionRepository
 import com.mypasswordgen.server.repository.UserRepository
 import com.mypasswordgen.server.service.EmailService
@@ -198,18 +199,18 @@ class UserServiceTest : ServiceTestParent() {
         @Test
         fun `logout when user exists`() {
             val userMock = mockk<User>()
-            every { sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username) } returns userMock
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns userMock
             every { userRepositoryMock.setLastEmail(userMock, null) } just Runs
             every { sessionRepositoryMock.setLastUser(dummySessionId, null) } just Runs
             mockTransaction()
 
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
 
-            userService.logout(dummyUserServerDto, dummySessionId)
+            userService.logout(dummySessionId)
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 userRepositoryMock.setLastEmail(userMock, null)
                 sessionRepositoryMock.setLastUser(dummySessionId, null)
             }
@@ -219,18 +220,18 @@ class UserServiceTest : ServiceTestParent() {
         @Test
         fun `logout when user is not last user`() {
             val userMock = mockk<User>()
-            every { sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username) } returns null
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
 
-            assertThrows<DataNotFoundException> {
-                userService.logout(dummyUserServerDto, dummySessionId)
+            assertThrows<NotEnoughInformationException> {
+                userService.logout(dummySessionId)
             }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username)
+                sessionRepositoryMock.getLastUser(dummySessionId)
             }
             verify(exactly = 0) {
                 userRepositoryMock.setLastEmail(userMock, null)
@@ -241,18 +242,18 @@ class UserServiceTest : ServiceTestParent() {
 
         @Test
         fun `logout when no last user`() {
-            every { sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username) } returns null
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
             mockTransaction()
 
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
 
-            assertThrows<DataNotFoundException> {
-                userService.logout(dummyUserServerDto, dummySessionId)
+            assertThrows<NotEnoughInformationException> {
+                userService.logout(dummySessionId)
             }
 
             verifyOrder {
                 transaction(statement = any<Transaction.() -> Any>())
-                sessionRepositoryMock.getIfLastUser(dummySessionId, dummyUserServerDto.username)
+                sessionRepositoryMock.getLastUser(dummySessionId)
             }
             verify(exactly = 0) {
                 userRepositoryMock.setLastEmail(any(), null)
@@ -374,16 +375,16 @@ class UserServiceTest : ServiceTestParent() {
         fun `with existing user`() {
             mockTransaction()
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
-            every { userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId) } returns dummyUser
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns dummyUser
             with(userMapperMock) {
                 every { dummyUser.toFullUserClientDto() } returns dummyFullUserClientDto
             }
 
-            val result = userService.getFullUser(dummyUserServerDto, dummySessionId)
+            val result = userService.getFullUser(dummySessionId)
 
             assertEquals(dummyFullUserClientDto, result)
             verifyOrder {
-                userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
                 with(userMapperMock) {
                     dummyUser.toFullUserClientDto()
                 }
@@ -394,14 +395,14 @@ class UserServiceTest : ServiceTestParent() {
         fun `with non-existing user`() {
             mockTransaction()
             val userService = UserServiceImpl(emailServiceMock, userRepositoryMock, sessionRepositoryMock, userMapperMock)
-            every { userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId) } returns null
+            every { sessionRepositoryMock.getLastUser(dummySessionId) } returns null
 
-            assertThrows<DataNotFoundException> {
-                userService.getFullUser(dummyUserServerDto, dummySessionId)
+            assertThrows<NotEnoughInformationException> {
+                userService.getFullUser(dummySessionId)
             }
 
             verify {
-                userRepositoryMock.getByNameAndSession(dummyUserServerDto.username, dummySessionId)
+                sessionRepositoryMock.getLastUser(dummySessionId)
             }
         }
     }
