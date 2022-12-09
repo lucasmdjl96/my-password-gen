@@ -12,6 +12,7 @@ package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
 import kotlinx.coroutines.MainScope
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import react.FC
 import react.Props
@@ -28,6 +29,8 @@ import react.dom.html.ReactHTML.span
 import react.useState
 
 var scope = MainScope()
+private val mainPopup: HTMLElement?
+    get() = getHtmlElementById("mainPopup")
 
 external interface DropListProps : Props {
     var doOnChange: (String) -> Unit
@@ -73,8 +76,15 @@ val DropList = FC<DropListProps> { props ->
             value = inputValue
             autoFocus = props.autoFocus
             onChange = { event ->
-                inputValue = event.target.value
-                props.doOnChange(event.target.value)
+                if (!event.target.value.contains('%')) {
+                    inputValue = event.target.value
+                    props.doOnChange(event.target.value)
+                } else {
+                    mainPopup?.dispatchEvent(popupEvent(
+                        "${props.name.replaceFirstChar(Char::uppercaseChar)} cannot contain tha character %",
+                        PopupType.ERROR
+                    ))
+                }
             }
             onKeyDown = { event ->
                 props.doOnEnter(event)
@@ -92,10 +102,10 @@ val DropList = FC<DropListProps> { props ->
         button {
             className = CssClasses.addButton
             id = "${props.name}Add"
-            disabled = props.disableAdd || inputValue == ""
+            disabled = props.disableAdd || inputValue == "" || inputValue.contains('%')
             +"Add"
             onClick = {
-                if (inputValue != "") props.doOnAdd(inputValue)
+                if (inputValue != "" && !inputValue.contains('%')) props.doOnAdd(inputValue)
                 ::focus on getHtmlElementById(props.name)
             }
         }

@@ -12,6 +12,7 @@ package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.dto.LoginDto
+import org.w3c.dom.HTMLElement
 import react.FC
 import react.Props
 import react.dom.aria.ariaLabel
@@ -21,6 +22,9 @@ import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.useState
+
+private val mainPopup: HTMLElement?
+    get() = getHtmlElementById("mainPopup")
 
 external interface LoginProps : Props {
     var onLogin: (LoginDto) -> Unit
@@ -43,7 +47,13 @@ val Login = FC<LoginProps> { props ->
             value = username
             autoFocus = true
             onChange = {
-                username = it.target.value
+                if (!it.target.value.contains('%')) {
+                    username = it.target.value
+                } else {
+                    mainPopup?.dispatchEvent(
+                        popupEvent("Username cannot contain tha character %", PopupType.ERROR)
+                    )
+                }
             }
             onKeyDown = withReceiver {
                 if (!ctrlKey && key == "Enter") {
@@ -69,14 +79,16 @@ val Login = FC<LoginProps> { props ->
             +"Log in"
             id = "login"
             onClick = {
-                if (username != "" && password != "") props.onLogin(LoginDto(username, password))
+                if (username != "" && !username.contains('%') && password != "")
+                    props.onLogin(LoginDto(username, password))
             }
         }
         button {
             +"Register"
             id = "register"
             onClick = {
-                if (username != "" && password != "") props.onRegister(LoginDto(username, password))
+                if (username != "" && !username.contains('%') && password != "")
+                    props.onRegister(LoginDto(username, password))
             }
         }
     }
