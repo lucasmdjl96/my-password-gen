@@ -35,7 +35,7 @@ import org.w3c.workers.RegistrationOptions
 import react.create
 import react.dom.client.createRoot
 
-private const val defaultBackgroundColor = "#00008A"
+private const val defaultBackgroundColor = "#202020"
 
 lateinit var database: IDBDatabase
 

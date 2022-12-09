@@ -11,25 +11,43 @@
 
 body {
     display: flex;
-    justify-content: center
+    justify-content: center;
+    align-items: center;
+    background-color: #303030;
+    color: #e0e0e0;
+    margin: 0;
+    height: 100vh;
 }
 
 div {
     width: 50vw;
     display: flex;
+    justify-content: center;
     flex-direction: column;
     align-items: center;
     text-align: justify;
+    background-color: #202020;
+    padding: 5vh 15vw;
+}
+
+a {
+    color: #0ff;
 }
 
 @media screen and (max-width: 1000px) {
+
+    body {
+        height: auto;
+    }
     div {
         width: 70vw;
+        padding: 10vw;
     }
 }
 
 @media screen and (max-width: 700px) {
     div {
         width: 90vw;
+        padding: 5vw;
     }
 }
