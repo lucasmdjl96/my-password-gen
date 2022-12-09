@@ -15,6 +15,7 @@ apt-get -qq update
 apt-get -qq -y --no-install-recommends install git gnupg apt-transport-https wget
 echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list
 wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
+apt-get install -qq -y openssh-client
 apt-get -qq update
 apt-get install -qq -y --no-install-recommends git-secret
 cd "$JB_SPACE_WORK_DIR_PATH"
