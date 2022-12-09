@@ -21,7 +21,7 @@
         </encoder>
         <file>logs/logFile.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>log/%d{MM-yyyy}/logFile.gz</fileNamePattern>
+            <fileNamePattern>logs/%d{MM-yyyy}/logFile.gz</fileNamePattern>
             <maxHistory>30</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
