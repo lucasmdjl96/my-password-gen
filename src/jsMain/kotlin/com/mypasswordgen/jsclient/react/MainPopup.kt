@@ -11,7 +11,7 @@
 package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
-import com.mypasswordgen.jsclient.autoAnimateRefCallBack
+import com.mypasswordgen.jsclient.externals.autoAnimateRefCallBack
 import kotlinx.js.timers.clearTimeout
 import kotlinx.js.timers.setTimeout
 import org.w3c.dom.HTMLDivElement

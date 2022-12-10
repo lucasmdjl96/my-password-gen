@@ -123,7 +123,6 @@ kotlin {
                 implementation(libs.bundles.ktor.server.test)
                 implementation(libs.bundles.testcontainers)
                 implementation(libs.libraries.kotlin.junit)
-                implementation(libs.libraries.mockk)
                 implementation(libs.bundles.kotest)
                 implementation(libs.libraries.kotest.extensions.testcontainers)
                 implementation(libs.libraries.kotest.extensions.ktor)

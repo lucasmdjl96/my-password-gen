@@ -16,10 +16,14 @@ import com.mypasswordgen.common.dto.server.EmailServerDto
 import com.mypasswordgen.common.dto.server.SiteServerDto
 import com.mypasswordgen.common.routes.EmailRoute
 import com.mypasswordgen.common.routes.SiteRoute
-import com.mypasswordgen.jsclient.*
+import com.mypasswordgen.jsclient.database
 import com.mypasswordgen.jsclient.dto.EmailClient
 import com.mypasswordgen.jsclient.dto.SiteClient
 import com.mypasswordgen.jsclient.dto.UserClient
+import com.mypasswordgen.jsclient.externals.*
+import com.mypasswordgen.jsclient.jsonClient
+import com.mypasswordgen.jsclient.model.Email
+import com.mypasswordgen.jsclient.model.Site
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*

@@ -11,12 +11,12 @@
 package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
-import com.mypasswordgen.jsclient.DOMException
-import com.mypasswordgen.jsclient.QrReaderProps
-import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import com.mypasswordgen.jsclient.dto.DownloadCode
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
+import com.mypasswordgen.jsclient.externals.DOMException
+import com.mypasswordgen.jsclient.externals.QrReaderProps
+import com.mypasswordgen.jsclient.externals.autoAnimateRefCallBack
 import kotlinx.coroutines.launch
 import kotlinx.js.import
 import kotlinx.js.jso

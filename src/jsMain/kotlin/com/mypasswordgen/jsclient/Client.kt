@@ -10,11 +10,12 @@
 
 package com.mypasswordgen.jsclient
 
-import com.mypasswordgen.common.dto.idb.EmailIDBDto
-import com.mypasswordgen.common.dto.idb.SiteIDBDto
-import com.mypasswordgen.common.dto.idb.UserIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.jsclient.dto.InitialState
+import com.mypasswordgen.jsclient.externals.*
+import com.mypasswordgen.jsclient.model.Email
+import com.mypasswordgen.jsclient.model.Site
+import com.mypasswordgen.jsclient.model.User
 import com.mypasswordgen.jsclient.plugins.installContentNegotiation
 import com.mypasswordgen.jsclient.plugins.installDefaultRequest
 import com.mypasswordgen.jsclient.plugins.installHttpResponseValidator
@@ -30,7 +31,6 @@ import kotlinx.browser.document
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import org.w3c.workers.RegistrationOptions
 import react.create
 import react.dom.client.createRoot
@@ -106,15 +106,3 @@ fun openIndexedDB() {
         }*/
     }
 }
-
-@Serializable
-data class User(val id: String, val username: String)
-fun UserIDBDto.toUser() = User(this.id, this.username)
-
-@Serializable
-data class Email(val id: String, val emailAddress: String)
-fun EmailIDBDto.toEmail() = Email(this.id, this.emailAddress)
-
-@Serializable
-data class Site(val id: String, val siteName: String)
-fun SiteIDBDto.toSite() = Site(this.id, this.siteName)

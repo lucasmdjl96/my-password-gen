@@ -8,15 +8,11 @@
  * You should have received a copy of the GNU General Public License along with MyPasswordGen. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mypasswordgen.jsclient
+package com.mypasswordgen.jsclient.model
 
-import org.w3c.dom.Window
-import org.w3c.dom.events.EventTarget
+import com.mypasswordgen.common.dto.idb.UserIDBDto
+import kotlinx.serialization.Serializable
 
-abstract external class VisualViewport : EventTarget {
-    var height: Int
-    var width: Int
-}
-
-inline val Window.visualViewport: VisualViewport
-    get() = asDynamic().visualViewport as VisualViewport
+@Serializable
+data class User(val id: String, val username: String)
+fun UserIDBDto.toUser() = User(this.id, this.username)

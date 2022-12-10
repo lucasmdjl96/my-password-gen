@@ -11,9 +11,9 @@
 package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
-import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import com.mypasswordgen.jsclient.clipboard
 import com.mypasswordgen.jsclient.crypto.sha256
+import com.mypasswordgen.jsclient.externals.autoAnimateRefCallBack
 import kotlinx.coroutines.launch
 import kotlinx.js.timers.Timeout
 import kotlinx.js.timers.clearTimeout

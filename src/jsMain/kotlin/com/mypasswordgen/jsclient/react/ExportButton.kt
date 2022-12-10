@@ -13,10 +13,10 @@ package com.mypasswordgen.jsclient.react
 import com.mypasswordgen.common.dto.fullServer.FullSessionServerDto
 import com.mypasswordgen.common.dto.fullServer.FullUserServerDto
 import com.mypasswordgen.jsclient.CssClasses
-import com.mypasswordgen.jsclient.QRCodeSVG
-import com.mypasswordgen.jsclient.autoAnimateRefCallBack
 import com.mypasswordgen.jsclient.dto.DownloadSession
 import com.mypasswordgen.jsclient.dto.DownloadUser
+import com.mypasswordgen.jsclient.externals.QRCodeSVG
+import com.mypasswordgen.jsclient.externals.autoAnimateRefCallBack
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.url.URL
 import react.FC

@@ -7,22 +7,12 @@
  *
  * You should have received a copy of the GNU General Public License along with MyPasswordGen. If not, see <https://www.gnu.org/licenses/>.
  */
-@file:Suppress("NOTHING_TO_INLINE")
 
-package com.mypasswordgen.jsclient
+@file:JsModule("@formkit/auto-animate/react")
+@file:JsNonModule
+
+package com.mypasswordgen.jsclient.externals
 
 import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
-import react.RefCallback
 
-class AutoAnimateInstance<T : Element> private constructor() {
-    inline operator fun component1(): react.MutableRefObject<T> = asDynamic()[0]
-    inline operator fun component2(): (Boolean) -> Unit = asDynamic()[1]
-}
-
-fun <T : HTMLElement> autoAnimateRefCallBack(options: AutoAnimateOptionsPartial? = null): RefCallback<T> =
-    if (options == null) RefCallback { node ->
-        if (node != null) autoAnimate(node)
-    } else RefCallback { node ->
-        if (node != null) autoAnimate(node, options)
-    }
+external fun <T : Element> useAutoAnimate(autoAnimateOptionsPartial: AutoAnimateOptionsPartial = definedExternally): AutoAnimateInstance<T>

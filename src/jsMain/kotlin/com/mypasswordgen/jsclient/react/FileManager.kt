@@ -20,7 +20,11 @@ import com.mypasswordgen.common.dto.idb.SessionIDBDto
 import com.mypasswordgen.common.dto.idb.UserIDBDto
 import com.mypasswordgen.common.routes.SessionRoute
 import com.mypasswordgen.common.routes.UserRoute
-import com.mypasswordgen.jsclient.*
+import com.mypasswordgen.jsclient.CssClasses
+import com.mypasswordgen.jsclient.database
+import com.mypasswordgen.jsclient.externals.*
+import com.mypasswordgen.jsclient.jsonClient
+import com.mypasswordgen.jsclient.model.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*

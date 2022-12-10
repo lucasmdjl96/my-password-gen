@@ -13,10 +13,15 @@ package com.mypasswordgen.jsclient.react
 import com.mypasswordgen.common.dto.client.UserClientDto
 import com.mypasswordgen.common.dto.server.UserServerDto
 import com.mypasswordgen.common.routes.UserRoute
-import com.mypasswordgen.jsclient.*
+import com.mypasswordgen.jsclient.CssClasses
+import com.mypasswordgen.jsclient.database
 import com.mypasswordgen.jsclient.dto.InitialState
 import com.mypasswordgen.jsclient.dto.LoginDto
 import com.mypasswordgen.jsclient.dto.UserClient
+import com.mypasswordgen.jsclient.externals.*
+import com.mypasswordgen.jsclient.jsonClient
+import com.mypasswordgen.jsclient.model.Email
+import com.mypasswordgen.jsclient.model.User
 import csstype.Color
 import emotion.react.css
 import io.ktor.client.call.*
@@ -44,8 +49,6 @@ val App = { initialState: InitialState ->
         var showCookieBanner by useState(initialState.cookiesAccepted == null)
         var keyboardUp by useState(false)
         var connectionOn by useState(window.navigator.onLine)
-        var showErrorPopup by useState(false)
-        var showSuccessPopup by useState(false)
 
         window.visualViewport.addEventListener("resize", {
             keyboardUp = window.visualViewport.height < 500 && window.visualViewport.width < 500
