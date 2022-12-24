@@ -81,6 +81,7 @@ dependencyResolutionManagement {
                 "koin" aliasOf "io.insert-koin:koin-ktor:3.2.2"
                 "kotest-extensions-testcontainers" aliasOf "io.kotest.extensions:kotest-extensions-testcontainers:1.3.4"
                 "kotest-extensions-ktor" aliasOf "io.kotest.extensions:kotest-assertions-ktor:1.0.3"
+                "crypto-js" aliasOf "io.github.lucasmdjl96:crypto-js-wrappers-js:0.0.1"
             }
             noVersionLibraries {
                 "wrappers-react" aliasOf "org.jetbrains.kotlin-wrappers:kotlin-react"
