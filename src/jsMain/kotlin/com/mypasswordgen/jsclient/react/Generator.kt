@@ -111,7 +111,7 @@ suspend fun generatePassword(username: String, emailAddress: String, siteName: S
         """.trimIndent(),
         jso {
             keySize = 256/32
-            iterations = 5000
+            iterations = 10000
             hasher = CryptoJS.algo.SHA512
         }
     ).toString(CryptoJS.enc.Base64url)
