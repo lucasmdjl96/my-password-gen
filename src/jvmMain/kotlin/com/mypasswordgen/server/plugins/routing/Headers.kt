@@ -18,11 +18,12 @@ import io.ktor.server.routing.*
 
 fun Routing.installHeaders() {
     intercept(ApplicationCallPipeline.Call) {
-        call.response.header(
+        if (!call.response.headers.contains("Content-Security-Policy")) call.response.header(
             "Content-Security-Policy",
             "default-src 'self';" +
-                    "style-src 'unsafe-inline' 'self' https://fonts.googleapis.com;" +
-                    "script-src 'unsafe-inline' 'self';" +
+                    "style-src 'self' https://fonts.googleapis.com 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=';" +
+                    "script-src 'self' 'sha256-tjNnZyTYo984xQJOJ5EDzdfRfUwSxMt12Xxn903gNI4=';" +
+                    "worker-src 'self';" +
                     "font-src https://fonts.gstatic.com;" +
                     "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://www.paypalobjects.com;" +
                     "object-src 'none';" +
@@ -30,9 +31,13 @@ fun Routing.installHeaders() {
                     "base-uri 'none';" +
                     "frame-ancestors 'none';"
         )
-        call.response.header("X-Content-Type-Options", "nosniff")
+        if (!call.response.headers.contains("X-Content-Type-Options"))
+            call.response.header("X-Content-Type-Options", "nosniff")
         when (call.request.path()) {
-            "/static/js/service-worker.js" -> call.response.header("Service-Worker-Allowed", "/")
+            "/static/js/service-worker.js" -> {
+                if (!call.response.headers.contains("Service-Worker-Allowed"))
+                    call.response.header("Service-Worker-Allowed", "/")
+            }
         }
     }
 }

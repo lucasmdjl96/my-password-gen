@@ -8,6 +8,9 @@
  * You should have received a copy of the GNU General Public License along with MyPasswordGen. If not, see <https://www.gnu.org/licenses/>.
  */
 
+.htmlParent {
+    font-size: 62.5%;
+}
 
 body {
     margin: 0;

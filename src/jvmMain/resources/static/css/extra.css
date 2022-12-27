@@ -19,6 +19,10 @@ body {
     height: 100vh;
 }
 
+.autoHeight {
+    height: auto;
+}
+
 div {
     width: 50vw;
     display: flex;
@@ -32,6 +36,11 @@ div {
 
 a {
     color: #0ff;
+}
+
+.boldUnderline {
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 @media screen and (max-width: 1000px) {
