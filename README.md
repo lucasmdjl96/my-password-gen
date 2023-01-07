@@ -1,4 +1,4 @@
-# MyPasswordGen v1.3
+# MyPasswordGen v1.4
 
 ## About this app
 
