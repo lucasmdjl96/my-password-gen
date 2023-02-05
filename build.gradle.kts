@@ -19,7 +19,7 @@ plugins {
 }
 
 group = "com.mypasswordgen"
-version = "1.4"
+version = "2.0"
 
 repositories {
     mavenCentral()

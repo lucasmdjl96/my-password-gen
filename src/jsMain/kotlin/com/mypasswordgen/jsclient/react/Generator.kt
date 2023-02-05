@@ -91,7 +91,7 @@ val Generator = FC<GeneratorProps> { props ->
     }
 }
 
-suspend fun generatePassword(username: String, emailAddress: String, siteName: String, masterPassword: String) =
+fun generatePassword(username: String, emailAddress: String, siteName: String, masterPassword: String) =
     CryptoJS.PBKDF2(
         masterPassword,
         """

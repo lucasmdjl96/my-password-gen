@@ -1,4 +1,4 @@
-# MyPasswordGen v1.4
+# MyPasswordGen v2.0
 
 ## About this app
 
@@ -7,10 +7,8 @@ hashed) outside the device.
 
 ## Notice
 
-On version v1.2 MyPasswordGen has switched to more secure password generating algorithm. To maintain backward
-compatibility offline mode will continue to use the previous (less secure) password generating algorithm until
-version v2.0. Updating your passwords is strongly recommended, as otherwise you might lose access to them after
-v2.0
+On version v1.2 MyPasswordGen switched to more secure password generating algorithm for online mode.
+Since v2.0 MyPasswordGen this is also the case for offline mode.
 
 ## Usage
 
