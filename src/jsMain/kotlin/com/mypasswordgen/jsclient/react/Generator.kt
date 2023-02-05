@@ -12,7 +12,6 @@ package com.mypasswordgen.jsclient.react
 
 import com.mypasswordgen.jsclient.CssClasses
 import com.mypasswordgen.jsclient.clipboard
-import com.mypasswordgen.jsclient.crypto.sha256
 import com.mypasswordgen.jsclient.externals.autoAnimateRefCallBack
 import cryptojs.CryptoJS
 import kotlinx.coroutines.launch
@@ -35,7 +34,6 @@ external interface GeneratorProps : Props {
     var siteName: String?
     var password: String?
     var updatePassword: (String) -> Unit
-    var online: Boolean
 }
 
 val Generator = FC<GeneratorProps> { props ->
@@ -54,8 +52,7 @@ val Generator = FC<GeneratorProps> { props ->
                             props.username,
                             props.emailAddress!!,
                             props.siteName!!,
-                            props.masterPassword,
-                            legacy = !props.online
+                            props.masterPassword
                         )
                     )
                 }
@@ -94,15 +91,8 @@ val Generator = FC<GeneratorProps> { props ->
     }
 }
 
-suspend fun generatePassword(username: String, emailAddress: String, siteName: String, masterPassword: String, legacy: Boolean = false) =
-    if (legacy) sha256(
-        """
-            $username
-            $emailAddress
-            $siteName
-            $masterPassword
-        """.trimIndent()
-    ) else CryptoJS.PBKDF2(
+suspend fun generatePassword(username: String, emailAddress: String, siteName: String, masterPassword: String) =
+    CryptoJS.PBKDF2(
         masterPassword,
         """
             $username

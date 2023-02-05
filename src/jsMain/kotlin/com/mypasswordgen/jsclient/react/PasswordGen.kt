@@ -178,7 +178,6 @@ val PasswordGen = FC<PasswordGenProps> { props ->
         this.updatePassword = {
             password = it
         }
-        this.online = props.online
     }
 }
 
